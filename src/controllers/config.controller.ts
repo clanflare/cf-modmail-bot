@@ -2,7 +2,7 @@ import { jwtSecret } from "@/config";
 import serverConfigModel from "@/models/serverConfig.model";
 import type { Payload } from "@/types/jwt";
 import type { IServerConfig, ISupportMessage } from "@/types/models";
-import type { PostConfigContext } from "@/validators/configEditor";
+import type { PostConfigContext } from "@/validators/config";
 import type { Context } from "elysia";
 import jwt from "jsonwebtoken";
 
@@ -11,6 +11,8 @@ export const saveConfig = async (context: PostConfigContext) => {
   if (!token) {
     return {
       message: "No token provided",
+      code: 400,
+      data: undefined,
     };
   }
   const decoded = jwt.verify(token, jwtSecret) as Payload;
@@ -25,11 +27,11 @@ export const saveConfig = async (context: PostConfigContext) => {
     return {
       message: "Server not found",
       code: 404,
+      data: undefined,
     };
   }
 
   const { body } = context;
-
   const { archiveChannelId, modmailCategoryId } = body;
   if (archiveChannelId && modmailCategoryId) {
     const data = await serverConfigModel.findOneAndUpdate(
@@ -40,13 +42,16 @@ export const saveConfig = async (context: PostConfigContext) => {
       { new: true }
     );
     return {
-      message: "signup controller",
+      message: "Successful",
       data,
+      code: 200,
     };
   }
 
   return {
-    message: "signup controller",
+    message: "Invalid data",
+    code: 400,
+    data: undefined,
   };
 };
 
@@ -55,6 +60,8 @@ export const getConfig = async (context: Context) => {
   if (!token) {
     return {
       message: "No token provided",
+      code: 400,
+      data: undefined,
     };
   }
   const decoded = jwt.verify(token, jwtSecret) as Payload;
@@ -75,6 +82,13 @@ export const getConfig = async (context: Context) => {
         buttons: [],
       },
     });
+    if (!data) {
+      return {
+        message: "Failed to create server",
+        code: 500,
+        data: undefined,
+      };
+    }
     return {
       message: "Successful",
       data,

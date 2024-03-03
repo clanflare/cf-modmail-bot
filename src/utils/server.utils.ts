@@ -1,7 +1,6 @@
 import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
-// import userRouter from "@/routes/user.routes";
-import configEditorRoter from "@/routes/configEditor.routes";
+import configRouter from "@/routes/config.routes";
 import { logger } from "@grotto/logysia";
 
 const app = new Elysia();
@@ -16,6 +15,7 @@ app.onResponse((handler) => {
 
 app.use(
   swagger({
+    provider: "swagger-ui",
     path: "/docs",
     documentation: {
       info: {
@@ -37,7 +37,6 @@ app.get("/v1/content", () => {
   };
 });
 
-// app.group("/user", (app) => app.use(userRouter));
-app.group("/editor", (app) => app.use(configEditorRoter));
+app.group("/editor", (app) => app.use(configRouter));
 
 export default app;

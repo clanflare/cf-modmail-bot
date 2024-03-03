@@ -44,34 +44,36 @@ const embed = t.Object({
   ),
 });
 
-/**
- * Additional Notes:
- * - The combined sum of all characters in the title, description, footer.text, author.name, fields.name, and fields.value must be less than or equal to 6000 characters.
- */
-
 const supportMessage = t.Object({
   content: t.String(),
-  embed: t.Optional(t.Array(embed, { maxItems: 10 })),
+  embeds: t.Optional(t.Array(embed, { maxItems: 10 })),
   attachments: t.Optional(t.Array(t.String({ format: "uri" }))),
 });
 
-const botComponent = t.Recursive((This) =>
-  t.Object({
-    message: supportMessage,
-    buttons: t.Optional(
-      t.Array(
-        t.Object({
-          label: t.String(),
-          linkedComponent: This,
-          emoji: t.Optional(t.String()),
-          style: t.Optional(t.String()),
-        })
-      )
-    ),
-  })
+export type BotComponent = Static<typeof botComponent>;
+
+export const botComponent = t.Recursive(
+  (thiss) =>
+    t.Object({
+      message: supportMessage,
+      buttons: t.Optional(
+        t.Array(
+          t.Object({
+            label: t.String(),
+            linkedComponent: thiss,
+            emoji: t.Optional(t.String()),
+            style: t.Optional(t.String()),
+          })
+        )
+      ),
+    }),
+  { $id: "BotComponent" }
 );
 
 export const postConfigValidator = {
+  headers: t.Object({
+    authorization: t.String(),
+  }),
   body: t.Object({
     archiveChannelId: t.String(),
     modmailCategoryId: t.String(),
