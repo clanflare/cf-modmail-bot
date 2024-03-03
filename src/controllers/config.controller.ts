@@ -29,6 +29,7 @@ export const saveConfig = async (context: PostConfigContext) => {
   }
 
   const { body } = context;
+
   const { archiveChannelId, modmailCategoryId } = body;
   if (archiveChannelId && modmailCategoryId) {
     const data = await serverConfigModel.findOneAndUpdate(
