@@ -1,14 +1,6 @@
-import {
-  Client,
-  Events,
-  GatewayIntentBits,
-  Message,
-  Partials,
-  REST,
-  Routes,
-} from "discord.js";
 import commands from "@/commands";
 import { clientId, guildId, token } from "@/config";
+import { Client, GatewayIntentBits, Partials, REST, Routes } from "discord.js";
 import handler from "../handlers";
 
 const rest = new REST().setToken(token);
@@ -39,9 +31,9 @@ const client = new Client({
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.DirectMessageTyping,
     GatewayIntentBits.DirectMessageReactions,
-    GatewayIntentBits.GuildMessageTyping,//all intents
+    GatewayIntentBits.GuildMessageTyping, //all intents
   ],
-  partials: [Partials.Channel, Partials.Message],//all partial
+  partials: [Partials.Channel, Partials.Message], //all partial
 });
 
 handler(client);

@@ -1,51 +1,42 @@
-import banModel from "@/models/ban.model";
+import warnModel from "@/models/warn.model";
 import type { SlashCommand } from "@/types/comands";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import type { CommandInteraction } from "discord.js";
 
-export const ban: SlashCommand = {
+export const warn: SlashCommand = {
   data: new SlashCommandBuilder()
-    .setName("ban")
-    .setDescription("Ban a user.")
+    .setName("warn")
+    .setDescription("Warn a user.")
     .setDefaultMemberPermissions(0)
     .setDMPermission(false)
     .addUserOption((option) =>
       option
         .setName("user")
-        .setDescription("The user to ban")
+        .setDescription("The user to warn")
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("reason")
-        .setDescription("The reason for the ban")
+        .setDescription("The reason for the warn")
         .setRequired(true),
-    )
-    .addIntegerOption((option) =>
-      option
-        .setName("duration")
-        .setDescription("The duration of the ban in minutes. 0 for permanent.")
-        .setRequired(false),
     ),
   async execute(interaction: CommandInteraction) {
-    // Fetch the user to ban
+    // Fetch the user to warn
     const user = interaction.options.getUser("user");
     if (!user) {
       await interaction.reply("User not found.");
       return;
     }
 
-    // Fetch the reason for the ban
+    // Fetch the reason for the warn
     const reason = interaction.options.get("reason");
     if (!reason) {
       await interaction.reply("Reason not found.");
       return;
     }
 
-    // Fetch the duration of the ban
-    const duration = interaction.options.get("duration");
-
-    // Fetch the user who banned the user
+    // Fetch the user who warned the user
     const actionBy = {
       username: interaction.user.username,
       userId: interaction.user.id,
@@ -54,23 +45,21 @@ export const ban: SlashCommand = {
     // Fetch the server id
     const serverId = interaction.guildId;
 
-    // Ban the user
-    interaction.guild?.members.ban(user.id);
+    // Warn the user
+    // ToDo: Has to be implemented with IMessage with customization options
+    user.send(
+      `You have been warned in ${interaction.guild?.name} for: ${reason.value}`,
+    );
 
-    // Create a ban record
-    const ban = await banModel.create({
+    // Create a warn record
+    const warn = await warnModel.create({
       serverId,
       userId: user.id,
-      duration: duration?.value || 0,
       reason: reason.value,
       actionBy,
     });
 
     // Reply to the interaction
-    await interaction.reply(
-      `Banned ${user.username} for ${ban.reason} ${
-        ban.duration === 0 ? "permanently" : `for ${ban.duration} minutes`
-      }!`,
-    );
+    await interaction.reply(`Warned ${user.username} for: ${warn.reason}`);
   },
 };

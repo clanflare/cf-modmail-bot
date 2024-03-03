@@ -1,11 +1,13 @@
 import type { SlashCommand } from "@/types/comands";
-import { ban } from "./moderation";
-import { ping } from "./utility";
 import { Collection } from "discord.js";
+import * as moderation from "./moderation";
+import * as utility from "./utility";
 
-const collelection = new Collection<string, SlashCommand>();
+const collection = new Collection<string, SlashCommand>();
 
-collelection.set("ban", ban);
-collelection.set("ping", ping);
+const commands = { ...moderation, ...utility };
+for (const [key, value] of Object.entries(commands)) {
+  collection.set(key, value);
+}
 
-export default collelection;
+export default collection;
