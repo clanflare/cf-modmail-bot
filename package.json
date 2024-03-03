@@ -1,0 +1,24 @@
+{
+  "name": "modmail-bot",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": " bun run --hot src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@elysiajs/swagger": "^0.8.5",
+    "@grotto/logysia": "^0.1.1",
+    "discord.js": "^14.14.1",
+    "elysia": "^0.8.17",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.0"
+  }
+}
