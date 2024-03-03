@@ -6,7 +6,7 @@ import type { CommandInteraction } from "discord.js";
 export const ban: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("ban")
-    .setDescription("Ban a user.")
+    .setDescription("Ban an user.")
     .setDefaultMemberPermissions(0)
     .setDMPermission(false)
     .addUserOption((option) =>
@@ -53,6 +53,11 @@ export const ban: SlashCommand = {
 
     // Fetch the server id
     const serverId = interaction.guildId;
+
+    // ToDo: Has to be implemented with IMessage with customization options
+    await user.send(
+      `You have been banned in ${interaction.guild?.name} for: ${reason.value}`,
+    );
 
     // Ban the user
     interaction.guild?.members.ban(user.id);

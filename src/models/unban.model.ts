@@ -1,7 +1,7 @@
-import type { IBan } from "@/types/models";
+import type { IUnban } from "@/types/models";
 import { Schema, model } from "mongoose";
 
-const BanSchema = new Schema<IBan>(
+const UnbanSchema = new Schema<IUnban>(
   {
     serverId: {
       type: String,
@@ -9,10 +9,6 @@ const BanSchema = new Schema<IBan>(
     },
     userId: {
       type: String,
-      required: true,
-    },
-    duration: {
-      type: Number,
       required: true,
     },
     reason: {
@@ -32,8 +28,12 @@ const BanSchema = new Schema<IBan>(
       },
       required: true,
     },
+    ban: {
+      type: Schema.Types.ObjectId,
+      ref: "Ban",
+    },
   },
   { timestamps: true },
 );
 
-export default model<IBan>("Ban", BanSchema);
+export default model<IUnban>("Unban", UnbanSchema);

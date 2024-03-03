@@ -6,7 +6,7 @@ import type { CommandInteraction } from "discord.js";
 export const warn: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("warn")
-    .setDescription("Warn a user.")
+    .setDescription("Warn an user.")
     .setDefaultMemberPermissions(0)
     .setDMPermission(false)
     .addUserOption((option) =>
