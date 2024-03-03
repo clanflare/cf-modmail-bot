@@ -1,4 +1,4 @@
-import type { ISupportMessage } from "@/types/models";
+import type { IEmbed, ISupportMessage } from "@/types/models";
 import { isURLValid } from "@/utils/stringValidators.utils";
 import { Schema, model } from "mongoose";
 
@@ -19,7 +19,8 @@ const SupportMessageSchema = new Schema<ISupportMessage>(
       },
     },
     embeds: {
-      type: [String],
+      type: [Schema.Types.ObjectId],
+      ref: "Embed",
       default: [],
       validate: {
         validator: (v: string) => v.length <= 10, // Max 10 fields
@@ -27,7 +28,7 @@ const SupportMessageSchema = new Schema<ISupportMessage>(
       },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default model<ISupportMessage>("SupportMessage", SupportMessageSchema);

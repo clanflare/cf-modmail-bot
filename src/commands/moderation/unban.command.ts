@@ -31,7 +31,7 @@ export const unban: SlashCommand = {
     }
 
     // Fetch the reason for the unban
-    const reason = interaction.options.get("reason")?.value as string;
+    const reason = interaction.options.get("reason")?.value;
     if (!reason) {
       await interaction.reply("Reason not found.");
       return;
@@ -57,7 +57,7 @@ export const unban: SlashCommand = {
     }
 
     // Unban the user
-    interaction.guild?.members.unban(user.id, reason);
+    interaction.guild?.members.unban(user.id, reason as string);
 
     // fetch last ban record of user.id
     const ban = await banModel
@@ -68,7 +68,7 @@ export const unban: SlashCommand = {
     const unban = await unbanModel.create({
       serverId,
       userId: user.id,
-      reason: reason,
+      reason,
       actionBy,
       ban,
     });

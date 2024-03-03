@@ -30,7 +30,7 @@ export const warn: SlashCommand = {
     }
 
     // Fetch the reason for the warn
-    const reason = interaction.options.get("reason");
+    const reason = interaction.options.get("reason")?.value;
     if (!reason) {
       await interaction.reply("Reason not found.");
       return;
@@ -48,14 +48,14 @@ export const warn: SlashCommand = {
     // Warn the user
     // ToDo: Has to be implemented with IMessage with customization options
     user.send(
-      `You have been warned in ${interaction.guild?.name} for: ${reason.value}`,
+      `You have been warned in ${interaction.guild?.name} for: ${reason}`,
     );
 
     // Create a warn record
     const warn = await warnModel.create({
       serverId,
       userId: user.id,
-      reason: reason.value,
+      reason,
       actionBy,
     });
 

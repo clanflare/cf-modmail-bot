@@ -1,6 +1,6 @@
 import type { IEmbed } from "@/types/models";
 import { isISO8601Valid, isURLValid } from "@/utils/stringValidators.utils";
-import { Document, Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const EmbedSchema = new Schema(
   {
@@ -127,7 +127,7 @@ const EmbedSchema = new Schema(
       },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const fieldsToCheck = ["title", "description"];
@@ -162,7 +162,7 @@ EmbedSchema.pre<IEmbed>("validate", function (next) {
   if (totalChars > 6000) {
     this.invalidate(
       "Embed",
-      "The combined character count of specified fields exceeds the limit of 6000"
+      "The combined character count of specified fields exceeds the limit of 6000",
     );
   } else {
     next();
