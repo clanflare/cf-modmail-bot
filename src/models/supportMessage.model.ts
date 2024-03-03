@@ -7,7 +7,6 @@ const SupportMessageSchema = new Schema<ISupportMessage>(
     content: {
       type: String,
       required: [true, "Content is required"],
-      minlength: 1,
       maxlength: 2000,
     },
     attachments: {

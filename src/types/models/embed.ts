@@ -1,7 +1,6 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
 
-export type IEmbed = Document &
-  SchemaTimestampsConfig & {
+export type Embed = {
     title?: string; // 256 character limit
     description?: string; // 4096 character limit
     url?: string; // url validation
@@ -39,3 +38,5 @@ export type IEmbed = Document &
  * Additional Notes:
  * - The combined sum of all characters in the title, description, footer.text, author.name, fields.name, and fields.value must be less than or equal to 6000 characters.
  */
+
+export type IEmbed = Document & SchemaTimestampsConfig & Embed;

@@ -1,5 +1,5 @@
 import commands from "@/commands";
-import { clientId, guildId, token } from "@/config";
+import { clientId, guildId, token } from "@/config/config";
 import { Client, GatewayIntentBits, Partials, REST, Routes } from "discord.js";
 import handler from "../handlers";
 

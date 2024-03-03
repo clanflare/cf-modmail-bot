@@ -1,7 +1,7 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
-import type { ISupportMessage } from ".";
+import type { SupportMessage } from ".";
 
-export type IServerConfig = Document &
+export type IModmailConfig = Document &
   SchemaTimestampsConfig & {
     serverId: string; // server where the modmail was opened
     archiveChannelId: string; // server channel Id for threads (archived chat)
@@ -11,7 +11,7 @@ export type IServerConfig = Document &
   };
 
 export type IBotComponent = {
-  message: ISupportMessage;
+  message: SupportMessage;
   buttons: IButton[]; // max 5
   // define max limit 5 in this type
 };

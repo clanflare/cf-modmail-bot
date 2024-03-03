@@ -1,4 +1,4 @@
-import type { IBotComponent, IServerConfig } from "@/types/models";
+import type { IBotComponent, IModmailConfig } from "@/types/models";
 import { Schema, model } from "mongoose";
 
 
@@ -13,7 +13,7 @@ const botComponentValidator = (v: IBotComponent) => {
   return true;
 }
 
-const ServerConfigSchema = new Schema<IServerConfig>(
+const ModmailConfigSchema = new Schema<IModmailConfig>(
   {
     serverId: {
       type: String,
@@ -46,5 +46,5 @@ const ServerConfigSchema = new Schema<IServerConfig>(
   { timestamps: true }
 );
 
-export default model<IServerConfig>("ServerConfig", ServerConfigSchema);
+export default model<IModmailConfig>("ModmailConfig", ModmailConfigSchema);
 

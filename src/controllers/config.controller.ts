@@ -1,7 +1,7 @@
-import { jwtSecret } from "@/config";
-import serverConfigModel from "@/models/serverConfig.model";
+import { jwtSecret } from "@/config/config";
+import serverConfigModel from "@/models/modmailConfig.model";
 import type { Payload } from "@/types/jwt";
-import type { IServerConfig, ISupportMessage } from "@/types/models";
+import type { IModmailConfig, ISupportMessage } from "@/types/models";
 import type { PostConfigContext } from "@/validators/config";
 import type { Context } from "elysia";
 import jwt from "jsonwebtoken";
@@ -17,10 +17,10 @@ export const saveConfig = async (context: PostConfigContext) => {
   }
   const decoded = jwt.verify(token, jwtSecret) as Payload;
 
-  const serverConfig: IServerConfig =
+  const serverConfig: IModmailConfig =
     (await serverConfigModel.findOne({
       guildId: decoded.guildId,
-    })) || ({} as IServerConfig);
+    })) || ({} as IModmailConfig);
 
   if (!serverConfig) {
     context.set.status = 404;
@@ -66,12 +66,12 @@ export const getConfig = async (context: Context) => {
   }
   const decoded = jwt.verify(token, jwtSecret) as Payload;
 
-  const serverConfig: IServerConfig =
+  const serverConfig: IModmailConfig =
     (await serverConfigModel.findOne({
       guildId: decoded.guildId,
-    })) || ({} as IServerConfig);
+    })) || ({} as IModmailConfig);
   if (!serverConfig) {
-    const data: IServerConfig = await serverConfigModel.create({
+    const data: IModmailConfig = await serverConfigModel.create({
       serverId: decoded.guildId,
       archiveChannelId: "",
       modmailCategoryId: "",

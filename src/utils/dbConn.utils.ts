@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mongoUri } from "../config";
+import { mongoUri } from "../config/config";
 
 export default async function dbConnect() {
   if (mongoose.connection.readyState >= 1) {
