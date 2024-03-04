@@ -1,6 +1,7 @@
-import banModel from "@/models/ban.model";
+import { banService } from "@/services";
 import type { SlashCommand } from "@/types/commands";
-import { type CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import ms from "ms";
 
 export const ban: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -23,7 +24,7 @@ export const ban: SlashCommand = {
     .addIntegerOption((option) =>
       option
         .setName("duration")
-        .setDescription("The duration of the ban in minutes. 0 for permanent.")
+        .setDescription("The duration of the ban. 0 for permanent.")
         .setRequired(false),
     ),
   async execute(interaction: CommandInteraction) {
@@ -49,7 +50,7 @@ export const ban: SlashCommand = {
     }
 
     // Fetch the server id
-    const serverId = interaction.guildId;
+    const serverId = interaction.guild.id;
 
     try {
       // ToDo: Has to be implemented with IMessage with customization options
@@ -67,17 +68,17 @@ export const ban: SlashCommand = {
       await interaction.guild.members.ban(user.id, { reason });
 
       // Create a ban record
-      const ban = await banModel.create({
+      const ban = await banService.create({
         serverId,
         userId: user.id,
-        duration,
+        duration: ms(duration.toString()),
         reason,
         actionBy,
       });
 
       // Reply to the interaction
       await interaction.reply({
-        content: `Banned ${user.username} for ${reason} ${duration === 0 ? "permanently" : `for ${duration} minutes`}!`,
+        content: `Banned ${user.username} for ${ban.reason} ${duration === 0 ? "permanently" : `for ${ms(ban.duration, { long: true })}`}`,
         ephemeral: true, // Only the user who used the command can see this reply
       });
     } catch (error) {
