@@ -1,17 +1,16 @@
-import type { IBotComponent, IModmailConfig } from "@/types/models";
+import type { MessageComponent, IModmailConfig } from "@/types/models";
 import { Schema, model } from "mongoose";
 
-
-const botComponentValidator = (v: IBotComponent) => {
+const botComponentValidator = (v: MessageComponent) => {
   if (!v.message || !v.buttons || v.buttons.length > 5) return false;
-  if(v.buttons.length > 0){
+  if (v.buttons.length > 0) {
     for (const button of v.buttons) {
-      if (!button.label || !button.linkedComponent ) return false;
-      if(!botComponentValidator(button.linkedComponent)) return false;
+      if (!button.label || !button.linkedComponent) return false;
+      if (!botComponentValidator(button.linkedComponent)) return false;
     }
   }
   return true;
-}
+};
 
 const ModmailConfigSchema = new Schema<IModmailConfig>(
   {
@@ -43,8 +42,7 @@ const ModmailConfigSchema = new Schema<IModmailConfig>(
       },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default model<IModmailConfig>("ModmailConfig", ModmailConfigSchema);
-

@@ -1,20 +1,19 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
-import type { IBan } from "./ban";
-import type { IRoleModeration } from "./roleModeration";
-import type { ITimeout } from "./timeout";
+import type { Ban, RoleModeration, Timeout } from ".";
 
-export type IWarn = Document &
-  SchemaTimestampsConfig & {
-    serverId: string;
+export type Warn = {
+  serverId: string;
+  userId: string;
+  reason: string;
+  actionBy: {
+    // Use another schema for this
+    username: string;
     userId: string;
-    reason: string;
-    actionBy: {
-      // Use another schema for this
-      username: string;
-      userId: string;
-    };
-    actions: {
-      action: ITimeout | IBan | IRoleModeration;
-      actionType?: "timeout" | "ban" | "roleModeration";
-    }[];
   };
+  actions: {
+    action: Timeout | Ban | RoleModeration;
+    actionType?: "timeout" | "ban" | "roleModeration";
+  }[];
+};
+
+export interface IWarn extends Document, SchemaTimestampsConfig, Warn {}

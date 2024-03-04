@@ -1,4 +1,4 @@
-import type { SlashCommand } from "@/types/comands";
+import type { SlashCommand } from "@/types/commands";
 import { Collection } from "discord.js";
 import * as moderation from "./moderation";
 import * as utility from "./utility";

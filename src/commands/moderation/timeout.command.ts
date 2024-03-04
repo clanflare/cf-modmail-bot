@@ -1,7 +1,10 @@
 import timeoutModel from "@/models/timeout.model";
-import type { SlashCommand } from "@/types/comands";
-import { SlashCommandBuilder } from "@discordjs/builders";
-import type { CommandInteraction, GuildMember } from "discord.js";
+import type { SlashCommand } from "@/types/commands";
+import {
+  SlashCommandBuilder,
+  type CommandInteraction,
+  type GuildMember,
+} from "discord.js";
 import ms from "ms";
 
 export const timeout: SlashCommand = {
@@ -14,22 +17,21 @@ export const timeout: SlashCommand = {
       option
         .setName("user")
         .setDescription("The user to timeout.")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("duration")
         .setDescription("Duration of the timeout. 1m - 14d")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("reason")
         .setDescription("The reason for the unban")
-        .setRequired(true)
+        .setRequired(true),
     ),
   async execute(interaction: CommandInteraction) {
-
     // Fetch the user to timeout
     const member = interaction.options.getMember("user") as GuildMember;
     if (!member) {
@@ -71,7 +73,9 @@ export const timeout: SlashCommand = {
       duration,
     });
 
-    await interaction.reply(`User ${member.user.username} has been timed out for ${ms(duration)} with reason: ${reason}`);
+    await interaction.reply(
+      `User ${member.user.username} has been timed out for ${ms(duration)} with reason: ${reason}`,
+    );
     await interaction.reply("Timeout given!");
   },
 };

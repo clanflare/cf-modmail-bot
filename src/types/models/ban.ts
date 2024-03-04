@@ -1,14 +1,15 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
 
-export type IBan = Document &
-  SchemaTimestampsConfig & {
-    serverId: string;
+export type Ban = {
+  serverId: string;
+  userId: string;
+  duration: number;
+  reason: string;
+  actionBy: {
+    // Use another schema for this
+    username: string;
     userId: string;
-    duration: number;
-    reason: string;
-    actionBy: {
-      // Use another schema for this
-      username: string;
-      userId: string;
-    };
   };
+};
+
+export interface IBan extends Document, SchemaTimestampsConfig, Ban {}

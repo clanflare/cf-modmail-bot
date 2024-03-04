@@ -14,5 +14,7 @@ export type RoleModeration = {
   action: "revoked" | "granted";
 };
 
-export type IRoleModeration = Document &
-  SchemaTimestampsConfig & RoleModeration;
+export interface IRoleModeration
+  extends Document,
+    SchemaTimestampsConfig,
+    RoleModeration {}

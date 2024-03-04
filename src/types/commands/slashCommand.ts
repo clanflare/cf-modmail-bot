@@ -1,5 +1,4 @@
-import type { SlashCommandBuilder } from "@discordjs/builders";
-import type { CommandInteraction } from "discord.js";
+import type { CommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export type OptionalCommandBuilder = Omit<
   SlashCommandBuilder,

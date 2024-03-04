@@ -1,4 +1,4 @@
-import { t, type Static, type Context } from "elysia";
+import { t, type Context, type Static } from "elysia";
 
 const embed = t.Object({
   title: t.Optional(t.String({ maxLength: 256 })),
@@ -10,7 +10,7 @@ const embed = t.Object({
     t.Object({
       text: t.Optional(t.String({ maxLength: 2048 })),
       iconURL: t.Optional(t.String({ format: "uri" })),
-    })
+    }),
   ),
   image: t.Optional(t.Object({ url: t.String({ format: "uri" }) })),
   thumbnail: t.Optional(t.Object({ url: t.String({ format: "uri" }) })),
@@ -19,14 +19,14 @@ const embed = t.Object({
     t.Object({
       name: t.Optional(t.String({ maxLength: 256 })),
       url: t.Optional(t.String({ format: "uri" })),
-    })
+    }),
   ),
   author: t.Optional(
     t.Object({
       name: t.Optional(t.String({ maxLength: 256 })),
       url: t.Optional(t.String({ format: "uri" })),
       iconURL: t.Optional(t.String({ format: "uri" })),
-    })
+    }),
   ),
   fields: t.Optional(
     t.Optional(
@@ -36,11 +36,11 @@ const embed = t.Object({
             name: t.Optional(t.String({ maxLength: 256 })),
             value: t.Optional(t.String({ maxLength: 1024 })),
             inline: t.Optional(t.Boolean()),
-          })
+          }),
         ),
-        { maxItems: 25 }
-      )
-    )
+        { maxItems: 25 },
+      ),
+    ),
   ),
 });
 
@@ -50,9 +50,7 @@ const supportMessage = t.Object({
   attachments: t.Optional(t.Array(t.String({ format: "uri" }))),
 });
 
-export type BotComponent = Static<typeof botComponent>;
-
-export const botComponent = t.Recursive(
+export const messageComponent = t.Recursive(
   (thiss) =>
     t.Object({
       message: supportMessage,
@@ -63,11 +61,11 @@ export const botComponent = t.Recursive(
             linkedComponent: thiss,
             emoji: t.Optional(t.String()),
             style: t.Optional(t.String()),
-          })
-        )
+          }),
+        ),
       ),
     }),
-  { $id: "BotComponent" }
+  { $id: "MessageComponent" },
 );
 
 export const postConfigValidator = {
@@ -78,7 +76,7 @@ export const postConfigValidator = {
     archiveChannelId: t.String(),
     modmailCategoryId: t.String(),
     aiSupport: t.Optional(t.Boolean()),
-    initialMessage: botComponent,
+    initialMessage: messageComponent,
   }),
 };
 

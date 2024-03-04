@@ -1,7 +1,6 @@
 import warnModel from "@/models/warn.model";
-import type { SlashCommand } from "@/types/comands";
-import { SlashCommandBuilder } from "@discordjs/builders";
-import type { CommandInteraction } from "discord.js";
+import type { SlashCommand } from "@/types/commands";
+import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
 
 export const warn: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -23,18 +22,10 @@ export const warn: SlashCommand = {
     ),
   async execute(interaction: CommandInteraction) {
     // Fetch the user to warn
-    const user = interaction.options.getUser("user");
-    if (!user) {
-      await interaction.reply("User not found.");
-      return;
-    }
+    const user = interaction.options.getUser("user", true);
 
     // Fetch the reason for the warn
-    const reason = interaction.options.get("reason")?.value;
-    if (!reason) {
-      await interaction.reply("Reason not found.");
-      return;
-    }
+    const reason = interaction.options.get("reason", true).value;
 
     // Fetch the user who warned the user
     const actionBy = {

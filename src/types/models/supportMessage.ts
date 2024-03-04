@@ -7,6 +7,7 @@ export type SupportMessage = {
   embeds?: Embed[]; // max 10
 };
 
-export type ISupportMessage = Document &
-  SchemaTimestampsConfig &
-  SupportMessage;
+export interface ISupportMessage
+  extends Document,
+    SchemaTimestampsConfig,
+    SupportMessage {}

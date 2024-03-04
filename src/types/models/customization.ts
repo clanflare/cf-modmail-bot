@@ -8,4 +8,7 @@ export type Customization = {
   variables: string[];
 };
 
-export type ICustomization = Document & SchemaTimestampsConfig & Customization;
+export interface ICustomization
+  extends Document,
+    SchemaTimestampsConfig,
+    Customization {}
