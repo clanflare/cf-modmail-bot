@@ -34,20 +34,12 @@ export const timeout: SlashCommand = {
   async execute(interaction: CommandInteraction) {
     // Fetch the user to timeout
     const member = interaction.options.getMember("user") as GuildMember;
-    if (!member) {
-      await interaction.reply("User not found.");
-      return;
-    }
-    const reason = interaction.options.get("reason")?.value as string;
-    if (!reason) {
-      await interaction.reply("Reason not found.");
-      return;
-    }
-    const duration = ms(interaction.options.get("duration")?.value as string);
-    if (!duration) {
-      await interaction.reply("Duration not found.");
-      return;
-    }
+
+    const reason = interaction.options.get("reason", true).value as string;
+
+    const duration = ms(
+      interaction.options.get("duration", true).value as string,
+    );
 
     // Fetch the user who timed out the user
     const actionBy = {
