@@ -3,9 +3,10 @@ import type { SupportMessage } from ".";
 
 export type Customization = {
   serverId: string;
-  supportMessage: SupportMessage;
   commandId: string;
+  supportMessage: SupportMessage;
   variables: string[];
+  logChannelId: string;
 };
 
 export interface ICustomization

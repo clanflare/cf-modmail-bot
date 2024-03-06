@@ -8,4 +8,5 @@ export const defaultCustomization: Customization = {
   },
   commandId: "",
   variables: [],
+  logChannelId: "",
 };

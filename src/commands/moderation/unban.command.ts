@@ -1,6 +1,6 @@
-import banModel from "@/models/ban.model";
-import unbanModel from "@/models/unban.model";
+import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
+import { CustomDiscordError } from "@/types/errors";
 import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
 
 export const unban: SlashCommand = {
@@ -22,58 +22,47 @@ export const unban: SlashCommand = {
         .setRequired(true),
     ),
   async execute(interaction: CommandInteraction) {
-    // Fetch the user to unban
-    const user = interaction.options.getUser("user");
-    if (!user) {
-      await interaction.reply("User not found.");
+    try {
+      // Fetch the user to unban
+      const user = interaction.options.getUser("user", true);
+
+      // Fetch the reason for the unban
+      const reason = interaction.options.get("reason", true).value as string;
+
+      // Fetch the user who unbanned the user
+      const actionBy = {
+        username: interaction.user.username,
+        userId: interaction.user.id,
+      };
+
+      // Check if the command is being used in a server
+      if (!interaction.guild) {
+        await interaction.reply("This command can only be used in a server.");
+        return;
+      }
+
+      // Fetch the server id
+      const serverId = interaction.guild.id;
+
+      // Unban the user
+      const unban = await moderation.unban({
+        user: user.id,
+        reason,
+        actionBy,
+        serverId,
+      });
+
+      await interaction.reply(
+        `Unbanned ${user.username} for: ${unban.reason}.\nUser ${user.username} is not in any mutual servers with the bot.`,
+      );
+    } catch (err) {
+      if (err instanceof CustomDiscordError) {
+        await interaction.reply(err.message);
+        return;
+      }
+      console.error(err);
+      await interaction.reply("Failed to unban the user.");
       return;
     }
-
-    // Fetch the reason for the unban
-    const reason = interaction.options.get("reason")?.value;
-    if (!reason) {
-      await interaction.reply("Reason not found.");
-      return;
-    }
-
-    // Fetch the user who unbanned the user
-    const actionBy = {
-      username: interaction.user.username,
-      userId: interaction.user.id,
-    };
-
-    // Fetch the server id
-    const serverId = interaction.guildId;
-
-    // Check if the user is banned
-    const bannedUser = await interaction.guild?.bans
-      .fetch(user.id)
-      .catch(() => null);
-
-    if (!bannedUser) {
-      await interaction.reply("User is not banned.");
-      return;
-    }
-
-    // Unban the user
-    interaction.guild?.members.unban(user.id, reason as string);
-
-    // fetch last ban record of user.id
-    const ban = await banModel
-      .findOne({ userId: user.id })
-      .sort({ createdAt: -1 });
-
-    // Create an unban record
-    const unban = await unbanModel.create({
-      serverId,
-      userId: user.id,
-      reason,
-      actionBy,
-      ban,
-    });
-
-    await interaction.reply(
-      `Unbanned ${user.username} for: ${unban.reason}.\nUser ${user.username} is not in any mutual servers with the bot.`,
-    );
   },
 };

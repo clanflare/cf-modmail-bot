@@ -1,5 +1,6 @@
-import { banService } from "@/services";
+import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
+import { CustomDiscordError } from "@/types/errors";
 import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
 import ms from "ms";
 
@@ -28,63 +29,51 @@ export const ban: SlashCommand = {
         .setRequired(false),
     ),
   async execute(interaction: CommandInteraction) {
-    // Fetch the user to ban
-    const user = interaction.options.getUser("user", true);
-
-    // Fetch the reason for the ban
-    const reason = interaction.options.get("reason", true).value as string;
-
-    // Fetch the duration of the ban
-    const duration = interaction.options.get("duration") || 0;
-
-    // Fetch the user who banned the user
-    const actionBy = {
-      username: interaction.user.username,
-      userId: interaction.user.id,
-    };
-
-    // Check if the command is being used in a server
-    if (!interaction.guild) {
-      await interaction.reply("This command can only be used in a server.");
-      return;
-    }
-
-    // Fetch the server id
-    const serverId = interaction.guild.id;
-
     try {
-      // ToDo: Has to be implemented with IMessage with customization options
-      // Notify the user via DM before banning
-      try {
-        await user.send(
-          `You have been banned from ${interaction.guild.name} for: ${reason}`,
-        );
-      } catch (dmError) {
-        console.warn(`Failed to send DM to user ${user.id}: ${dmError}`);
-        // Optionally, handle or log the error. Failure to send a DM should not prevent the ban.
+      // Fetch the user to ban
+      const user = interaction.options.getUser("user", true);
+
+      // Fetch the reason for the ban
+      const reason = interaction.options.get("reason", true).value as string;
+
+      // Fetch the duration of the ban
+      const duration = interaction.options.get("duration")?.value as string;
+
+      // Fetch the user who banned the user
+      const actionBy = {
+        username: interaction.user.username,
+        userId: interaction.user.id,
+      };
+
+      // Check if the command is being used in a server
+      if (!interaction.guild) {
+        await interaction.reply("This command can only be used in a server.");
+        return;
       }
 
-      // Perform the ban
-      await interaction.guild.members.ban(user.id, { reason });
+      // Fetch the server id
+      const serverId = interaction.guild.id;
 
-      // Create a ban record
-      const ban = await banService.create({
-        serverId,
-        userId: user.id,
-        duration: ms(duration.toString()),
+      // Ban the user
+      const ban = await moderation.ban({
+        user: user.id,
         reason,
+        duration,
         actionBy,
+        serverId,
       });
 
-      // Reply to the interaction
+      // Notify the moderator about the ban
       await interaction.reply({
-        content: `Banned ${user.username} for ${ban.reason} ${duration === 0 ? "permanently" : `for ${ms(ban.duration, { long: true })}`}`,
-        ephemeral: true, // Only the user who used the command can see this reply
+        content: `Banned ${user.username} <@${user.id}>\nReason: ${ban.reason}\nDuration: ${ban.duration === 0 ? "Permanent" : `for ${ms(ban.duration, { long: true })}`}`,
       });
-    } catch (error) {
-      await interaction.reply(
-        "An error occurred while trying to ban the user.",
-      );
+    } catch (err) {
+      if (err instanceof CustomDiscordError) {
+        await interaction.reply(err.message);
+        return;
+      }
+      console.error(err);
+      await interaction.reply("Failed to ban the user.");
     }
   },
 };
