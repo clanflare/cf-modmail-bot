@@ -1,10 +1,10 @@
-import { banService, unbanService } from "@/services";
+import { banService, unbanService, timeoutService } from "@/services";
 import { CustomDiscordError } from "@/types/errors";
-import type { IBan, IUnban } from "@/types/models";
+import type { IBan, IUnban, ITimeout } from "@/types/models";
 import client from "@/utils/discordClient.utils";
 import ms from "ms";
-import { getBan, getServer, getUser } from ".";
-import { Guild, User } from "discord.js";
+import { getBan, getMember, getServer, getUser } from ".";
+import { Guild, GuildMember, User } from "discord.js";
 
 export const ban = async ({
   user,
@@ -20,13 +20,13 @@ export const ban = async ({
   server: string | Guild;
 }): Promise<IBan> => {
   // Fetch the user to ban
-  const userToBan = (await getUser(user)) as User;
+  const userToBan = await getUser(user);
 
   // Default duration to 0 if not provided
   const durationInMs = duration ? ms(duration) : 0;
 
   // Fetch the server to ban the user from
-  const serverToBanFrom = getServer(server) as Guild;
+  const serverToBanFrom = getServer(server);
 
   // Check if the user is banned
   const bannedUser = await getBan({ server: serverToBanFrom, user: userToBan });
@@ -37,7 +37,7 @@ export const ban = async ({
     // ToDo: Has to be implemented with IMessage with customization options
     // Notify the user via DM before banning
     await userToBan.send(
-      `You have been banned from ${serverToBanFrom.name}.\nReason: ${reason}`,
+      `You have been banned from ${serverToBanFrom.name}.\nReason: ${reason}`
     );
   } catch (dmError: any) {
     if (dmError.code === 50007) {
@@ -46,16 +46,8 @@ export const ban = async ({
   }
 
   // Check if the bot can ban the user and if the user is higher in the hierarchy
-  if (
-    !serverToBanFrom.members.me?.permissions.has("BanMembers") ||
-    !serverToBanFrom.members.resolve(userToBan)?.bannable ||
-    (serverToBanFrom.members.resolve(userToBan)?.roles.highest.position &&
-      serverToBanFrom.members.me?.roles.highest.position! <=
-        serverToBanFrom.members.resolve(userToBan)?.roles.highest.position!)
-  ) {
-    throw new CustomDiscordError(
-      "I don't have permission to ban this user or the user is higher in the hierarchy.",
-    );
+  if (!serverToBanFrom.members.resolve(userToBan)?.bannable) {
+    throw new CustomDiscordError("I don't have permission to ban this user.");
   }
 
   // Ban the user
@@ -73,7 +65,11 @@ export const ban = async ({
   await serverToBanFrom.systemChannel?.send({
     content: `Banned ${userToBan.username} <@${userToBan.id}>
     Reason: ${reason}
-    Duration: ${durationInMs === 0 ? "Permanent" : `for ${ms(durationInMs, { long: true })}`}`,
+    Duration: ${
+      durationInMs === 0
+        ? "Permanent"
+        : `for ${ms(durationInMs, { long: true })}`
+    }`,
   });
 
   // Create a ban record
@@ -138,3 +134,55 @@ export const unban = async ({
     ban,
   });
 };
+
+export const timeout = async ({
+  user,
+  reason,
+  duration,
+  actionBy = { username: client.user?.username || "system", userId: client.user?.id || "0"},// or should never ideally occur fix later if issues
+  server,
+}: {
+  user: string | User | GuildMember;
+  reason: string;
+  duration: string;
+  actionBy: { username: string; userId: string };
+  server: string | Guild;
+}): Promise<ITimeout> => {
+  // Fetch the user to timeout
+  const member = await getMember(user, server);
+  if (member.isCommunicationDisabled()) {
+    throw new CustomDiscordError("User is already timed out.");
+  }
+  const durationInMs = ms(duration);
+
+  if (!member.manageable) {
+    throw new CustomDiscordError(
+      "I don't have permission to timeout this user."
+    );
+  }
+
+  await member.timeout(durationInMs, reason);
+
+  await member.send(
+    `You have been timed out from ${
+      member.guild.name
+    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
+  );
+
+  await member.guild.systemChannel?.send({
+    content: `TimedOut ${member.user.username} <@${member.id}>
+  Reason: ${reason}
+  Duration: ${ms(durationInMs, { long: true })}`,
+  });
+
+  return await timeoutService.create({
+    serverId: member.guild.id,
+    userId: member.id,
+    actionBy,
+    reason,
+    duration: durationInMs,
+  });
+};
+
+//change all export to be function export rather than constant function export because of function hoisting which does not happen in cosnt export
+//maybe rename server to guild everywhere for consistency

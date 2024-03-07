@@ -1,5 +1,6 @@
-import timeoutModel from "@/models/timeout.model";
 import type { SlashCommand } from "@/types/commands";
+import { moderation } from "@/action";
+import { timeoutService } from "@/services";
 import {
   SlashCommandBuilder,
   type CommandInteraction,
@@ -17,19 +18,19 @@ export const timeout: SlashCommand = {
       option
         .setName("user")
         .setDescription("The user to timeout.")
-        .setRequired(true),
+        .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("duration")
         .setDescription("Duration of the timeout. 1m - 14d")
-        .setRequired(true),
+        .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("reason")
         .setDescription("The reason for the unban")
-        .setRequired(true),
+        .setRequired(true)
     ),
   async execute(interaction: CommandInteraction) {
     // Fetch the user to timeout
@@ -37,9 +38,7 @@ export const timeout: SlashCommand = {
 
     const reason = interaction.options.get("reason", true).value as string;
 
-    const duration = ms(
-      interaction.options.get("duration", true).value as string,
-    );
+    const duration = interaction.options.get("duration", true).value as string;
 
     // Fetch the user who timed out the user
     const actionBy = {
@@ -47,27 +46,29 @@ export const timeout: SlashCommand = {
       userId: interaction.user.id,
     };
 
-    // Fetch the server id
-    const serverId = interaction.guildId;
-
     // Timeout the user
-    await member.timeout(duration, reason);
-    await member.send(
-      `You have been timed out in ${interaction.guild?.name} for: ${reason}`,
-    );
-
-    // Create a timeout record
-    await timeoutModel.create({
-      userId: member.id,
-      serverId,
-      actionBy,
+    await moderation.timeout({
+      user: member,
       reason,
       duration,
+      actionBy,
+      server: member.guild, // workaround for guild not being available in interaction because of cache thingy , look into it and the types
     });
 
+    // Create a timeout record
+    await timeoutService.create({
+      serverId: member.guild.id,
+      userId: member.id,
+      actionBy,
+      reason,
+      duration: ms(duration),
+    });
+
+
     await interaction.reply(
-      `User ${member.user.username} has been timed out for ${ms(duration)} with reason: ${reason}`,
+      `User ${member.user.username} has been timed out for ${ms(
+        duration
+      )} with reason: ${reason}`
     );
-    await interaction.reply("Timeout given!");
   },
 };
