@@ -84,7 +84,6 @@ export const unban = async ({
   const serverToUnbanFrom = (await getServer(server)) as Guild;
 
   // Check if the user is banned
-  // // Check if the user is banned
   const bannedUser = await getBan({
     server: serverToUnbanFrom,
     user: userToUnban,
