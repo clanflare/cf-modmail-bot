@@ -18,14 +18,14 @@ export const getUser = async (user: string | User) => {
   }
 };
 
-export const getServer = async (server: string | Guild) => {
+export const getServer = (server: string | Guild) => {
   // if server is type of guild return server
   if (server instanceof Guild) return server;
 
   // if server is type of string return server
   if (typeof server === "string") {
     try {
-      const fetchedServer = await client.guilds.fetch(server);
+      const fetchedServer = client.guilds.cache.get(server);
       return fetchedServer;
     } catch (error) {
       console.error(`Failed to fetch server: ${error}`);

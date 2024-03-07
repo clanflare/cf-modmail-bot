@@ -26,7 +26,7 @@ export const ban = async ({
   const durationInMs = duration ? ms(duration) : 0;
 
   // Fetch the server to ban the user from
-  const serverToBanFrom = (await getServer(server)) as Guild;
+  const serverToBanFrom = getServer(server) as Guild;
 
   // Check if the user is banned
   const bannedUser = await getBan({ server: serverToBanFrom, user: userToBan });
@@ -45,8 +45,28 @@ export const ban = async ({
     }
   }
 
+  // Check if the bot can ban the user and if the user is higher in the hierarchy
+  if (
+    !serverToBanFrom.members.me?.permissions.has("BanMembers") ||
+    !serverToBanFrom.members.resolve(userToBan)?.bannable ||
+    (serverToBanFrom.members.resolve(userToBan)?.roles.highest.position &&
+      serverToBanFrom.members.me?.roles.highest.position! <=
+        serverToBanFrom.members.resolve(userToBan)?.roles.highest.position!)
+  ) {
+    throw new CustomDiscordError(
+      "I don't have permission to ban this user or the user is higher in the hierarchy.",
+    );
+  }
+
   // Ban the user
-  await serverToBanFrom.members.ban(userToBan, { reason });
+  try {
+    await serverToBanFrom.members.ban(userToBan, { reason });
+  } catch (banError: any) {
+    if (banError.code === 50013) {
+      throw new CustomDiscordError("I don't have permission to ban this user.");
+    }
+    throw banError;
+  }
 
   // ToDo: Has to be implemented with IMessage with customization options
   // Notify the server about the ban
@@ -78,10 +98,10 @@ export const unban = async ({
   server: string | Guild;
 }): Promise<IUnban> => {
   // Fetch the user to unban
-  const userToUnban = (await client.users.fetch(user)) as User;
+  const userToUnban = (await getUser(user)) as User;
 
   // Fetch the server
-  const serverToUnbanFrom = (await getServer(server)) as Guild;
+  const serverToUnbanFrom = getServer(server) as Guild;
 
   // Check if the user is banned
   const bannedUser = await getBan({
