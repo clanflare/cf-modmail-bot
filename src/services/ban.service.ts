@@ -8,6 +8,6 @@ export const getBans = async (
 ): Promise<IBan[]> => model.find(query).exec();
 
 export const getLatestBan = async (
-  query: Partial<Pick<Ban, "serverId" | "userId" | "actionBy">>,
-): Promise<IBan> => model.findOne(query).sort({ createdAt: -1 }).exec() as Promise<IBan>;
-
+  query: Partial<Pick<Ban, "serverId" | "userId" | "actionBy" | "reason">>,
+): Promise<IBan> =>
+  model.findOne(query).sort({ createdAt: -1 }).exec() as Promise<IBan>;

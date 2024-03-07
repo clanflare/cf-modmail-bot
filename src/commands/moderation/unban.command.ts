@@ -41,15 +41,12 @@ export const unban: SlashCommand = {
         return;
       }
 
-      // Fetch the server id
-      const serverId = interaction.guild.id;
-
       // Unban the user
       const unban = await moderation.unban({
-        user: user.id,
+        user,
         reason,
         actionBy,
-        serverId,
+        server: interaction.guild,
       });
 
       await interaction.reply(

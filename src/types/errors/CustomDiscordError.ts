@@ -1,23 +1,18 @@
-// Custom Discord Error -> message: string, code: number, stack: 
+// Custom Discord Error -> message: string, code: number, stack:
 
 export class CustomDiscordError extends Error {
-    constructor(message: string, code: number) {
-        super(message);
-        this.name = "CustomDiscordError";
-        this.code = code;
-    }
+  constructor(message: string) {
+    super(message);
+    this.name = "CustomDiscordError";
+  }
 
-    code: number;
+  toJSON() {
+    return {
+      message: this.message,
+    };
+  }
 
-    toJSON() {
-        return {
-            message: this.message,
-            code: this.code,
-        };
-    }
-
-    toString() {
-        return `CustomDiscordError: ${this.message}`;
-    }
-
+  toString() {
+    return `CustomDiscordError: ${this.message}`;
+  }
 }

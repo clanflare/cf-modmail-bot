@@ -1,1 +1,1 @@
-export * from './CustomDiscordError';
+export * from "./CustomDiscordError";

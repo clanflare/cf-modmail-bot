@@ -51,16 +51,13 @@ export const ban: SlashCommand = {
         return;
       }
 
-      // Fetch the server id
-      const serverId = interaction.guild.id;
-
       // Ban the user
       const ban = await moderation.ban({
         user: user.id,
         reason,
         duration,
         actionBy,
-        serverId,
+        server: interaction.guild,
       });
 
       // Notify the moderator about the ban
