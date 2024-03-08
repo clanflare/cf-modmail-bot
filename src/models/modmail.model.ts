@@ -3,9 +3,9 @@ import { Schema, model } from "mongoose";
 
 const ModmailSchema = new Schema<IModmail>(
   {
-    serverId: {
+    guildId: {
       type: String,
-      required: [true, "Server ID is required"],
+      required: [true, "Guild ID is required"],
     },
     userId: {
       type: String,

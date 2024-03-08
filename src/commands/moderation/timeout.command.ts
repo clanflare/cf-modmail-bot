@@ -52,12 +52,12 @@ export const timeout: SlashCommand = {
       reason,
       duration,
       actionBy,
-      server: member.guild, // workaround for guild not being available in interaction because of cache thingy , look into it and the types
+      guild: member.guild, // workaround for guild not being available in interaction because of cache thingy , look into it and the types
     });
 
     // Create a timeout record
     await timeoutService.create({
-      serverId: member.guild.id,
+      guildId: member.guild.id,
       userId: member.id,
       actionBy,
       reason,

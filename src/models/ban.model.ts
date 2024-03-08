@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 
 const BanSchema = new Schema<IBan>(
   {
-    serverId: {
+    guildId: {
       type: String,
       required: true,
     },

@@ -2,7 +2,7 @@ import type { Document, SchemaTimestampsConfig } from "mongoose";
 import type { Ban, RoleModeration, Timeout } from ".";
 
 export type Warn = {
-  serverId: string;
+  guildId: string;
   userId: string;
   reason: string;
   actionBy: {

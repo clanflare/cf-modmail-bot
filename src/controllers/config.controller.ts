@@ -72,7 +72,7 @@ export const getConfig = async (context: Context) => {
     })) || ({} as IModmailConfig);
   if (!serverConfig) {
     const data: IModmailConfig = await serverConfigModel.create({
-      serverId: decoded.guildId,
+      guildId: decoded.guildId,
       archiveChannelId: "",
       modmailCategoryId: "",
       initialMessage: {

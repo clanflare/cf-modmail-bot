@@ -2,7 +2,7 @@ import type { Document, SchemaTimestampsConfig } from "mongoose";
 import type { Ban } from ".";
 
 export type Unban = {
-  serverId: string;
+  guildId: string;
   userId: string;
   reason: string;
   actionBy: {

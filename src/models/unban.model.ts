@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 
 const UnbanSchema = new Schema<IUnban>(
   {
-    serverId: {
+    guildId: {
       type: String,
       required: true,
     },

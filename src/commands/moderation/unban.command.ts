@@ -33,9 +33,9 @@ export const unban: SlashCommand = {
       userId: interaction.user.id,
     };
 
-    // Check if the command is being used in a server
+    // Check if the command is being used in a guild
     if (!interaction.guild) {
-      await interaction.reply("This command can only be used in a server.");
+      await interaction.reply("This command can only be used in a guild.");
       return;
     }
 
@@ -44,11 +44,11 @@ export const unban: SlashCommand = {
       user,
       reason,
       actionBy,
-      server: interaction.guild,
+      guild: interaction.guild,
     });
 
     await interaction.reply(
-      `Unbanned ${user.username} for: ${unban.reason}.\nUser ${user.username} is not in any mutual servers with the bot.`
+      `Unbanned ${user.username} for: ${unban.reason}.\nUser ${user.username} is not in any mutual guilds with the bot.`
     );
   },
 };

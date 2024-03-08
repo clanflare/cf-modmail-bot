@@ -33,8 +33,8 @@ export const warn: SlashCommand = {
       userId: interaction.user.id,
     };
 
-    // Fetch the server id
-    const serverId = interaction.guildId;
+    // Fetch the guild id
+    const guildId = interaction.guildId;
 
     // Warn the user
     // ToDo: Has to be implemented with IMessage with customization options
@@ -44,7 +44,7 @@ export const warn: SlashCommand = {
 
     // Create a warn record
     const warn = await warnModel.create({
-      serverId,
+      guildId,
       userId: user.id,
       reason,
       actionBy,

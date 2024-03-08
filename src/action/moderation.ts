@@ -1,35 +1,35 @@
 import { banService, unbanService, timeoutService } from "@/services";
 import { CustomDiscordError } from "@/types/errors";
 import type { IBan, IUnban, ITimeout } from "@/types/models";
-import client from "@/utils/discordClient.utils";
+import {client} from "@/.";
 import ms from "ms";
-import { getBan, getMember, getServer, getUser, getRole } from ".";
+import { getBan, getMember, getGuild, getUser, getRole } from ".";
 import { Guild, GuildMember, User, Role } from "discord.js";
 
-export const ban = async ({
+export async function ban({
   user,
   reason,
   duration,
   actionBy,
-  server,
+  guild,
 }: {
   user: string | User;
   reason: string;
   duration?: string;
   actionBy: { username: string; userId: string };
-  server: string | Guild;
-}): Promise<IBan> => {
+  guild: string | Guild;
+}): Promise<IBan> {
   // Fetch the user to ban
   const userToBan = await getUser(user);
 
   // Default duration to 0 if not provided
   const durationInMs = duration ? ms(duration) : 0;
 
-  // Fetch the server to ban the user from
-  const serverToBanFrom = getServer(server);
+  // Fetch the guild to ban the user from
+  const guildToBanFrom = getGuild(guild);
 
   // Check if the user is banned
-  const bannedUser = await getBan({ server: serverToBanFrom, user: userToBan });
+  const bannedUser = await getBan({ guild: guildToBanFrom, user: userToBan });
   if (bannedUser) {
     throw new CustomDiscordError("User is already banned.");
   }
@@ -37,7 +37,7 @@ export const ban = async ({
     // ToDo: Has to be implemented with IMessage with customization options
     // Notify the user via DM before banning
     await userToBan.send(
-      `You have been banned from ${serverToBanFrom.name}.\nReason: ${reason}`
+      `You have been banned from ${guildToBanFrom.name}.\nReason: ${reason}`
     );
   } catch (dmError: any) {
     if (dmError.code === 50007) {
@@ -46,13 +46,13 @@ export const ban = async ({
   }
 
   // Check if the bot can ban the user and if the user is higher in the hierarchy
-  if (!serverToBanFrom.members.resolve(userToBan)?.bannable) {
+  if (!(await getMember(userToBan, guildToBanFrom)).bannable) {
     throw new CustomDiscordError("I don't have permission to ban this user.");
   }
 
   // Ban the user
   try {
-    await serverToBanFrom.members.ban(userToBan, { reason });
+    await guildToBanFrom.members.ban(userToBan, { reason });
   } catch (banError: any) {
     if (banError.code === 50013) {
       throw new CustomDiscordError("I don't have permission to ban this user.");
@@ -61,8 +61,8 @@ export const ban = async ({
   }
 
   // ToDo: Has to be implemented with IMessage with customization options
-  // Notify the server about the ban
-  await serverToBanFrom.systemChannel?.send({
+  // Notify the guild about the ban
+  await guildToBanFrom.systemChannel?.send({ // ? needs to be removed
     content: `Banned ${userToBan.username} <@${userToBan.id}>
     Reason: ${reason}
     Duration: ${
@@ -74,7 +74,7 @@ export const ban = async ({
 
   // Create a ban record
   return await banService.create({
-    serverId: serverToBanFrom.id,
+    guildId: guildToBanFrom.id,
     userId: userToBan.id,
     actionBy,
     reason,
@@ -82,26 +82,26 @@ export const ban = async ({
   });
 };
 
-export const unban = async ({
+export async function unban({
   user,
   reason,
   actionBy,
-  server,
+  guild,
 }: {
   user: string | User;
   reason: string;
   actionBy: { username: string; userId: string };
-  server: string | Guild;
-}): Promise<IUnban> => {
+  guild: string | Guild;
+}): Promise<IUnban> {
   // Fetch the user to unban
   const userToUnban = (await getUser(user)) as User;
 
-  // Fetch the server
-  const serverToUnbanFrom = getServer(server) as Guild;
+  // Fetch the guild
+  const guildToUnbanFrom = getGuild(guild) as Guild;
 
   // Check if the user is banned
   const bannedUser = await getBan({
-    server: serverToUnbanFrom,
+    guild: guildToUnbanFrom,
     user: userToUnban,
   });
   if (!bannedUser) {
@@ -109,25 +109,25 @@ export const unban = async ({
   }
 
   // Unban the user
-  await serverToUnbanFrom.members.unban(userToUnban, reason);
+  await guildToUnbanFrom.members.unban(userToUnban, reason);
 
   // fetch last ban record of user.id
   const ban = await banService.getLatestBan({
-    serverId: serverToUnbanFrom.id,
+    guildId: guildToUnbanFrom.id,
     userId: userToUnban.id,
     reason: bannedUser.reason || undefined,
   });
 
   // ToDo: Has to be implemented with IMessage with customization options
-  // Notify the server about the unban
-  await serverToUnbanFrom.systemChannel?.send({
+  // Notify the guild about the unban
+  await guildToUnbanFrom.systemChannel?.send({
     content: `Unbanned ${userToUnban.username} <@${userToUnban.id}>
   Reason: ${reason}`,
   });
 
   // Create an unban record
   return await unbanService.create({
-    serverId: serverToUnbanFrom.id,
+    guildId: guildToUnbanFrom.id,
     userId: userToUnban.id,
     reason,
     actionBy,
@@ -135,21 +135,21 @@ export const unban = async ({
   });
 };
 
-export const timeout = async ({
+export async function timeout({
   user,
   reason,
   duration,
   actionBy = { username: client.user?.username || "system", userId: client.user?.id || "0"},// or should never ideally occur fix later if issues
-  server,
+  guild,
 }: {
   user: string | User | GuildMember;
   reason: string;
   duration: string;
   actionBy: { username: string; userId: string };
-  server: string | Guild;
-}): Promise<ITimeout> => {
+  guild: string | Guild;
+}): Promise<ITimeout> {
   // Fetch the user to timeout
-  const member = await getMember(user, server);
+  const member = await getMember(user, guild);
   if (member.isCommunicationDisabled()) {
     throw new CustomDiscordError("User is already timed out.");
   }
@@ -176,7 +176,7 @@ export const timeout = async ({
   });
 
   return await timeoutService.create({
-    serverId: member.guild.id,
+    guildId: member.guild.id,
     userId: member.id,
     actionBy,
     reason,
@@ -184,30 +184,30 @@ export const timeout = async ({
   });
 };
 
-export const warn = async ({
+export async function warn({
   user,
   reason,
   actionBy,
-  server,
+  guild,
 }: {
   user: string | User | GuildMember;
   reason: string;
   actionBy: { username: string; userId: string };
-  server: string | Guild;
-}): Promise<void> => { //incomplete
+  guild: string | Guild;
+}): Promise<void> { //incomplete
   const member = await getUser(user);
 
 
 }
 
-export const roleModeration = async ({
+export async function roleModeration({
   user,
   reason,
   roles,
   action,
   duration,
   actionBy,
-  server,
+  guild,
 }: {
   user: string | User | GuildMember;
   reason: string;
@@ -215,34 +215,37 @@ export const roleModeration = async ({
   roles: string[] | Role[];
   action: "revoke" | "grant";
   actionBy: { username: string; userId: string };
-  server: string | Guild;
-}): Promise<void> => {
-  const member = await getMember(user, server);
+  guild: string | Guild;
+}): Promise<void> {
+  const member = await getMember(user, guild);
   const durationInMs = ms(duration);
   const endsAt = new Date(Date.now() + durationInMs);
-  const clientMember = await getMember(client.user|| "",server); //ehhh this client vaala thing needs to be fixed
-  roles = await Promise.all(roles.map(async (role) => {
-    role = getRole(role, server)
-    if (role.position >= (clientMember.roles.highest.position)) {
-      throw new CustomDiscordError(
-        "I don't have permission to manage all the roles u mentioned."
-      );
-    }
-    return role;
-  }));
+  const clientMember = await getMember(client.user|| "",guild); //ehhh this client vaala thing needs to be fixed
+  roles = await Promise.all(
+    roles.map(async (role) => {
+      const resolvedRole = await getRole(role, guild);
+      if (resolvedRole.position >= clientMember.roles.highest.position) {
+        throw new CustomDiscordError("I don't have permission to manage one or more of the specified roles.");
+      }
+      return resolvedRole;
+    })
+  );
 
   if (action === "grant") {
-    await member.roles.add(roles);
+    await member.roles.add(roles, reason);
+    if (durationInMs) {
+      setTimeout(async () => {
+        await member.roles.remove(roles, `Temporary role duration ended. Initial reason: ${reason}`);
+        // Notify the user and guild if necessary
+      }, durationInMs);
+    }
   } else {
-    await member.roles.remove(roles);
+    await member.roles.remove(roles, reason);
   }
-
-
 
   await member.send(
     `You have been ${action}ed ${roles.map((role) => `${role}`).join(", ")} roles in ${member.guild.name}.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
   );
 
 }
-//change all export to be function export rather than constant function export because of function hoisting which does not happen in cosnt export
-//maybe rename server to guild everywhere for consistency
+//maybe rename guild to guild everywhere for consistency

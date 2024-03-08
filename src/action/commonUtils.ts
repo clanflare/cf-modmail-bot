@@ -15,33 +15,33 @@ export const getUser = async (user: string | User | GuildMember) => {
   }
 };
 
-export const getServer = (server: string | Guild) => {
-  // if server is type of guild return server
-  if (server instanceof Guild) return server;
+export const getGuild = (guild: string | Guild) => {
+  // if guild is type of Guild return guild
+  if (guild instanceof Guild) return guild;
 
-  // if server is type of string return server
+  // if guild is type of string return guild
   try {
-    const fetchedServer = client.guilds.cache.get(server);
-    if (!fetchedServer) {
-      throw new CustomDiscordError("Server not found in cache.");
+    const fetchedGuild = client.guilds.cache.get(guild);
+    if (!fetchedGuild) {
+      throw new CustomDiscordError("Guild not found in cache.");
     }
-    return fetchedServer;
+    return fetchedGuild;
   } catch (error) {
-    console.error(`Failed to fetch server: ${error}`);
-    throw new CustomDiscordError(`Failed to fetch server: ${error}`);
+    console.error(`Failed to fetch guild: ${error}`);
+    throw new CustomDiscordError(`Failed to fetch guild: ${error}`);
   }
 };
 
 export const getBan = async ({
-  server,
+  guild,
   user,
 }: {
-  server: Guild;
+  guild: Guild;
   user: User;
 }) => {
   try {
     // Fetch the ban
-    return await server.bans.fetch({ user, force: true });
+    return await guild.bans.fetch({ user, force: true });
   } catch (error) {
     console.error(`Failed to fetch ban: ${error}`);
   }
@@ -50,12 +50,12 @@ export const getBan = async ({
 
 export const getRole =  (
   role: string | Role,
-  server: string | Guild
+  guild: string | Guild
 ) => {
-  const guild = getServer(server);
+  const fetchedGuild = getGuild(guild);
   if (role instanceof Role) return role;
   try {
-    const fetchedRole = guild.roles.cache.get(role);
+    const fetchedRole = fetchedGuild.roles.cache.get(role);
     if (!fetchedRole) {
       throw new CustomDiscordError("Role not found in cache.");
     }
@@ -68,16 +68,16 @@ export const getRole =  (
 
 export const getMember = async (
   member: string | User | GuildMember,
-  server: string | Guild
+  guild: string | Guild
 ) => {
   if (member instanceof GuildMember) return member;
-  const guild = getServer(server);
+  const fetchedGuild = getGuild(guild);
   if (member instanceof User) {
-    const fetchedMember = await guild.members.fetch(member);
+    const fetchedMember = await fetchedGuild.members.fetch(member);
     return fetchedMember;
   }
   try {
-    const fetchedMember = await guild.members.fetch(member);
+    const fetchedMember = await fetchedGuild.members.fetch(member);
     return fetchedMember;
   } catch (error) {
     console.error(`Failed to fetch member: ${error}`);

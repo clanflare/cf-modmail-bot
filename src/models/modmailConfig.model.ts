@@ -14,9 +14,9 @@ const botComponentValidator = (v: MessageComponent) => {
 
 const ModmailConfigSchema = new Schema<IModmailConfig>(
   {
-    serverId: {
+    guildId: {
       type: String,
-      required: [true, "Server ID is required"],
+      required: [true, "Guild ID is required"],
       unique: true,
     },
     archiveChannelId: {

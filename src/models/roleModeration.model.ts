@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 
 const RoleModerationSchema = new Schema<IRoleModeration>(
   {
-    serverId: {
+    guildId: {
       type: String,
       required: true,
     },

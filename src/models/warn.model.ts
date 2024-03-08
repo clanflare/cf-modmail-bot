@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 
 const WarnSchema = new Schema<IWarn>(
   {
-    serverId: {
+    guildId: {
       type: String,
       required: true,
     },

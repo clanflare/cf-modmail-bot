@@ -40,9 +40,9 @@ export const ban: SlashCommand = {
       userId: interaction.user.id,
     };
 
-    // Check if the command is being used in a server
+    // Check if the command is being used in a guild
     if (!interaction.guild) {
-      await interaction.reply("This command can only be used in a server.");
+      await interaction.reply("This command can only be used in a guild.");
       return;
     }
 
@@ -52,7 +52,7 @@ export const ban: SlashCommand = {
       reason,
       duration,
       actionBy,
-      server: interaction.guild,
+      guild: interaction.guild,
     });
 
     // Notify the moderator about the ban

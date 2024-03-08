@@ -2,9 +2,9 @@ import type { Document, SchemaTimestampsConfig } from "mongoose";
 import type { SupportMessage } from ".";
 
 export type ModmailConfig = {
-  serverId: string; // server where the modmail was opened
-  archiveChannelId: string; // server channel Id for threads (archived chat)
-  modmailCategoryId: string; // server category Id for modmail
+  guildId: string; // guild where the modmail was opened
+  archiveChannelId: string; // guild channel Id for threads (archived chat)
+  modmailCategoryId: string; // guild category Id for modmail
   aiSupport: boolean; // whether or not to use AI support
   initialMessage: MessageComponent; // initial message to send to users
 };

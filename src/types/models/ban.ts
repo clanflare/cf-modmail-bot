@@ -1,7 +1,7 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
 
 export type Ban = {
-  serverId: string;
+  guildId: string;
   userId: string;
   duration: number;
   reason: string;

@@ -3,9 +3,9 @@ import { Schema, model } from "mongoose";
 
 const CustomizationSchema = new Schema<ICustomization>(
   {
-    serverId: {
+    guildId: {
       type: String,
-      required: [true, "Server ID is required"],
+      required: [true, "Guild ID is required"],
       unique: true,
     },
     supportMessage: {

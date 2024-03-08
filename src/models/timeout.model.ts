@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 
 const TimeoutSchema = new Schema<ITimeout>(
   {
-    serverId: {
+    guildId: {
       type: String,
       required: true,
     },
