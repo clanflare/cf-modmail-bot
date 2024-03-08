@@ -19,6 +19,13 @@ const RoleModerationSchema = new Schema<IRoleModeration>(
       type: String,
       required: true,
     },
+    endsAt: {
+      type: Date,
+    },
+    ended: {
+      type: Boolean,
+      default: false,
+    },
     actionBy: {
       type: {
         username: {
@@ -39,7 +46,7 @@ const RoleModerationSchema = new Schema<IRoleModeration>(
     action: {
       type: String,
       required: true,
-      enum: ["revoked", "granted"],
+      enum: ["revoke", "grant"],
     },
   },
   { timestamps: true },

@@ -8,6 +8,6 @@ export const getBans = async (
 ): Promise<IBan[]> => model.find(query).exec();
 
 export const getLatestBan = async (
-  query: Partial<Pick<Ban, "serverId" | "userId" | "actionBy" | "reason">>,
+  query: Partial<Pick<Ban, "serverId" | "userId" | "actionBy" | "reason">>, //change this selection as it needs to be updated every time the model is updated
 ): Promise<IBan> =>
   model.findOne(query).sort({ createdAt: -1 }).exec() as Promise<IBan>;

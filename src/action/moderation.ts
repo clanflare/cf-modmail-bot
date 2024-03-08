@@ -3,8 +3,8 @@ import { CustomDiscordError } from "@/types/errors";
 import type { IBan, IUnban, ITimeout } from "@/types/models";
 import client from "@/utils/discordClient.utils";
 import ms from "ms";
-import { getBan, getMember, getServer, getUser } from ".";
-import { Guild, GuildMember, User } from "discord.js";
+import { getBan, getMember, getServer, getUser, getRole } from ".";
+import { Guild, GuildMember, User, Role } from "discord.js";
 
 export const ban = async ({
   user,
@@ -184,5 +184,65 @@ export const timeout = async ({
   });
 };
 
+export const warn = async ({
+  user,
+  reason,
+  actionBy,
+  server,
+}: {
+  user: string | User | GuildMember;
+  reason: string;
+  actionBy: { username: string; userId: string };
+  server: string | Guild;
+}): Promise<void> => { //incomplete
+  const member = await getUser(user);
+
+
+}
+
+export const roleModeration = async ({
+  user,
+  reason,
+  roles,
+  action,
+  duration,
+  actionBy,
+  server,
+}: {
+  user: string | User | GuildMember;
+  reason: string;
+  duration: string;
+  roles: string[] | Role[];
+  action: "revoke" | "grant";
+  actionBy: { username: string; userId: string };
+  server: string | Guild;
+}): Promise<void> => {
+  const member = await getMember(user, server);
+  const durationInMs = ms(duration);
+  const endsAt = new Date(Date.now() + durationInMs);
+  const clientMember = await getMember(client.user|| "",server); //ehhh this client vaala thing needs to be fixed
+  roles = await Promise.all(roles.map(async (role) => {
+    role = getRole(role, server)
+    if (role.position >= (clientMember.roles.highest.position)) {
+      throw new CustomDiscordError(
+        "I don't have permission to manage all the roles u mentioned."
+      );
+    }
+    return role;
+  }));
+
+  if (action === "grant") {
+    await member.roles.add(roles);
+  } else {
+    await member.roles.remove(roles);
+  }
+
+
+
+  await member.send(
+    `You have been ${action}ed ${roles.map((role) => `${role}`).join(", ")} roles in ${member.guild.name}.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
+  );
+
+}
 //change all export to be function export rather than constant function export because of function hoisting which does not happen in cosnt export
 //maybe rename server to guild everywhere for consistency

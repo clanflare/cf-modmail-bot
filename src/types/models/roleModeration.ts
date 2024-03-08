@@ -5,13 +5,15 @@ export type RoleModeration = {
   userId: string;
   duration: number;
   reason: string;
+  endsAt?: Date;
+  ended?: boolean;
   actionBy: {
     // Use another schema for this
     username: string;
     userId: string;
   };
   roleIds: string[];
-  action: "revoked" | "granted";
+  action: "revoke" | "grant";
 };
 
 export interface IRoleModeration

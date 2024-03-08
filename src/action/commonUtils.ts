@@ -1,6 +1,6 @@
 import { CustomDiscordError } from "@/types/errors";
 import client from "@/utils/discordClient.utils";
-import { Guild, User, GuildMember } from "discord.js";
+import { Guild, User, GuildMember, Role } from "discord.js";
 
 export const getUser = async (user: string | User | GuildMember) => {
   // if user is type of user return user
@@ -47,6 +47,24 @@ export const getBan = async ({
   }
   return null;
 };
+
+export const getRole =  (
+  role: string | Role,
+  server: string | Guild
+) => {
+  const guild = getServer(server);
+  if (role instanceof Role) return role;
+  try {
+    const fetchedRole = guild.roles.cache.get(role);
+    if (!fetchedRole) {
+      throw new CustomDiscordError("Role not found in cache.");
+    }
+    return fetchedRole;
+  } catch (error) {
+    console.error(`Failed to fetch role: ${error}`);
+    throw new CustomDiscordError(`Failed to fetch role: ${error}`);
+  }
+}
 
 export const getMember = async (
   member: string | User | GuildMember,
