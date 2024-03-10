@@ -1,10 +1,77 @@
-import { banService, unbanService, timeoutService } from "@/services";
+import { client } from "@/.";
+import { defaultWarnConfig } from "@/config/warnConfig";
+import {
+  banService,
+  roleModerationService,
+  timeoutService,
+  unbanService,
+  warnConfigService,
+  warnService,
+} from "@/services";
 import { CustomDiscordError } from "@/types/errors";
-import type { IBan, IUnban, ITimeout } from "@/types/models";
-import {client} from "@/.";
+import type {
+  IBan,
+  IRoleModeration,
+  ITimeout,
+  IUnban,
+  IWarn,
+  WarnActions,
+  WarnConfig,
+} from "@/types/models";
+import { Guild, GuildMember, Role, User } from "discord.js";
 import ms from "ms";
-import { getBan, getMember, getGuild, getUser, getRole } from ".";
-import { Guild, GuildMember, User, Role } from "discord.js";
+import { getBan, getGuild, getMember, getRole, getUser } from ".";
+
+export async function executeActions(
+  actions: WarnActions,
+  member: string | User | GuildMember,
+  guild: string | Guild,
+  actionBy: { username: string; userId: string },
+) {
+  const actionsPerformed = await Promise.all(
+    actions.map(async (action) => {
+      switch (action.type) {
+        case "ban":
+          return ban({
+            user: member,
+            reason: action.reason,
+            duration: ms(action.duration),
+            actionBy,
+            guild,
+          });
+        case "timeout":
+          return timeout({
+            user: member,
+            reason: action.reason,
+            duration: ms(action.duration),
+            actionBy,
+            guild,
+          });
+        case "roleModeration":
+          return roleModeration({
+            user: member,
+            reason: action.reason,
+            roles: action.roleIds,
+            action: action.action,
+            duration: ms(action.duration),
+            actionBy,
+            guild,
+          });
+      }
+    }),
+  );
+
+  const executedActions: {
+    type: "ban" | "timeout" | "roleModeration";
+    action: IBan | ITimeout | IRoleModeration;
+  }[] = [];
+  actions.forEach((action, index) => {
+    executedActions.push({
+      type: action.type,
+      action: actionsPerformed[index],
+    });
+  });
+}
 
 export async function ban({
   user,
@@ -13,7 +80,7 @@ export async function ban({
   actionBy,
   guild,
 }: {
-  user: string | User;
+  user: string | User | GuildMember;
   reason: string;
   duration?: string;
   actionBy: { username: string; userId: string };
@@ -37,7 +104,7 @@ export async function ban({
     // ToDo: Has to be implemented with IMessage with customization options
     // Notify the user via DM before banning
     await userToBan.send(
-      `You have been banned from ${guildToBanFrom.name}.\nReason: ${reason}`
+      `You have been banned from ${guildToBanFrom.name}.\nReason: ${reason}`,
     );
   } catch (dmError: any) {
     if (dmError.code === 50007) {
@@ -62,7 +129,8 @@ export async function ban({
 
   // ToDo: Has to be implemented with IMessage with customization options
   // Notify the guild about the ban
-  await guildToBanFrom.systemChannel?.send({ // ? needs to be removed
+  await guildToBanFrom.systemChannel?.send({
+    // ? needs to be removed
     content: `Banned ${userToBan.username} <@${userToBan.id}>
     Reason: ${reason}
     Duration: ${
@@ -80,7 +148,7 @@ export async function ban({
     reason,
     duration: durationInMs,
   });
-};
+}
 
 export async function unban({
   user,
@@ -133,13 +201,16 @@ export async function unban({
     actionBy,
     ban,
   });
-};
+}
 
 export async function timeout({
   user,
   reason,
   duration,
-  actionBy = { username: client.user?.username || "system", userId: client.user?.id || "0"},// or should never ideally occur fix later if issues
+  actionBy = {
+    username: client.user?.username || "system",
+    userId: client.user?.id || "0",
+  }, // or should never ideally occur fix later if issues
   guild,
 }: {
   user: string | User | GuildMember;
@@ -157,7 +228,7 @@ export async function timeout({
 
   if (!member.manageable) {
     throw new CustomDiscordError(
-      "I don't have permission to timeout this user."
+      "I don't have permission to timeout this user.",
     );
   }
 
@@ -166,7 +237,7 @@ export async function timeout({
   await member.send(
     `You have been timed out from ${
       member.guild.name
-    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
+    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`,
   );
 
   await member.guild.systemChannel?.send({
@@ -182,7 +253,7 @@ export async function timeout({
     reason,
     duration: durationInMs,
   });
-};
+}
 
 export async function warn({
   user,
@@ -194,10 +265,49 @@ export async function warn({
   reason: string;
   actionBy: { username: string; userId: string };
   guild: string | Guild;
-}): Promise<void> { //incomplete
+}): Promise<IWarn> {
+  // Fetch the user to warn
   const member = await getUser(user);
 
+  // Fetch the guild to warn the user in
+  const guildToWarnIn = getGuild(guild);
 
+  // Notify the user
+  await member.send(
+    `You have been warned in ${guildToWarnIn.name} for: ${reason}`,
+  );
+
+  // Fetch the previous warn record of the user
+  const previousWarns = await warnService.getWarns({
+    guildId: guildToWarnIn.id,
+    userId: member.id,
+  });
+
+  // Fetch the warn config of the guild
+  let warnConfig: WarnConfig = await warnConfigService.getWarnConfig({
+    guildId: guildToWarnIn.id,
+    warnNumber: previousWarns.length + 1,
+  });
+
+  if (!warnConfig) {
+    // If the warn config is not found, use the default warn config
+    warnConfig = defaultWarnConfig[previousWarns.length + 1];
+    if (!warnConfig) {
+      warnConfig = defaultWarnConfig[0];
+    }
+  }
+
+  // For each action in the warn config, perform the action
+  executeActions(warnConfig.actions, member, guildToWarnIn, actionBy);
+
+  // Create a warn record
+  return await warnService.create({
+    guildId: guildToWarnIn.id,
+    userId: member.id,
+    reason,
+    actionBy,
+    actions: [],
+  });
 }
 
 export async function roleModeration({
@@ -216,26 +326,31 @@ export async function roleModeration({
   action: "revoke" | "grant";
   actionBy: { username: string; userId: string };
   guild: string | Guild;
-}): Promise<void> {
+}): Promise<IRoleModeration> {
   const member = await getMember(user, guild);
   const durationInMs = ms(duration);
   const endsAt = new Date(Date.now() + durationInMs);
-  const clientMember = await getMember(client.user|| "",guild); //ehhh this client vaala thing needs to be fixed
+  const clientMember = await getMember(client.user || "", guild); //ehhh this client vaala thing needs to be fixed
   roles = await Promise.all(
     roles.map(async (role) => {
       const resolvedRole = await getRole(role, guild);
       if (resolvedRole.position >= clientMember.roles.highest.position) {
-        throw new CustomDiscordError("I don't have permission to manage one or more of the specified roles.");
+        throw new CustomDiscordError(
+          "I don't have permission to manage one or more of the specified roles.",
+        );
       }
       return resolvedRole;
-    })
+    }),
   );
 
   if (action === "grant") {
     await member.roles.add(roles, reason);
     if (durationInMs) {
       setTimeout(async () => {
-        await member.roles.remove(roles, `Temporary role duration ended. Initial reason: ${reason}`);
+        await member.roles.remove(
+          roles,
+          `Temporary role duration ended. Initial reason: ${reason}`,
+        );
         // Notify the user and guild if necessary
       }, durationInMs);
     }
@@ -244,8 +359,21 @@ export async function roleModeration({
   }
 
   await member.send(
-    `You have been ${action}ed ${roles.map((role) => `${role}`).join(", ")} roles in ${member.guild.name}.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
+    `You have been ${action}ed ${roles
+      .map((role) => `${role}`)
+      .join(", ")} roles in ${
+      member.guild.name
+    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`,
   );
 
+  return await roleModerationService.create({
+    guildId: member.guild.id,
+    userId: member.id,
+    reason,
+    duration: durationInMs,
+    actionBy,
+    roleIds: roles.map((role) => role.id),
+    action,
+  });
 }
 //maybe rename guild to guild everywhere for consistency

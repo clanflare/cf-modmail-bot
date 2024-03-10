@@ -8,3 +8,4 @@ export * from "./timeout";
 export * from "./unban";
 export * from "./warn";
 export * from "./customization";
+export * from "./warnConfig";
