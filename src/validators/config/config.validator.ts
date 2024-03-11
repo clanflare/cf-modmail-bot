@@ -5,7 +5,7 @@ const embed = t.Object({
   description: t.Optional(t.String({ maxLength: 4096 })),
   url: t.Optional(t.String({ format: "uri" })),
   timestamp: t.Optional(t.String({ format: "date-time" })),
-  color: t.Optional(t.Number({ minimum: 0x000000, maximum: 0xffffff })),
+  color: t.Optional(t.Number({ minimum: 0x000000, maximum: 0xffffff })), // hex color code in number format //because number is more efficient
   footer: t.Optional(
     t.Object({
       text: t.Optional(t.String({ maxLength: 2048 })),

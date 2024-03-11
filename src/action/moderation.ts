@@ -60,17 +60,12 @@ export async function executeActions(
       }
     }),
   );
-
-  const executedActions: {
-    type: "ban" | "timeout" | "roleModeration";
-    action: IBan | ITimeout | IRoleModeration;
-  }[] = [];
-  actions.forEach((action, index) => {
-    executedActions.push({
-      type: action.type,
+  const executeActions = actions.map((action, index) => {
+    return {
+      actionType: action.type,
       action: actionsPerformed[index],
-    });
-  });
+    }});
+  return executeActions;
 }
 
 export async function ban({
@@ -133,11 +128,10 @@ export async function ban({
     // ? needs to be removed
     content: `Banned ${userToBan.username} <@${userToBan.id}>
     Reason: ${reason}
-    Duration: ${
-      durationInMs === 0
+    Duration: ${durationInMs === 0
         ? "Permanent"
         : `for ${ms(durationInMs, { long: true })}`
-    }`,
+      }`,
   });
 
   // Create a ban record
@@ -235,8 +229,7 @@ export async function timeout({
   await member.timeout(durationInMs, reason);
 
   await member.send(
-    `You have been timed out from ${
-      member.guild.name
+    `You have been timed out from ${member.guild.name
     }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`,
   );
 
@@ -267,25 +260,22 @@ export async function warn({
   guild: string | Guild;
 }): Promise<IWarn> {
   // Fetch the user to warn
-  const member = await getUser(user);
+  const member = await getMember(user,guild);
 
-  // Fetch the guild to warn the user in
-  const guildToWarnIn = getGuild(guild);
-
-  // Notify the user
-  await member.send(
-    `You have been warned in ${guildToWarnIn.name} for: ${reason}`,
-  );
-
+  if(!member.manageable) {
+    throw new CustomDiscordError(
+      "I don't have permission to warn this user.",
+    );
+  }
   // Fetch the previous warn record of the user
   const previousWarns = await warnService.getWarns({
-    guildId: guildToWarnIn.id,
+    guildId: member.guild.id,
     userId: member.id,
   });
 
   // Fetch the warn config of the guild
   let warnConfig: WarnConfig = await warnConfigService.getWarnConfig({
-    guildId: guildToWarnIn.id,
+    guildId: member.guild.id,
     warnNumber: previousWarns.length + 1,
   });
 
@@ -298,15 +288,26 @@ export async function warn({
   }
 
   // For each action in the warn config, perform the action
-  executeActions(warnConfig.actions, member, guildToWarnIn, actionBy);
+  const actions = await executeActions(warnConfig.actions, member, member.guild, actionBy);
+
+  // Notify the user about the warn
+  try {
+    await member.send(
+      `You have been warned in ${member.guild.name}.\nReason: ${reason}`,
+    );
+  } catch (dmError: any) {
+    if (dmError.code === 50007) {
+      console.log("Could not send DM to the user.");
+    }
+  }
 
   // Create a warn record
   return await warnService.create({
-    guildId: guildToWarnIn.id,
+    guildId: member.guild.id,
     userId: member.id,
     reason,
     actionBy,
-    actions: [],
+    actions,
   });
 }
 
@@ -361,8 +362,7 @@ export async function roleModeration({
   await member.send(
     `You have been ${action}ed ${roles
       .map((role) => `${role}`)
-      .join(", ")} roles in ${
-      member.guild.name
+      .join(", ")} roles in ${member.guild.name
     }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`,
   );
 

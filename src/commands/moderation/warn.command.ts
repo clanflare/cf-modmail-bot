@@ -23,31 +23,35 @@ export const warn: SlashCommand = {
   async execute(interaction: CommandInteraction) {
     // Fetch the user to warn
     const user = interaction.options.getUser("user", true);
-
+    
     // Fetch the reason for the warn
     const reason = interaction.options.get("reason", true).value as string;
-
+    
     // Fetch the user who warned the user
     const actionBy = {
       username: interaction.user.username,
       userId: interaction.user.id,
     };
+    
+    const guild = interaction.guild;
 
     // Fetch the guild id
-    if (!interaction.guild) {
+    if (!guild) {
       await interaction.reply("This command can only be used in a guild.");
       return;
     }
-
+    
+    await interaction.deferReply();
+    
     // Warn the user
     const warn = await moderation.warn({
       user,
       reason,
       actionBy,
-      guild: interaction.guild,
+      guild,
     });
-
+    
     // Reply to the interaction
-    await interaction.reply(`Warned ${user.username} for: ${warn.reason}`);
+    await interaction.editReply(`Warned ${user.tag} for ${reason}`);
   },
 };

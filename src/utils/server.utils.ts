@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import configRouter from "@/routes/config.routes";
 import { logger } from "@grotto/logysia";
+import { cors } from '@elysiajs/cors'
 
 const app = new Elysia();
 
@@ -12,6 +13,8 @@ app.onResponse((handler) => {
     } | Status Code: ${(handler.set.status ||= 500)}`
   );
 });
+
+app.use(cors());
 
 app.use(
   swagger({

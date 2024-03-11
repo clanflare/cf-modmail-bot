@@ -15,6 +15,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@elysiajs/cors": "^0.8.0",
     "@elysiajs/swagger": "^0.8.5",
     "@grotto/logysia": "^0.1.1",
     "discord.js": "^14.14.1",
