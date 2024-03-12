@@ -46,6 +46,9 @@ export const timeout: SlashCommand = {
       userId: interaction.user.id,
     };
 
+    // Send message for loading
+    await interaction.reply("Processing...");
+
     // Timeout the user
     await moderation.timeout({
       user: member,
@@ -55,17 +58,7 @@ export const timeout: SlashCommand = {
       guild: member.guild, // workaround for guild not being available in interaction because of cache thingy , look into it and the types
     });
 
-    // Create a timeout record
-    await timeoutService.create({
-      guildId: member.guild.id,
-      userId: member.id,
-      actionBy,
-      reason,
-      duration: ms(duration),
-    });
-
-
-    await interaction.reply(
+    await interaction.editReply(
       `User ${member.user.username} has been timed out for ${ms(
         duration
       )} with reason: ${reason}`

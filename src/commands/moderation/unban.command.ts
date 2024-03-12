@@ -39,6 +39,9 @@ export const unban: SlashCommand = {
       return;
     }
 
+    // Send message for loading
+    await interaction.reply("Processing...");
+
     // Unban the user
     const unban = await moderation.unban({
       user,
@@ -47,7 +50,7 @@ export const unban: SlashCommand = {
       guild: interaction.guild,
     });
 
-    await interaction.reply(
+    await interaction.editReply(
       `Unbanned ${user.username} for: ${unban.reason}.\nUser ${user.username} is not in any mutual guilds with the bot.`
     );
   },

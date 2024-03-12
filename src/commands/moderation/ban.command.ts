@@ -46,6 +46,9 @@ export const ban: SlashCommand = {
       return;
     }
 
+    // Send message for loading
+    await interaction.reply("Processing...");
+
     // Ban the user
     const ban = await moderation.ban({
       user: user.id,
@@ -56,7 +59,7 @@ export const ban: SlashCommand = {
     });
 
     // Notify the moderator about the ban
-    await interaction.reply({
+    await interaction.editReply({
       content: `Banned ${user.username} <@${user.id}>\nReason: ${
         ban.reason
       }\nDuration: ${
