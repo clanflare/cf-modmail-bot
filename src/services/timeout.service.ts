@@ -3,9 +3,9 @@ import type { Timeout, ITimeout } from "@/types/models";
 
 export const create = async (data: Timeout): Promise<ITimeout> => model.create(data);
 
-// export const getTimeouts = async (
-//   query: Partial<Pick<Timeout, "guildId" | "userId" | "actionBy">>,
-// ): Promise<ITimeout[]> => model.find(query).exec();
+export const getTimeouts = async (
+    query: Partial<Pick<Timeout, "guildId" | "userId" | "actionBy" | "reason">>,
+    ): Promise<ITimeout[]> => model.find(query).sort({ createdAt: -1 }).exec();
 
 // export const getLatestTimeout = async (
 //   query: Partial<Pick<Timeout, "guildId" | "userId" | "actionBy" | "reason">>,

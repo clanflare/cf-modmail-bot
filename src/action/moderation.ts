@@ -26,7 +26,7 @@ export async function executeActions(
   actions: WarnActions,
   member: string | User | GuildMember,
   guild: string | Guild,
-  actionBy: { username: string; userId: string },
+  actionBy: { username: string; userId: string }
 ) {
   const actionsPerformed = await Promise.all(
     actions.map(async (action) => {
@@ -58,13 +58,14 @@ export async function executeActions(
             guild,
           });
       }
-    }),
+    })
   );
   const executeActions = actions.map((action, index) => {
     return {
       actionType: action.type,
       action: actionsPerformed[index],
-    }});
+    };
+  });
   return executeActions;
 }
 
@@ -99,7 +100,7 @@ export async function ban({
     // ToDo: Has to be implemented with IMessage with customization options
     // Notify the user via DM before banning
     await userToBan.send(
-      `You have been banned from ${guildToBanFrom.name}.\nReason: ${reason}`,
+      `You have been banned from ${guildToBanFrom.name}.\nReason: ${reason}`
     );
   } catch (dmError: any) {
     if (dmError.code === 50007) {
@@ -128,10 +129,11 @@ export async function ban({
     // ? needs to be removed
     content: `Banned ${userToBan.username} <@${userToBan.id}>
     Reason: ${reason}
-    Duration: ${durationInMs === 0
+    Duration: ${
+      durationInMs === 0
         ? "Permanent"
         : `for ${ms(durationInMs, { long: true })}`
-      }`,
+    }`,
   });
 
   // Create a ban record
@@ -222,15 +224,16 @@ export async function timeout({
 
   if (!member.manageable) {
     throw new CustomDiscordError(
-      "I don't have permission to timeout this user.",
+      "I don't have permission to timeout this user."
     );
   }
 
   await member.timeout(durationInMs, reason);
 
   await member.send(
-    `You have been timed out from ${member.guild.name
-    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`,
+    `You have been timed out from ${
+      member.guild.name
+    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
   );
 
   await member.guild.systemChannel?.send({
@@ -260,12 +263,10 @@ export async function warn({
   guild: string | Guild;
 }): Promise<IWarn> {
   // Fetch the user to warn
-  const member = await getMember(user,guild);
+  const member = await getMember(user, guild);
 
-  if(!member.manageable) {
-    throw new CustomDiscordError(
-      "I don't have permission to warn this user.",
-    );
+  if (!member.manageable) {
+    throw new CustomDiscordError("I don't have permission to warn this user.");
   }
   // Fetch the previous warn record of the user
   const previousWarns = await warnService.getWarns({
@@ -288,12 +289,17 @@ export async function warn({
   }
 
   // For each action in the warn config, perform the action
-  const actions = await executeActions(warnConfig.actions, member, member.guild, actionBy);
+  const actions = await executeActions(
+    warnConfig.actions,
+    member,
+    member.guild,
+    actionBy
+  );
 
   // Notify the user about the warn
   try {
     await member.send(
-      `You have been warned in ${member.guild.name}.\nReason: ${reason}`,
+      `You have been warned in ${member.guild.name}.\nReason: ${reason}`
     );
   } catch (dmError: any) {
     if (dmError.code === 50007) {
@@ -337,11 +343,11 @@ export async function roleModeration({
       const resolvedRole = await getRole(role, guild);
       if (resolvedRole.position >= clientMember.roles.highest.position) {
         throw new CustomDiscordError(
-          "I don't have permission to manage one or more of the specified roles.",
+          "I don't have permission to manage one or more of the specified roles."
         );
       }
       return resolvedRole;
-    }),
+    })
   );
 
   if (action === "grant") {
@@ -350,7 +356,7 @@ export async function roleModeration({
       setTimeout(async () => {
         await member.roles.remove(
           roles,
-          `Temporary role duration ended. Initial reason: ${reason}`,
+          `Temporary role duration ended. Initial reason: ${reason}`
         );
         // Notify the user and guild if necessary
       }, durationInMs);
@@ -362,8 +368,9 @@ export async function roleModeration({
   await member.send(
     `You have been ${action}ed ${roles
       .map((role) => `${role}`)
-      .join(", ")} roles in ${member.guild.name
-    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`,
+      .join(", ")} roles in ${
+      member.guild.name
+    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
   );
 
   return await roleModerationService.create({
@@ -376,4 +383,66 @@ export async function roleModeration({
     action,
   });
 }
-//maybe rename guild to guild everywhere for consistency
+
+// Define a union type for all log types
+type LogType = IWarn | ITimeout | IBan | IUnban;
+
+// Define a mapping type for service functions
+type LogServiceFunction = (opts: {
+  guildId: string;
+  userId: string;
+}) => Promise<LogType[]>;
+
+// Map log types to their respective service functions
+const logServices: Record<string, LogServiceFunction> = {
+  warn: warnService.getWarns,
+  timeout: timeoutService.getTimeouts,
+  ban: banService.getBans,
+  unban: unbanService.getUnbans,
+};
+
+export async function modlogs({
+  user,
+  type,
+  guild,
+}: {
+  user: string | User;
+  type: string;
+  guild: string | Guild;
+}) {
+  const member = await getUser(user);
+  const guildToFetchLogsFrom = getGuild(guild);
+
+
+  if (type === "all") {
+    const logTypes = Object.keys(logServices);
+    const logs = await Promise.all(
+      logTypes.map(async (logType) => {
+        const serviceLogs = await getLogs(logType, guildToFetchLogsFrom.id, member.id);
+        return serviceLogs.map((log) => ({ ...log, type: logType }));
+      })
+    );
+    return logs.flat().sort((a, b) => {
+      // Assuming a default timestamp for missing values, e.g., 0
+      const timeA = (a.createdAt as unknown as number) ?? 0;
+      const timeB = (b.createdAt as unknown as number) ?? 0;
+      return timeB - timeA;
+    });
+  } else if (type in logServices) {
+    return await getLogs(type, guildToFetchLogsFrom.id, member.id);
+  } else {
+    throw new Error("Invalid type.");
+  }
+}
+
+async function getLogs(
+  logType: string,
+  guildId: string,
+  userId: string
+): Promise<LogType[]> {
+  const serviceFunction = logServices[logType];
+  if (!serviceFunction) {
+    throw new Error("Invalid log type.");
+  }
+  return await serviceFunction({ guildId, userId });
+}
