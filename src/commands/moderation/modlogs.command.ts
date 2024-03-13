@@ -35,7 +35,7 @@ export const modlogs: SlashCommand = {
     const user = interaction.options.getUser("user", true);
 
     // Fetch the type of modlogs
-    const type = interaction.options.get("type")?.value as string || "all";
+    const type = (interaction.options.get("type")?.value as string) || "all";
 
     // Fetch the duration of the modlogs
     const duration = interaction.options.get("duration")?.value as string;
@@ -55,13 +55,23 @@ export const modlogs: SlashCommand = {
       type,
       guild: interaction.guild,
     });
-
     const modlogsEmbed = {
-      title: `Modlogs for ${user.tag}`,
-      description: modlogs.map((log) => log.reason).join("\n"),
+      title: `Modlogs for ${user.tag} - user.id`,
+      description: modlogs
+        .map((log) => {
+          return `\n\n\n**Type:** ${log.type}\n**Reason:** ${
+            log.reason
+          }\n**Date:** ${new Date(
+            log.createdAt as unknown as string
+          ).toLocaleString()
+        }\n**Action by:** <@${log.actionBy.userId}>`;
+        })
+        .toString(),
     };
 
     // Reply to the interaction
-    await interaction.editReply({ embeds: [modlogsEmbed] });
-  }
+    await interaction.editReply({
+  content: "",
+       embeds: [modlogsEmbed] });
+  },
 };

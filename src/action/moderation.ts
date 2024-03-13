@@ -413,23 +413,36 @@ export async function modlogs({
   const member = await getUser(user);
   const guildToFetchLogsFrom = getGuild(guild);
 
-
   if (type === "all") {
     const logTypes = Object.keys(logServices);
     const logs = await Promise.all(
       logTypes.map(async (logType) => {
-        const serviceLogs = await getLogs(logType, guildToFetchLogsFrom.id, member.id);
-        return serviceLogs.map((log) => ({ ...log, type: logType }));
+        const serviceLogs = await getLogs(
+          logType,
+          guildToFetchLogsFrom.id,
+          member.id
+        );
+        return serviceLogs.map((log) => ({
+          type: logType,
+          reason: log.reason,
+          createdAt: log.createdAt,
+          actionBy: log.actionBy,
+        }));
       })
     );
     return logs.flat().sort((a, b) => {
-      // Assuming a default timestamp for missing values, e.g., 0
       const timeA = (a.createdAt as unknown as number) ?? 0;
       const timeB = (b.createdAt as unknown as number) ?? 0;
       return timeB - timeA;
     });
   } else if (type in logServices) {
-    return await getLogs(type, guildToFetchLogsFrom.id, member.id);
+    const logs = await getLogs(type, guildToFetchLogsFrom.id, member.id);
+    return logs.map((log) => ({
+      type,
+      reason: log.reason,
+      createdAt: log.createdAt,
+      actionBy: log.actionBy,
+    }));
   } else {
     throw new Error("Invalid type.");
   }

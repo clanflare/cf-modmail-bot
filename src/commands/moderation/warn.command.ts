@@ -53,6 +53,6 @@ export const warn: SlashCommand = {
     });
 
     // Reply to the interaction
-    await interaction.editReply(`Warned ${user.tag} for ${reason}`);
+    await interaction.editReply(`Warned ${user.tag} for ${warn.reason}`);
   },
 };

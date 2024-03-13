@@ -50,7 +50,7 @@ export const timeout: SlashCommand = {
     await interaction.reply("Processing...");
 
     // Timeout the user
-    await moderation.timeout({
+    const timeout = await moderation.timeout({
       user: member,
       reason,
       duration,
@@ -60,7 +60,7 @@ export const timeout: SlashCommand = {
 
     await interaction.editReply(
       `User ${member.user.username} has been timed out for ${ms(
-        duration
+        timeout.duration, {long: true}
       )} with reason: ${reason}`
     );
   },
