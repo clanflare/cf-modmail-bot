@@ -28,10 +28,10 @@ export const wvc: SlashCommand = {
     const user = interaction.options.getUser("user", true);
 
     // Fetch the member
-    const member = await getMember(guild.id, user.id);
+    const member = await getMember(user, guild);
 
     // Fetch the voice channel
-    const voiceChannel = member.voice.channel;
+    const voiceChannel = member.voice.channelId;
 
     // Check if the user is not in a voice channel
     if (!voiceChannel) {
@@ -40,6 +40,6 @@ export const wvc: SlashCommand = {
     }
 
     // Send the voice channel
-    await interaction.reply(`The user is in ${voiceChannel.name}.`);
+    await interaction.reply(`<#${voiceChannel}>`);
   },
 };
