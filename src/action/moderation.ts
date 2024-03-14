@@ -18,9 +18,20 @@ import type {
   WarnActions,
   WarnConfig,
 } from "@/types/models";
-import { Guild, GuildMember, Role, User } from "discord.js";
+import {
+  Guild,
+  GuildMember,
+  Role,
+  User,
+  BaseGuildTextChannel,
+} from "discord.js";
 import ms from "ms";
 import { getBan, getGuild, getMember, getRole, getUser } from ".";
+
+export function getModlogChannel() {
+  const modlogChannel = client.channels.cache.get("1217933169731436564");
+  return modlogChannel as BaseGuildTextChannel;
+}
 
 export async function executeActions(
   actions: WarnActions,
@@ -127,7 +138,7 @@ export async function ban({
 
   // ToDo: Has to be implemented with IMessage with customization options
   // Notify the guild about the ban
-  await guildToBanFrom.systemChannel?.send({
+  await getModlogChannel().send({
     // ? needs to be removed
     content: `Banned ${userToBan.username} <@${userToBan.id}>
     Reason: ${reason}
@@ -186,7 +197,7 @@ export async function unban({
 
   // ToDo: Has to be implemented with IMessage with customization options
   // Notify the guild about the unban
-  await guildToUnbanFrom.systemChannel?.send({
+  await getModlogChannel().send({
     content: `Unbanned ${userToUnban.username} <@${userToUnban.id}>
   Reason: ${reason}`,
   });
@@ -249,7 +260,7 @@ export async function timeout({
     }
   }
 
-  await member.guild.systemChannel?.send({
+  await getModlogChannel().send({
     content: `TimedOut ${member.user.username} <@${member.id}>
   Reason: ${reason}
   Duration: ${ms(durationInMs, { long: true })}`,

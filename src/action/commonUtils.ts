@@ -32,13 +32,7 @@ export const getGuild = (guild: string | Guild) => {
   }
 };
 
-export const getBan = async ({
-  guild,
-  user,
-}: {
-  guild: Guild;
-  user: User;
-}) => {
+export const getBan = async ({ guild, user }: { guild: Guild; user: User }) => {
   try {
     // Fetch the ban
     return await guild.bans.fetch({ user, force: true });
@@ -48,10 +42,7 @@ export const getBan = async ({
   return null;
 };
 
-export const getRole =  (
-  role: string | Role,
-  guild: string | Guild
-) => {
+export const getRole = (role: string | Role, guild: string | Guild) => {
   const fetchedGuild = getGuild(guild);
   if (role instanceof Role) return role;
   try {
@@ -64,7 +55,7 @@ export const getRole =  (
     console.error(`Failed to fetch role: ${error}`);
     throw new CustomDiscordError(`Failed to fetch role: ${error}`);
   }
-}
+};
 
 export const getMember = async (
   member: string | User | GuildMember,
@@ -72,15 +63,11 @@ export const getMember = async (
 ) => {
   if (member instanceof GuildMember) return member;
   const fetchedGuild = getGuild(guild);
-  if (member instanceof User) {
-    const fetchedMember = await fetchedGuild.members.fetch(member);
-    return fetchedMember;
-  }
   try {
     const fetchedMember = await fetchedGuild.members.fetch(member);
     return fetchedMember;
   } catch (error) {
     console.error(`Failed to fetch member: ${error}`);
-    throw new CustomDiscordError(`Failed to fetch member: ${error}`);
+    throw new CustomDiscordError(`Member not found in the guild.`);
   }
 };

@@ -34,11 +34,19 @@ export const timeout: SlashCommand = {
     ),
   async execute(interaction: CommandInteraction) {
     // Fetch the user to timeout
-    const member = interaction.options.getMember("user") as GuildMember;
+    const user = interaction.options.getUser("user", true);
 
     // Check if the user and actionBy are the same
-    if (member.id === interaction.user.id) {
+    if (user.id === interaction.user.id) {
       await interaction.reply("You cannot timeout yourself.");
+      return;
+    }
+
+    // Fetch the guild
+    const guild = interaction.guild;
+
+    if (!guild) {
+      await interaction.reply("This command can only be used in a guild.");
       return;
     }
 
@@ -57,17 +65,17 @@ export const timeout: SlashCommand = {
 
     // Timeout the user
     const timeout = await moderation.timeout({
-      user: member,
+      user,
       reason,
       duration,
       actionBy,
-      guild: member.guild, // workaround for guild not being available in interaction because of cache thingy , look into it and the types
+      guild,
     });
 
     await interaction.editReply(
-      `User ${member.user.username} has been timed out for ${ms(
-        timeout.duration, {long: true}
-      )} with reason: ${reason}`
+      `User ${user.username} has been timed out for ${ms(timeout.duration, {
+        long: true,
+      })} with reason: ${reason}`
     );
   },
 };
