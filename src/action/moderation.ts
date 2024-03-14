@@ -331,6 +331,11 @@ export async function warn({
     }
   }
 
+  await getModlogChannel().send({
+    content: `Warned ${member.user.username} <@${member.id}>
+  Reason: ${reason}`,
+  });
+
   // Create a warn record
   return await warnService.create({
     guildId: member.guild.id,
