@@ -115,7 +115,9 @@ export async function ban({
 
   // Ban the user
   try {
-    await guildToBanFrom.members.ban(userToBan, { reason });
+    await guildToBanFrom.members.ban(userToBan, {
+      reason: `Reason: ${reason}\nResponsible Moderator: ${actionBy.username}`,
+    });
   } catch (banError: any) {
     if (banError.code === 50013) {
       throw new CustomDiscordError("I don't have permission to ban this user.");
@@ -228,13 +230,24 @@ export async function timeout({
     );
   }
 
-  await member.timeout(durationInMs, reason);
-
-  await member.send(
-    `You have been timed out from ${
-      member.guild.name
-    }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
+  await member.timeout(
+    durationInMs,
+    `Reason: ${reason}\nResponsible Moderator: ${actionBy.username}`
   );
+
+  try {
+    // ToDo: Has to be implemented with IMessage with customization options
+    // Notify the user via DM before banning
+    await member.send(
+      `You have been timed out from ${
+        member.guild.name
+      }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
+    );
+  } catch (dmError: any) {
+    if (dmError.code === 50007) {
+      console.log("Could not send DM to the user.");
+    }
+  }
 
   await member.guild.systemChannel?.send({
     content: `TimedOut ${member.user.username} <@${member.id}>

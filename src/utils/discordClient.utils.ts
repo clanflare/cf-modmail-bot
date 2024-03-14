@@ -8,7 +8,7 @@ const rest = new REST().setToken(token);
 (async () => {
   try {
     console.log("Started refreshing application (/) commands.");
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.ENV === "production") {
       await rest.put(Routes.applicationCommands(clientId), {
         body: commands.map((command) => command.data.toJSON()),
       });

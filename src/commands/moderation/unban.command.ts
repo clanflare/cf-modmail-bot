@@ -24,6 +24,12 @@ export const unban: SlashCommand = {
     // Fetch the user to unban
     const user = interaction.options.getUser("user", true);
 
+    // Check if the user and actionBy are the same
+    if (user.id === interaction.user.id) {
+      await interaction.reply("You cannot unban yourself.");
+      return;
+    }
+
     // Fetch the reason for the unban
     const reason = interaction.options.get("reason", true).value as string;
 
@@ -51,7 +57,7 @@ export const unban: SlashCommand = {
     });
 
     await interaction.editReply(
-      `Unbanned ${user.username} for: ${unban.reason}.\nUser ${user.username} is not in any mutual guilds with the bot.`
+      `Unbanned ${user.username} for: ${unban.reason}.`
     );
   },
 };

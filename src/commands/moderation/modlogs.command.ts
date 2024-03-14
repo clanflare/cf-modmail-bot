@@ -31,6 +31,7 @@ export const modlogs: SlashCommand = {
         .setRequired(false)
     ),
   async execute(interaction: CommandInteraction) {
+
     // Fetch the user to modlogs
     const user = interaction.options.getUser("user", true);
 

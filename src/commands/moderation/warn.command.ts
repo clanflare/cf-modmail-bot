@@ -24,6 +24,12 @@ export const warn: SlashCommand = {
     // Fetch the user to warn
     const user = interaction.options.getUser("user", true);
 
+    // Check if the user and actionBy are the same
+    if (user.id === interaction.user.id) {
+      await interaction.reply("You cannot warn yourself.");
+      return;
+    }
+
     // Fetch the reason for the warn
     const reason = interaction.options.get("reason", true).value as string;
 

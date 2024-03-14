@@ -18,7 +18,7 @@ export const ban: SlashCommand = {
         .setDescription("The reason for the ban")
         .setRequired(true)
     )
-    .addIntegerOption((option) =>
+    .addStringOption((option) =>
       option
         .setName("duration")
         .setDescription("The duration of the ban. 0 for permanent.")
@@ -27,6 +27,12 @@ export const ban: SlashCommand = {
   async execute(interaction: CommandInteraction) {
     // Fetch the user to ban
     const user = interaction.options.getUser("user", true);
+
+    // Check if the user and actionBy are the same
+    if (user.id === interaction.user.id) {
+      await interaction.reply("You cannot ban yourself.");
+      return;
+    }
 
     // Fetch the reason for the ban
     const reason = interaction.options.get("reason", true).value as string;

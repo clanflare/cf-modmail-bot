@@ -36,6 +36,12 @@ export const timeout: SlashCommand = {
     // Fetch the user to timeout
     const member = interaction.options.getMember("user") as GuildMember;
 
+    // Check if the user and actionBy are the same
+    if (member.id === interaction.user.id) {
+      await interaction.reply("You cannot timeout yourself.");
+      return;
+    }
+
     const reason = interaction.options.get("reason", true).value as string;
 
     const duration = interaction.options.get("duration", true).value as string;
