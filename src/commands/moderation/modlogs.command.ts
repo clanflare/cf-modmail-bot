@@ -56,8 +56,12 @@ export const modlogs: SlashCommand = {
       type,
       guild: interaction.guild,
     });
+    if (!modlogs.length) {
+      await interaction.editReply("No modlogs found for this user.");
+      return;
+    }
     const modlogsEmbed = {
-      title: `Modlogs for ${user.tag} - user.id`,
+      title: `Modlogs for ${user.tag} - ${user.id}`,
       description: modlogs
         .map((log) => {
           return `\n\n\n**Type:** ${log.type}\n**Reason:** ${
