@@ -31,7 +31,6 @@ export const modlogs: SlashCommand = {
         .setRequired(false)
     ),
   async execute(interaction: CommandInteraction) {
-
     // Fetch the user to modlogs
     const user = interaction.options.getUser("user", true);
 
@@ -68,15 +67,15 @@ export const modlogs: SlashCommand = {
             log.reason
           }\n**Date:** ${new Date(
             log.createdAt as unknown as string
-          ).toLocaleString()
-        }\n**Action by:** <@${log.actionBy.userId}>`;
+          ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
         })
         .toString(),
     };
 
     // Reply to the interaction
     await interaction.editReply({
-  content: "",
-       embeds: [modlogsEmbed] });
+      content: "",
+      embeds: [modlogsEmbed],
+    });
   },
 };
