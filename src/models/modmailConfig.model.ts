@@ -34,7 +34,6 @@ const ModmailConfigSchema = new Schema<IModmailConfig>(
       default: false,
     },
     initialMessage: {
-      required: [true, "Initial Message is required"],
       type: Object,
       validate: {
         validator: botComponentValidator,

@@ -1,5 +1,5 @@
 import { jwtSecret } from "@/config/config";
-import serverConfigModel from "@/models/modmailConfig.model";
+import modmailConfigModel from "@/models/modmailConfig.model";
 import type { Payload } from "@/types/jwt";
 import type { IModmailConfig, ISupportMessage } from "@/types/models";
 import type { PostConfigContext } from "@/validators/config";
@@ -18,11 +18,13 @@ export const saveConfig = async (context: PostConfigContext) => {
   const decoded = jwt.verify(token, jwtSecret) as Payload;
 
   const serverConfig: IModmailConfig =
-    (await serverConfigModel.findOne({
+    (await modmailConfigModel.findOne({
       guildId: decoded.guildId,
     })) || ({} as IModmailConfig);
 
-  if (!serverConfig) {
+    console.log(serverConfig);
+
+  if (!serverConfig || !serverConfig.guildId) {
     context.set.status = 404;
     return {
       message: "Server not found",
@@ -33,26 +35,33 @@ export const saveConfig = async (context: PostConfigContext) => {
 
   const { body } = context;
   const { archiveChannelId, modmailCategoryId } = body;
-  if (archiveChannelId && modmailCategoryId) {
-    const data = await serverConfigModel.findOneAndUpdate(
-      { guildId: decoded.guildId },
-      {
-        ...body,
-      },
-      { new: true }
-    );
+  const { expiresAt } = decoded;
+  if (Date.now() > expiresAt) {
     return {
-      message: "Successful",
-      data,
-      code: 200,
+      message: "Token expired",
+      code: 400,
+      data: undefined,
     };
   }
 
+  const data = await modmailConfigModel.findOneAndUpdate(
+    { guildId: decoded.guildId },
+    body,
+    { new: true}
+  );
+  if (!data) {
+    return {
+      message: "Failed to update server",
+      code: 500,
+      data: undefined,
+    };
+  }
   return {
-    message: "Invalid data",
-    code: 400,
-    data: undefined,
+    message: "Successful",
+    data,
+    code: 200,
   };
+ 
 };
 
 export const getConfig = async (context: Context) => {
@@ -67,11 +76,11 @@ export const getConfig = async (context: Context) => {
   const decoded = jwt.verify(token, jwtSecret) as Payload;
 
   const serverConfig: IModmailConfig =
-    (await serverConfigModel.findOne({
+    (await modmailConfigModel.findOne({
       guildId: decoded.guildId,
     })) || ({} as IModmailConfig);
-  if (!serverConfig) {
-    const data: IModmailConfig = await serverConfigModel.create({
+  if (!serverConfig || !serverConfig.guildId) {
+    const data: IModmailConfig = await modmailConfigModel.create({
       guildId: decoded.guildId,
       archiveChannelId: "",
       modmailCategoryId: "",

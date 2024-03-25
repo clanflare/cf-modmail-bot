@@ -1,10 +1,8 @@
 import type { SlashCommand } from "@/types/commands";
 import { moderation } from "@/action";
-import { timeoutService } from "@/services";
 import {
   SlashCommandBuilder,
   type CommandInteraction,
-  type GuildMember,
 } from "discord.js";
 import ms from "ms";
 
@@ -29,7 +27,7 @@ export const timeout: SlashCommand = {
     .addStringOption((option) =>
       option
         .setName("reason")
-        .setDescription("The reason for the unban")
+        .setDescription("The reason for the timeout.")
         .setRequired(true)
     ),
   async execute(interaction: CommandInteraction) {
@@ -45,13 +43,16 @@ export const timeout: SlashCommand = {
     // Fetch the guild
     const guild = interaction.guild;
 
+    // Check if the command is being used in a guild
     if (!guild) {
       await interaction.reply("This command can only be used in a guild.");
       return;
     }
 
+    // Fetch the reason for the timeout
     const reason = interaction.options.get("reason", true).value as string;
 
+    // Fetch the duration of the timeout
     const duration = interaction.options.get("duration", true).value as string;
 
     // Fetch the user who timed out the user

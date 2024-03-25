@@ -73,8 +73,8 @@ export const postConfigValidator = {
     authorization: t.String(),
   }),
   body: t.Object({
-    archiveChannelId: t.String(),
-    modmailCategoryId: t.String(),
+    archiveChannelId: t.Optional(t.String()),
+    modmailCategoryId: t.Optional(t.String()),
     aiSupport: t.Optional(t.Boolean()),
     initialMessage: messageComponent,
   }),
