@@ -5,6 +5,7 @@ const clientSecret = process.env.DISCORD_CLIENT_SECRET as string;
 const mongoUri = process.env.MONGO_URI as string;
 const jwtSecret = process.env.JWT_SECRET as string;
 const frontendUrl = process.env.FRONTEND_URL as string;
+const defaultPrefix = process.env.DEFAULT_PREFIX as string;
 
 if (!token) {
   throw new Error("DISCORD_BOT_TOKEN is not defined");
@@ -34,4 +35,7 @@ if (!frontendUrl) {
   throw new Error("FRONTEND_URL is not defined");
 }
 
-export { token, clientId, guildId, clientSecret, mongoUri, jwtSecret, frontendUrl };
+if(!defaultPrefix) {
+  throw new Error("DEFAULT_PREFIX is not defined");
+}
+export { token, clientId, guildId, clientSecret, mongoUri, jwtSecret, frontendUrl, defaultPrefix };

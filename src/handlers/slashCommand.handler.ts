@@ -1,10 +1,10 @@
 import { Client, type Interaction } from "discord.js";
-import commands from "@/commands";
+import slashCommands from "@/commands/slash";
 import { CustomDiscordError } from "@/types/errors";
 
 export default async function (client: Client, interaction: Interaction) {
   if (!interaction.isChatInputCommand()) return;
-  const command = commands.get(interaction.commandName);
+  const command = slashCommands.get(interaction.commandName);
   try {
     if (!command) throw new Error("Command not found");
     await command.execute(interaction);

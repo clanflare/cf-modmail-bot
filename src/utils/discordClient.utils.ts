@@ -1,4 +1,4 @@
-import commands from "@/commands";
+import slashCommands from "@/commands/slash";
 import { clientId, guildId, token } from "@/config/config";
 import { Client, GatewayIntentBits, Partials, REST, Routes } from "discord.js";
 import handler from "../handlers";
@@ -10,11 +10,11 @@ const rest = new REST().setToken(token);
     console.log("Started refreshing application (/) commands.");
     if (process.env.ENV === "production") {
       await rest.put(Routes.applicationCommands(clientId), {
-        body: commands.map((command) => command.data.toJSON()),
+        body: slashCommands.map((command) => command.data.toJSON()),
       });
     } else {
       await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-        body: commands.map((command) => command.data.toJSON()),
+        body: slashCommands.map((command) => command.data.toJSON()),
       });
     }
     console.log("Successfully reloaded application (/) commands.");
@@ -31,6 +31,7 @@ const client = new Client({
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.DirectMessageTyping,
     GatewayIntentBits.DirectMessageReactions,
+    GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessageTyping, //all intents
   ],
   partials: [Partials.Channel, Partials.Message], //all partial
