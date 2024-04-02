@@ -17,14 +17,19 @@ export default async function (client: Client, message: Message) {
     if (message.author.bot) return;
     if (!message.content.startsWith(defaultPrefix)) return;
     //check if the message is a command
-    const commandName = message.content.slice(defaultPrefix.length).trim().split(/ +/).shift()?.toLowerCase();
+    const commandName = message.content
+      .slice(defaultPrefix.length)
+      .trim()
+      .split(/ +/)
+      .shift()
+      ?.toLowerCase();
     if (!commandName) return;
     const command = textCommandNamesAndAliases.get(commandName);
     if (!command) return;
     const args = await command.argumentParser(message);
-    await command.validator(message,args);
-    console.log(args[0]);
-    await command.execute(message,args);
+    await command.validator(message, args);
+    // console.log(args[0]);
+    await command.execute(message, args);
   } catch (err) {
     if (err instanceof CustomDiscordError && err.display) {
       message.reply(err.message);
