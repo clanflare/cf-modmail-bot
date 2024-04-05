@@ -15,18 +15,20 @@ export const wvc: TextCommand = {
     }
     const parsedArgs = message.content.split(" ");
     parsedArgs.shift();
-    await Promise.all(parsedArgs.map( async (arg) => {
-      if (message.guild && regexforids.test(arg)) {
-        const member = await getMember(arg, message.guild); // write a utility to populate an array of ids to discord.js objects
-        if (member) {
-          args.push(member);
+    await Promise.all(
+      parsedArgs.map(async (arg) => {
+        if (message.guild && regexforids.test(arg)) {
+          const member = await getMember(arg, message.guild); // write a utility to populate an array of ids to discord.js objects
+          if (member) {
+            args.push(member);
+          }
         }
-      }
-    }));
+      })
+    );
     if (!args.length || !args[0]) {
-      args.push(await getMember(message.author, message.guild));
+      if (message.guild)
+        args.push(await getMember(message.author, message.guild));
     }
-    console.log(args);
     return args;
   },
   validator: async (message, args) => {
