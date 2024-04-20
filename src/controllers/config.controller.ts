@@ -1,5 +1,6 @@
 import { jwtSecret } from "@/config/config";
 import modmailConfigModel from "@/models/modmailConfig.model";
+import { createDefaultConfigForGuild, getModmailConfig, updateModmailConfig } from "@/services/config.service";
 import type { Payload } from "@/types/jwt";
 import type { IModmailConfig, ISupportMessage } from "@/types/models";
 import type { PostConfigContext } from "@/validators/config";
@@ -22,8 +23,8 @@ export const saveConfig = async (context: PostConfigContext) => {
       guildId: decoded.guildId,
     })) || ({} as IModmailConfig);
 
-    console.log(serverConfig);
 
+    console.log(serverConfig);
   if (!serverConfig || !serverConfig.guildId) {
     context.set.status = 404;
     return {
@@ -34,7 +35,7 @@ export const saveConfig = async (context: PostConfigContext) => {
   }
 
   const { body } = context;
-  const { archiveChannelId, modmailCategoryId } = body;
+  // const { archiveChannelId, modmailCategoryId } = body;
   const { expiresAt } = decoded;
   if (Date.now() > expiresAt) {
     return {
@@ -44,11 +45,7 @@ export const saveConfig = async (context: PostConfigContext) => {
     };
   }
 
-  const data = await modmailConfigModel.findOneAndUpdate(
-    { guildId: decoded.guildId },
-    body,
-    { new: true}
-  );
+  const data = await updateModmailConfig(decoded.guildId, body);
   if (!data) {
     return {
       message: "Failed to update server",
@@ -75,22 +72,9 @@ export const getConfig = async (context: Context) => {
   }
   const decoded = jwt.verify(token, jwtSecret) as Payload;
 
-  const serverConfig: IModmailConfig =
-    (await modmailConfigModel.findOne({
-      guildId: decoded.guildId,
-    })) || ({} as IModmailConfig);
+  const serverConfig = await getModmailConfig(decoded.guildId);
   if (!serverConfig || !serverConfig.guildId) {
-    const data: IModmailConfig = await modmailConfigModel.create({
-      guildId: decoded.guildId,
-      archiveChannelId: "",
-      modmailCategoryId: "",
-      initialMessage: {
-        message: <ISupportMessage>{
-          content: "Hello! How can we help you?",
-        },
-        buttons: [],
-      },
-    });
+    const data = createDefaultConfigForGuild(decoded.guildId);
     if (!data) {
       return {
         message: "Failed to create server",

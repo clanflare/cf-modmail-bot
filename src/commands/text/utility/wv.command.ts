@@ -13,10 +13,16 @@ export const wvc: TextCommand = {
     if (message.reference) {
       args.push((await message.fetchReference()).member);
     }
+    if (message.mentions.members) {
+      message.mentions.members.forEach((member) => {
+        args.push(member);
+      });
+    }
     const parsedArgs = message.content.split(" ");
     parsedArgs.shift();
+    let distinctArgs = [...new Set(parsedArgs)];
     await Promise.all(
-      parsedArgs.map(async (arg) => {
+      distinctArgs.map(async (arg) => {
         if (message.guild && regexforids.test(arg)) {
           const member = await getMember(arg, message.guild); // write a utility to populate an array of ids to discord.js objects
           if (member) {
@@ -39,8 +45,8 @@ export const wvc: TextCommand = {
       throw new CustomDiscordError(
         "You need to be in a server to use this command"
       );
-    else if (args.length > 4)
-      throw new Error("You can only mention upto 4 members at a time"); // in the custom error implementation, the error message will be sent to the user and then deleted after a certain time and all this config will be optional and present in the generic custom error implementation
+    if (args.length > 4)
+      throw new CustomDiscordError("You can only mention upto 4 members at a time"); // in the custom error implementation, the error message will be sent to the user and then deleted after a certain time and all this config will be optional and present in the generic custom error implementation
   },
   execute: async (message, args) => {
     if (args.length === 1) {
@@ -55,7 +61,7 @@ export const wvc: TextCommand = {
     } else {
       const members = args; // need to be fixed when the argument parser type declaration is made
       message.channel.send(
-        `The following members are in a voice channel: ${args
+        `The following members are in a voice channel:\n${args
           .map(
             (member: any) =>
               `${member.displayName} - ${
@@ -64,7 +70,7 @@ export const wvc: TextCommand = {
                   : "Not in VC"
               }`
           )
-          .join(", ")}`
+          .join(",\n")}`
       );
     }
   },
