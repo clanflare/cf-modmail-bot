@@ -1,12 +1,12 @@
-import { modlogs } from "@/action/moderation";
 import { ChannelType, Client, Message, MessageType } from "discord.js";
-import OpenAI from "openai";
-import type {
-  ChatCompletionMessageParam,
-  ChatCompletionTool,
-} from "openai/resources/index.mjs";
+// import { modlogs } from "@/action/moderation";
+// import OpenAI from "openai";
+// import type {
+//   ChatCompletionMessageParam,
+//   ChatCompletionTool,
+// } from "openai/resources/index.mjs";
 
-const openai = new OpenAI();
+// const openai = new OpenAI();
 
 export default async function (client: Client, message: Message) {
   if (message.partial) message = await message.fetch();
@@ -16,7 +16,8 @@ export default async function (client: Client, message: Message) {
 
   
 
-  // console.log(message.content);
+  
+
   // try {
   //   const messages: ChatCompletionMessageParam[] = [
   //     {

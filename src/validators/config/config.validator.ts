@@ -60,7 +60,7 @@ export const messageComponent = t.Recursive(
             label: t.String(),
             linkedComponent: thiss,
             emoji: t.Optional(t.String()),
-            style: t.Optional(t.String()),
+            style: t.Optional(t.String({ enum: ["Primary", "Secondary", "Success", "Danger"]})),
           }),
         ),
       ),

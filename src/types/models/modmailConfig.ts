@@ -1,5 +1,6 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
 import type { SupportMessage } from ".";
+import type { ButtonStyle } from "discord.js";
 
 export type ModmailConfig = {
   guildId: string; // guild where the modmail was opened
@@ -24,5 +25,5 @@ export type Button = {
   label: string;
   linkedComponent: MessageComponent;
   emoji: string;
-  style: string;
+  style: ButtonStyle;
 };

@@ -16,9 +16,13 @@ const ModmailSchema = new Schema<IModmail>(
       enum: ["open", "resolved"],
       default: "open",
     },
-    channelId: {
+    userChannelId: {
       type: String,
-      required: [true, "Channel ID is required"],
+      required: [true, "User Channel ID is required"],
+    },
+    modmailChannelId: {
+      type: String,
+      required: [true, "Modmail Channel ID is required"],
     },
     threadId: {
       type: String,
