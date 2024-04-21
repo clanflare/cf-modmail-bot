@@ -1,3 +1,4 @@
+import { getActiveModmail } from "@/utils/modmail.utils";
 import { ChannelType, Client, Message, MessageType } from "discord.js";
 // import { modlogs } from "@/action/moderation";
 // import OpenAI from "openai";
@@ -13,8 +14,9 @@ export default async function (client: Client, message: Message) {
   if (message.author.bot) return;
   if (message.channel.type !== ChannelType.DM) return;
   if (message.type !== MessageType.Default) return;
-
-  
+  let dmChannel = message.channel;
+  if (dmChannel.partial) dmChannel = await message.channel.fetch();
+  getActiveModmail(dmChannel, message);
 
   
 

@@ -21,9 +21,11 @@ async function modmailHandler(modmail: ModmailDiscord) {
         content: `New Modmail from ${modmail.member.user.tag} (${modmail.member.id})`,
         embeds: [],
     });
-    const InteractionCollector = modmail.modmailChannel.createMessageComponentCollector({
-        filter: (interaction) => interaction.user.id === modmail.member.id,
-    });
+    const InteractionCollector = modmail.userChannel.createMessageComponentCollector(
+    //     {
+    //     filter: (interaction) => interaction.user.id === modmail.member.id,
+    // }
+);
     InteractionCollector.on("collect", async (interaction) => {
         await interaction.reply({
             content: `${interaction.customId.split("-")[1]} option selected.`,
@@ -33,17 +35,19 @@ async function modmailHandler(modmail: ModmailDiscord) {
         if(!modmail.lastSystemMessage) return; // instead of returning send the first initial message which should be modulariezed from the code below
         const sent = modmail?.lastSystemMessage?.buttons.find((button) => {
             if (button.label === interaction.customId.split("-")[1]) {
+                console.log(button, button.linkedComponent);
                 modmail.lastSystemMessage = button.linkedComponent;
+                console.log(modmail.lastSystemMessage);
                 const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
                     modmail.lastSystemMessage.buttons.map((button) => {
                         return new ButtonBuilder()
                             .setLabel(button.label)
-                            .setStyle(button.style)
+                            .setStyle(button.style ? button.style : ButtonStyle.Secondary)
                             .setCustomId(`modmail_button-${button.label}`)
-                            .setEmoji(button.emoji);
+                            // .setEmoji(button.emoji);
                     })
                 );
-                modmail.modmailChannel?.send({
+                modmail.userChannel?.send({
                     content: modmail.lastSystemMessage.message.content,
                     embeds: modmail.lastSystemMessage.message.embeds,
                     components: [newRow]
@@ -95,16 +99,16 @@ async function getModmailArchiveThread(userId: string, guildId: string) {
     });
 }
 
-async function getActiveModmail(userChannel: DMChannel | BaseGuildTextChannel, message: Message) {
+export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextChannel, message: Message) {
     const modmail = ongoingModmails.get(userChannel.id);
     if (modmail) return modmail;
-    const guildId = message?.guild?.id ? message.guild.id : "get some thing from env if whitelable"; //get some thing from env if whitelable and  write this in env
+    const guildId = message?.guild?.id ? message.guild.id : "1170627136059609118"; //get some thing from env if whitelable and  write this in env
 
     const modmailConfig = await getModmailConfig(guildId);
     if (!modmailConfig) {
         return null;
     }
-
+    
     const fetchedModmail = await getOpenModmailByUserId(message.author.id, guildId);
     if (fetchedModmail) {
         const userChannel = await client.channels.fetch(fetchedModmail.userChannelId) as DMChannel | BaseGuildTextChannel;
@@ -124,14 +128,12 @@ async function getActiveModmail(userChannel: DMChannel | BaseGuildTextChannel, m
         return fetchedModmailWithChannels;
     }
 
-    
-
     const buttons = modmailConfig.initialMessage.buttons.map((button) => {
         return new ButtonBuilder()
             .setLabel(button.label)
-            .setStyle(button.style as any)// actually it is validated but the typesafety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
+            .setStyle(button.style ? button.style : ButtonStyle.Secondary)// actually it is validated but the typesafety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
             .setCustomId(`modmail_button-${button.label}`)
-            .setEmoji(button.emoji);
+            // .setEmoji(button.emoji ? button.emoji : "Hehe");
     });
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);

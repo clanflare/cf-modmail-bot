@@ -42,7 +42,7 @@ app.get("/", getConfig);
 
 app.guard(postConfigValidator).post("/", saveConfig, {
   beforeHandle: (context) => {
-    return characterCounter(context.body.initialMessage as MessageComponent);
+    return characterCounter(context.body.initialMessage as MessageComponent); // ToDo: Check this
   },
 });
 
