@@ -2,7 +2,7 @@ import type { MessageComponent, IModmailConfig } from "@/types/models";
 import { Schema, model } from "mongoose";
 
 const botComponentValidator = (v: MessageComponent) => {
-  if (!v.message || !v.buttons || v.buttons.length > 5) return false;
+  if (!v.message || v.buttons.length > 5) return false;
   if (v.buttons.length > 0) {
     for (const button of v.buttons) {
       if (!button.label || !button.linkedComponent) return false;
