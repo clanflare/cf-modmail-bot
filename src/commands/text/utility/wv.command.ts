@@ -9,10 +9,7 @@ export const wvc: TextCommand = {
   name: "whichvc",
   aliases: ["wv"],
   argumentParser: async (message) => {
-    const args = [];
-    if (message.reference) {
-      args.push((await message.fetchReference()).member);
-    }
+    const args: GuildMember[] = [];
     if (message.mentions.members) {
       message.mentions.members.forEach((member) => {
         args.push(member);
