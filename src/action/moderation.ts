@@ -29,7 +29,7 @@ import ms from "ms";
 import { getBan, getGuild, getMember, getRole, getUser } from ".";
 
 export function getModlogChannel() {
-  const modlogChannel = client.channels.cache.get("1213364292426928178");
+  const modlogChannel = client.channels.cache.get("1170627136059609121");
   return modlogChannel as BaseGuildTextChannel;
 }
 
@@ -343,6 +343,54 @@ export async function warn({
     reason,
     actionBy,
     actions,
+  });
+}
+
+export async function removeWarn({
+  user,
+  warn,
+  guild,
+  actionBy,
+}: {
+  user: string | User;
+  warn: Partial<
+    Pick<IWarn, "guildId" | "userId" | "actionBy" | "_id" | "reason">
+  >;
+  guild: string | Guild;
+  actionBy: { username: string; userId: string };
+}): Promise<void> {
+  const member = await getMember(user, guild);
+  warn = (
+    await warnService.getWarns({
+      guildId: member.guild.id,
+      userId: member.id,
+    })
+  )[0];
+  if (!warn) {
+    throw new CustomDiscordError("Warn not found.");
+  }
+  const removedWarn = await warnService.deleteWarn({
+    warnId: warn._id,
+    guildId: member.guild.id,
+    userId: member.id,
+  });
+  if (!removedWarn) {
+    throw new CustomDiscordError("Warn not found.");
+  }
+
+  try {
+    // ToDo: Has to be implemented with IMessage with customization options
+    // Notify the user via DM before banning
+    await member.send(
+      `Your warn has been removed in ${member.guild.name}.\nWarn details:\nReason: ${warn.reason}`
+    );
+  } catch (dmError: any) {
+    if (dmError.code === 50007) {
+      console.log("Could not send DM to the user.");
+    }
+  }
+  await getModlogChannel().send({
+    content: `Warn Removed: ${member.id} - ${member.user.username} - <@${member.id}>\nWarn details:\nReason: ${warn.reason}\nAction By: ${warn.actionBy?.username} <@${warn.actionBy?.userId}>\nRemoved by: ${actionBy.username} <@${actionBy.userId}>`,
   });
 }
 
