@@ -29,7 +29,7 @@ import ms from "ms";
 import { getBan, getGuild, getMember, getRole, getUser } from ".";
 
 export function getModlogChannel() {
-  const modlogChannel = client.channels.cache.get("1170627136059609121");
+  const modlogChannel = client.channels.cache.get("1213364292426928178");
   return modlogChannel as BaseGuildTextChannel;
 }
 
