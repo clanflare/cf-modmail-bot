@@ -35,15 +35,19 @@ export const wvc: TextCommand = {
     return args;
   },
   validator: async (message, args) => {
-    if (
-      !message.guild &&
-      !(await message.member?.fetch())?.permissions.has(PermissionFlagsBits.ManageMessages)
-    )
+    if (!message.guild)
       throw new CustomDiscordError(
         "You need to be in a server to use this command"
       );
+    const member = await getMember(message.author, message.guild);
+    if (!member.permissions.has(PermissionFlagsBits.ManageMessages))
+      throw new CustomDiscordError(
+        "You don't have permission to use this command"
+      );
     if (args.length > 4)
-      throw new CustomDiscordError("You can only mention upto 4 members at a time"); // in the custom error implementation, the error message will be sent to the user and then deleted after a certain time and all this config will be optional and present in the generic custom error implementation
+      throw new CustomDiscordError(
+        "You can only mention upto 4 members at a time"
+      ); // in the custom error implementation, the error message will be sent to the user and then deleted after a certain time and all this config will be optional and present in the generic custom error implementation
   },
   execute: async (message, args) => {
     if (args.length === 1) {
