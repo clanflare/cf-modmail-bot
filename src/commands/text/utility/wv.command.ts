@@ -37,7 +37,7 @@ export const wvc: TextCommand = {
   validator: async (message, args) => {
     if (
       !message.guild &&
-      !message.member?.permissions.has(PermissionFlagsBits.ManageMessages)
+      !(await message.member?.fetch())?.permissions.has(PermissionFlagsBits.ManageMessages)
     )
       throw new CustomDiscordError(
         "You need to be in a server to use this command"
