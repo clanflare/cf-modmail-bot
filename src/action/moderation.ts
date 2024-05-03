@@ -107,6 +107,16 @@ export async function ban({
   if (bannedUser) {
     throw new CustomDiscordError("User is already banned.");
   }
+
+  // Check if the bot can ban the user and if the user is higher in the hierarchy
+  try {
+    if (!(await getMember(userToBan, guildToBanFrom)).bannable) {
+      throw new CustomDiscordError("I don't have permission to ban this user.");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
   try {
     // ToDo: Has to be implemented with IMessage with customization options
     // Notify the user via DM before banning
@@ -117,11 +127,6 @@ export async function ban({
     if (dmError.code === 50007) {
       console.log("Could not send DM to the user.");
     }
-  }
-
-  // Check if the bot can ban the user and if the user is higher in the hierarchy
-  if (!(await getMember(userToBan, guildToBanFrom)).bannable) {
-    throw new CustomDiscordError("I don't have permission to ban this user.");
   }
 
   // Ban the user
