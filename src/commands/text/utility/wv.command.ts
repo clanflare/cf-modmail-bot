@@ -36,12 +36,12 @@ export const wvc: TextCommand = {
   },
   validator: async (message, args) => {
     if (!message.guild)
-      throw new CustomDiscordError(
+      throw new Error(
         "You need to be in a server to use this command"
       );
     const member = await getMember(message.author, message.guild);
     if (!member.permissions.has(PermissionFlagsBits.ManageMessages))
-      throw new CustomDiscordError(
+      throw new Error(
         "You don't have permission to use this command"
       );
     if (args.length > 4)

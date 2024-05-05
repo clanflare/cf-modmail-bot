@@ -108,6 +108,8 @@ export async function ban({
     throw new CustomDiscordError("User is already banned.");
   }
 
+  // ToDo: Reimplement this with a proper permission check
+  // if user is not in server, it should ban
   // Check if the bot can ban the user and if the user is higher in the hierarchy
   try {
     if (!(await getMember(userToBan, guildToBanFrom)).bannable) {
