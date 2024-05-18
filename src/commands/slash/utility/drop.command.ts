@@ -45,7 +45,7 @@ export const drop: SlashCommand = {
       option
         .setName("case-sensitive")
         .setDescription("Want the word to be case sensitive, default no")
-        .setChoices({name: "Yes", value: "yes"}, {name: "No", value: "no"})
+        .setChoices({ name: "Yes", value: "yes" }, { name: "No", value: "no" })
     )
     .setDefaultMemberPermissions(0)
     .setDMPermission(false),
@@ -82,12 +82,11 @@ export const drop: SlashCommand = {
       content: "Drop created successfully\n" + link,
       ephemeral: true,
     });
-
     // Message collector
     const collectorFilter = (m: Message) =>
       caseSensitive === "yes"
         ? m.content === word
-        : m.content.toLowerCase === word.toLowerCase;
+        : m.content.toLowerCase() === word.toLowerCase();
     try {
       const claimed = await channel.awaitMessages({
         filter: collectorFilter,
