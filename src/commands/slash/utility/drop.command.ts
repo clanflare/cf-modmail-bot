@@ -41,6 +41,12 @@ export const drop: SlashCommand = {
         .setName("victory-message")
         .setDescription("The victory message, winning user will receive")
     )
+    .addStringOption((option) =>
+      option
+        .setName("case-sensitive")
+        .setDescription("Want the word to be case sensitive, default no")
+        .setChoices({name: "Yes", value: "yes"}, {name: "No", value: "no"})
+    )
     .setDefaultMemberPermissions(0)
     .setDMPermission(false),
   async execute(interaction: CommandInteraction) {
@@ -58,7 +64,11 @@ export const drop: SlashCommand = {
     const message = interaction.options.get("message", true).value as string;
     const word = interaction.options.get("word", true).value as string;
     const duration = interaction.options.get("duration")?.value as string;
-    const victoryMessage = interaction.options.get("victory-message")?.value as string || "You have won the drop.";
+    const caseSensitive = interaction.options.get("case-sensitive")
+      ?.value as string;
+    const victoryMessage =
+      (interaction.options.get("victory-message")?.value as string) ||
+      "You have won the drop.";
 
     const durationInMs = duration ? ms(duration) : ms("1h");
     const channel = guild.channels.cache.get(channelId) as BaseGuildTextChannel;
@@ -74,7 +84,10 @@ export const drop: SlashCommand = {
     });
 
     // Message collector
-    const collectorFilter = (m: Message) => m.content === word;
+    const collectorFilter = (m: Message) =>
+      caseSensitive === "yes"
+        ? m.content === word
+        : m.content.toLowerCase === word.toLowerCase;
     try {
       const claimed = await channel.awaitMessages({
         filter: collectorFilter,
