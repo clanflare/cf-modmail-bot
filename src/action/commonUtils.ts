@@ -1,6 +1,16 @@
 import { CustomDiscordError } from "@/types/errors";
+import type { MessageComponent, SupportMessage } from "@/types/models";
 import client from "@/utils/discordClient.utils";
-import { Guild, User, GuildMember, Role } from "discord.js";
+import {
+  Guild,
+  User,
+  GuildMember,
+  Role,
+  Message,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} from "discord.js";
 
 export const getUser = async (user: string | User | GuildMember) => {
   // if user is type of user return user
@@ -14,6 +24,44 @@ export const getUser = async (user: string | User | GuildMember) => {
     throw new CustomDiscordError(`Failed to fetch user: ${error}`);
   }
 };
+
+export function messageParser(message: Message) {
+  //check partial message , fetch , deal with emtotes , add an option to remove mentions etc etc
+  if (message.stickers.first()) {
+    return {
+      content: `${message.content}\nsticker: ${message.stickers.first()?.url}`,
+    };
+  } else
+    return { content: message.content, files: message.attachments?.toJSON() };
+}
+
+export function supportMessageParser(messageComponent: MessageComponent,disableButton = false) {
+
+  if(!messageComponent.buttons || messageComponent.buttons.length==0)
+    return{
+      content: messageComponent.message.content,
+      embeds: messageComponent.message.embeds,
+      files:[],//attachmentws to be implemented from messageComponent.message.attachments
+      components: [],
+    }; 
+  
+  const parsedButtons = messageComponent?.buttons?.map(btn=>{
+    return new ButtonBuilder()
+    .setCustomId(btn.label)
+    .setLabel(btn.label)
+    .setDisabled(disableButton)
+    .setStyle(btn.style || ButtonStyle.Primary);
+  })
+
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(parsedButtons);
+
+  return {
+    content: messageComponent.message.content,
+    embeds: messageComponent.message.embeds,
+    files:[],//attachmentws to be implemented from messageComponent.message.attachments
+    components: [row]
+  }; 
+}
 
 export const getGuild = (guild: string | Guild) => {
   // if guild is type of Guild return guild

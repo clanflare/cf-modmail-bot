@@ -24,10 +24,6 @@ const ModmailSchema = new Schema<IModmail>(
       type: String,
       required: [true, "Modmail Channel ID is required"],
     },
-    threadId: {
-      type: String,
-      required: [true, "Thread ID is required"],
-    },
   },
   { timestamps: true }
 );
