@@ -39,7 +39,7 @@ export class ModmailClient {
       if(!modmailConfig)return;
       const firstMessageId = openModmail.interactiveMessageId;
       console.log(firstMessageId)
-      const userChannel = (await client.users.fetch(openModmail.userChannelId)).dmChannel;
+      const userChannel = (await client.users.fetch(openModmail.userId)).dmChannel;
       const interactiveMessage = await userChannel?.messages.fetch(firstMessageId);
       if(!interactiveMessage)return;
       //fetch the interactive message and also send the required channels to the constructor
