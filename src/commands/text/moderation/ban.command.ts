@@ -1,78 +1,78 @@
-import { moderation } from "@/action";
-import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
-import ms from "ms";
+import { moderation, getMember } from "@/action";
+import type { TextCommand } from "@/types/commands";
+import { CustomDiscordError } from "@/types/errors";
+import { PermissionFlagsBits } from "discord.js";
 
-export const ban: SlashCommand = {
-  data: new SlashCommandBuilder()
-    .setName("ban")
-    .setDescription("Ban an user.")
-    .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
-    .addUserOption((option) =>
-      option.setName("user").setDescription("The user to ban").setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("reason")
-        .setDescription("The reason for the ban")
-        .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("duration")
-        .setDescription("The duration of the ban. 0 for permanent.")
-        .setRequired(false)
-    ),
-  async execute(interaction: CommandInteraction) {
-    // Fetch the user to ban
-    const user = interaction.options.getUser("user", true);
+const regexforids = new RegExp(/^\d{16,20}$/); //put this as a util and use it for any id validation
 
-    // Check if the user and actionBy are the same
-    if (user.id === interaction.user.id) {
-      await interaction.reply("You cannot ban yourself.");
+export const ban: TextCommand = {
+  name: "ban",
+  aliases: ["banuser"],
+  argumentParser: async (message) => {
+    const args = [];
+    const mentionedMember = message.mentions.members?.first();
+    
+    if (mentionedMember) {
+      args.push(mentionedMember);
+    }
+
+    const parsedArgs = message.content.split(" ").slice(1);
+    const userIdOrDuration = parsedArgs[0];
+    const reason = parsedArgs.slice(1).join(" ") || "No reason provided.";
+
+    if (message.guild && regexforids.test(userIdOrDuration)) {
+      const member = await getMember(userIdOrDuration, message.guild);
+      if (member) {
+        args.push(member, reason);
+      }
+    } else if (mentionedMember) {
+      args.push(reason);
+    }
+
+    if (!args.length || !args[0]) {
+      throw new CustomDiscordError("Please mention a user or provide a valid user ID.");
+    }
+
+    return args;
+  },
+  validator: async (message, args) => {
+    if (!message.guild)
+      throw new Error("You need to be in a server to use this command");
+
+    const member = await getMember(message.author, message.guild);
+    if (!member.permissions.has(PermissionFlagsBits.BanMembers)) {
+      throw new CustomDiscordError("You don't have permission to ban members.");
+    }
+
+    if (!args.length || args.length < 2) {
+      throw new CustomDiscordError("Please provide a reason for the ban.");
+    }
+  },
+  execute: async (message, args) => {
+    const memberToBan = args[0];
+    const reason = args[1];
+
+    if (memberToBan.id === message.author.id) {
+      message.reply("You cannot ban yourself.");
       return;
     }
 
-    // Fetch the reason for the ban
-    const reason = interaction.options.get("reason", true).value as string;
+    try {
+      await moderation.ban({
+        user: memberToBan.id,
+        reason,
+        actionBy: {
+          username: message.author.username,
+          userId: message.author.id,
+        },
+        guild: message.guild || "",
+      });
 
-    // Fetch the duration of the ban
-    const duration = interaction.options.get("duration")?.value as string;
-
-    // Fetch the user who banned the user
-    const actionBy = {
-      username: interaction.user.username,
-      userId: interaction.user.id,
-    };
-
-    // Check if the command is being used in a guild
-    if (!interaction.guild) {
-      await interaction.reply("This command can only be used in a guild.");
-      return;
+      message.channel.send(
+        `Banned ${memberToBan.displayName} <@${memberToBan.id}>\nReason: ${reason}`
+      );
+    } catch (error) {
+      throw new CustomDiscordError("Failed to ban the user. Please try again.");
     }
-
-    // Send message for loading
-    await interaction.reply("Processing...");
-
-    // Ban the user
-    const ban = await moderation.ban({
-      user: user.id,
-      reason,
-      duration,
-      actionBy,
-      guild: interaction.guild,
-    });
-
-    // Notify the moderator about the ban
-    await interaction.editReply({
-      content: `Banned ${user.username} <@${user.id}>\nReason: ${
-        ban.reason
-      }\nDuration: ${
-        ban.duration === 0
-          ? "Permanent"
-          : `for ${ms(ban.duration, { long: true })}`
-      }`,
-    });
   },
 };
