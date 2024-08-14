@@ -38,8 +38,8 @@ export class ModmailClient {
       const modmailConfig = await getModmailConfig(openModmail.guildId);
       if(!modmailConfig)return;
       const firstMessageId = openModmail.interactiveMessageId;
-      console.log(firstMessageId)
-      const userChannel = (await client.users.fetch(openModmail.userId)).dmChannel;
+      const user = await client.users.fetch(openModmail.userId);
+      const userChannel = user.dmChannel || await user.createDM();
       const interactiveMessage = await userChannel?.messages.fetch(firstMessageId);
       if(!interactiveMessage)return;
       //fetch the interactive message and also send the required channels to the constructor
@@ -81,8 +81,7 @@ export class ModmailClient {
     );
     if (!modmailCategory || !(modmailCategory instanceof CategoryChannel))
       return; //err
-    let userChannel = user.dmChannel;
-    if (!user.dmChannel) userChannel = await user.createDM();
+    let userChannel = user.dmChannel || await user.createDM();
     if (!userChannel) return; //err
 
     const modmailChannel = await modmailCategory.guild.channels.create({
@@ -150,7 +149,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     this.guildId = modmailData.guildId;
     this.userId = modmailData.userId;
     this.modmailChannelId = modmailData.modmailChannelId;
-    this.userChannelId = modmailData.modmailChannelId;
+    this.userChannelId = modmailData.userChannelId;
     if (modmailChannel) this.modmailChannel = modmailChannel;
     if (userChannel) this.userChannel = userChannel;
     this.component = modmailConfig.initialMessage;
