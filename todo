@@ -1,0 +1,6 @@
+jwt magic link middle ware
+
+magic links become one time use , without state ??
+
+routes and controllers to conver magic token to access token
+

@@ -66,7 +66,7 @@ export const modlogs: SlashCommand = {
           return `\n\n\n**Type:** ${log.type}\n**Reason:** ${
             log.reason
           }\n**Date:** ${new Date(
-            log.createdAt as unknown as string
+            String(log.createdAt)
           ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
         })
         .toString(),

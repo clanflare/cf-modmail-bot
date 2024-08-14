@@ -11,7 +11,7 @@ import {
   type CollectedInteraction,
   type Message,
 } from "discord.js";
-import { createModmail } from "@/services/modmail.service";
+import { createModmail, getAllOpenModmails } from "@/services/modmail.service";
 import type {
   IModmail,
   IModmailConfig,
@@ -28,14 +28,35 @@ import { messageParser, supportMessageParser } from "@/action";
 export class ModmailClient {
   modmails: Collection<string, ModmailListener | null> = new Collection();
   lastModmail: number = 0;
-  constructor() {}
+  constructor() {
+    this.onLoad();
+  }
+
+  async onLoad(){
+    const openModmails = await getAllOpenModmails();
+    openModmails?.forEach(async openModmail => {
+      const modmailConfig = await getModmailConfig(openModmail.guildId);
+      if(!modmailConfig)return;
+      const firstMessageId = openModmail.interactiveMessageId;
+      console.log(firstMessageId)
+      const userChannel = (await client.users.fetch(openModmail.userChannelId)).dmChannel;
+      const interactiveMessage = await userChannel?.messages.fetch(firstMessageId);
+      if(!interactiveMessage)return;
+      //fetch the interactive message and also send the required channels to the constructor
+      this.modmails.set(openModmail.userId,new ModmailListener(
+        openModmail,
+        modmailConfig,
+        interactiveMessage,
+      ))
+    });
+    
+  }
 
   async messageListner(message: Message) {
     const modmailConfig = await getModmailConfig(guildId);
     if (!modmailConfig) return; //err
     if (modmailConfig && !this.modmails.has(message.author.id)) {
-      const firstMessage = supportMessageParser(modmailConfig.initialMessage);
-      const userMessage = await message.reply(firstMessage);
+      const userMessage = await message.reply("Creating a modmail...");
       this.createNewModmail(
         guildId,
         message.author,
@@ -83,6 +104,7 @@ export class ModmailClient {
       status: "open",
       modmailChannelId: modmailChannel.id,
       userChannelId: userChannel.id,
+      interactiveMessageId: userMessage.id,
     });
 
     this.modmails.set(
@@ -95,6 +117,7 @@ export class ModmailClient {
         userChannel
       )
     );
+    userMessage.edit(supportMessageParser(modmailConfig.initialMessage));
   }
 }
 
@@ -110,6 +133,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
   webhook?: Webhook;
   component: MessageComponent;
   interactiveMessage: Message;
+  interactiveMessageId: string;
 
   userChannelMessageCollector?: MessageCollector;
   modmailChannelMessageCollector?: MessageCollector;
@@ -131,6 +155,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     if (userChannel) this.userChannel = userChannel;
     this.component = modmailConfig.initialMessage;
     this.interactiveMessage = firstMessage;
+    this.interactiveMessageId = firstMessage.id; //db se bhi le skte , look for inconcistencies if ever there is a problem
     this.onStart();
   }
 

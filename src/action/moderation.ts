@@ -515,8 +515,8 @@ export async function modlogs({
       })
     );
     return logs.flat().sort((a, b) => {
-      const timeA = (a.createdAt as unknown as number) ?? 0;
-      const timeB = (b.createdAt as unknown as number) ?? 0;
+      const timeA = Number(a.createdAt) ?? 0;
+      const timeB = Number(b.createdAt) ?? 0;
       return timeB - timeA;
     });
   } else if (type in logServices) {

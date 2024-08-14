@@ -24,6 +24,10 @@ const ModmailSchema = new Schema<IModmail>(
       type: String,
       required: [true, "Modmail Channel ID is required"],
     },
+    interactiveMessageId:{
+      type: String,
+      required: [true, "interactiveMessageId is required"]
+    }
   },
   { timestamps: true }
 );
