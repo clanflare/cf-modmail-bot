@@ -1,3 +1,4 @@
+import { ButtonStyle } from "discord.js";
 import { t, type Context, type Static } from "elysia";
 
 const embed = t.Object({
@@ -8,7 +9,7 @@ const embed = t.Object({
   color: t.Optional(t.Number({ minimum: 0x000000, maximum: 0xffffff })), // hex color code in number format //because number is more efficient
   footer: t.Optional(
     t.Object({
-      text: t.Optional(t.String({ maxLength: 2048 })),
+      text: t.String({ maxLength: 2048 }),
       iconURL: t.Optional(t.String({ format: "uri" })),
     }),
   ),
@@ -61,7 +62,7 @@ export const messageComponent = t.Recursive(
             label: t.String(),
             linkedComponent: thiss,
             emoji: t.Optional(t.String()),
-            style: t.Optional(t.String({ enum: ["Primary", "Secondary", "Success", "Danger"]})),
+            style: t.Optional(t.Enum(ButtonStyle)),
           }),
         ),
       ),
