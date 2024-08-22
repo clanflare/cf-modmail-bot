@@ -94,7 +94,7 @@ export const modmailconfig: SlashCommand = {
 
     // Send the token
     await interaction.editReply({
-      content: `Click [here](${frontendUrl}/?token=${token}) to setup the modmail config.`,
+      content: `Click [here](${frontendUrl}/auth/magic-link?token=${token}) to setup the modmail config.`,
     });
   },
 };

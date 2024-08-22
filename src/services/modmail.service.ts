@@ -9,6 +9,10 @@ export const getOpenModmailByUserId = async (userId: string, guildId: string): P
   status: "open"
 });
 
+export const getAllOpenModmails = async (): Promise<IModmail[] | null> => model.find({ 
+  status: "open"
+});
+
 export const updateModmail = async (id: string, data: Partial<IModmail>): Promise<IModmail | null> => {
     return model.findByIdAndUpdate(id, data, { 
       new: true }
