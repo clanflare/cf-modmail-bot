@@ -45,7 +45,7 @@ export const saveConfig = async (context: PostConfigContext) => {
     };
   }
 
-  const data = await updateModmailConfig(decoded.guildId, body);
+  const data = await updateModmailConfig(decoded.guildId, body); //check this @tgoyal63
   if (!data) {
     return {
       message: "Failed to update server",

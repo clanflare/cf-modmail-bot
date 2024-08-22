@@ -42,7 +42,7 @@ export const wvc: TextCommand = {
         "You can only mention upto 4 members at a time"
       ); // in the custom error implementation, the error message will be sent to the user and then deleted after a certain time and all this config will be optional and present in the generic custom error implementation
     const member = await getMember(message.author, message.guild);
-    if (member.roles.cache.some((role) => role.name === "Game Maestro")) return;
+    if (member.roles.cache.some((role) => role.name === "Game Maestro")) return; //hardcoded for samatva, need to do proper configs here
     if (!member.permissions.has(PermissionFlagsBits.ManageMessages))
       throw new Error("You don't have permission to use this command");
   },
