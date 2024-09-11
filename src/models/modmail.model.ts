@@ -13,7 +13,7 @@ const ModmailSchema = new Schema<IModmail>(
     },
     status: {
       type: String,
-      enum: ["open", "resolved"],
+      enum: ["open", "resolved", "closed", "errored"],
       default: "open",
     },
     userChannelId: {

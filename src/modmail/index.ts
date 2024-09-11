@@ -11,14 +11,14 @@ import {
   type CollectedInteraction,
   type Message,
 } from "discord.js";
-import { createModmail, getAllOpenModmails } from "@/services/modmail.service";
+import { createModmail, getAllOpenModmails, updateModmail } from "@/services/modmail.service";
 import type {
   IModmail,
   IModmailConfig,
   MessageComponent,
   Modmail,
   ModmailConfig,
-  SupportMessage,
+  ModmailStatus,
 } from "@/types/models";
 import { client } from "@/.";
 import { getModmailConfig } from "@/services/config.service";
@@ -27,32 +27,38 @@ import { messageParser, supportMessageParser } from "@/action";
 
 export class ModmailClient {
   modmails: Collection<string, ModmailListener | null> = new Collection();
-  lastModmail: number = 0;
+  ready = false;
   constructor() {
-    this.onLoad();
+    this.onLoad().then(()=>this.ready=true);
   }
 
-  async onLoad(){
+  async onLoad() {
     const openModmails = await getAllOpenModmails();
-    openModmails?.forEach(async openModmail => {
+    await Promise.all(openModmails?.map(async openModmail => {
       const modmailConfig = await getModmailConfig(openModmail.guildId);
-      if(!modmailConfig)return;
+      if (!modmailConfig) return;
       const firstMessageId = openModmail.interactiveMessageId;
       const user = await client.users.fetch(openModmail.userId);
       const userChannel = user.dmChannel || await user.createDM();
       const interactiveMessage = await userChannel?.messages.fetch(firstMessageId);
-      if(!interactiveMessage)return;
-      //fetch the interactive message and also send the required channels to the constructor
-      this.modmails.set(openModmail.userId,new ModmailListener(
+      if (!interactiveMessage) return;
+      const modmailListener = new ModmailListener(
         openModmail,
         modmailConfig,
         interactiveMessage,
-      ))
-    });
-    
+      )
+      const interval = setInterval(()=>{
+        if(!modmailListener.ready )return;
+        if(modmailListener.error)return clearInterval(interval);
+        this.modmails.set(openModmail.userId, modmailListener);
+        clearInterval(interval);
+      },1000)
+    }) || []);
+
   }
 
   async messageListner(message: Message) {
+    if(!this.ready)return;
     const modmailConfig = await getModmailConfig(guildId);
     if (!modmailConfig) return; //err
     if (modmailConfig && !this.modmails.has(message.author.id)) {
@@ -85,7 +91,7 @@ export class ModmailClient {
     if (!userChannel) return; //err
 
     const modmailChannel = await modmailCategory.guild.channels.create({
-      name: `Modmail #${this.lastModmail + 1}`,
+      name: `Modmail ${user.id.slice(-3)}${Math.floor(Math.random()*10)}`,
       topic: `Modmail channel for user ${user.tag} (${user.id})`,
       nsfw: true,
       reason: `Modmail channel for user ${user.tag} (${user.id})`,
@@ -118,6 +124,16 @@ export class ModmailClient {
     );
     userMessage.edit(supportMessageParser(modmailConfig.initialMessage));
   }
+
+  async deleteModmail(userId: string, status:ModmailStatus = "closed"){
+    const modmail = this.modmails.get(userId);
+    if(!modmail)return;
+    modmail?.stop();
+    modmail.modmailChannel?.delete();
+    updateModmail(modmail.dbId,{status});
+    //any transcript creation code will go here
+    this.modmails.delete(userId);
+  }
 }
 
 class ModmailListener implements Omit<Modmail, "status"> {
@@ -133,7 +149,8 @@ class ModmailListener implements Omit<Modmail, "status"> {
   component: MessageComponent;
   interactiveMessage: Message;
   interactiveMessageId: string;
-
+  ready = false;
+  error = false;
   userChannelMessageCollector?: MessageCollector;
   modmailChannelMessageCollector?: MessageCollector;
   userChannelInteractionCollector?: InteractionCollector<CollectedInteraction>;
@@ -143,7 +160,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     modmailConfig: ModmailConfig,
     firstMessage: Message,
     modmailChannel?: TextChannel,
-    userChannel?: DMChannel
+    userChannel?: DMChannel,
   ) {
     this.dbId = modmailData._id;
     this.guildId = modmailData.guildId;
@@ -155,7 +172,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     this.component = modmailConfig.initialMessage;
     this.interactiveMessage = firstMessage;
     this.interactiveMessageId = firstMessage.id; //db se bhi le skte , look for inconcistencies if ever there is a problem
-    this.onStart();
+    this.onStart().catch(()=>this.error=true).then(()=>this.ready=true);
   }
 
   async onStart() {
@@ -221,16 +238,22 @@ class ModmailListener implements Omit<Modmail, "status"> {
       });
     interactionListener.on("collect", (i) => {
       i.deferUpdate();
-      const newComponent = this.component.buttons.find(btn=>btn.label==i.customId)?.linkedComponent;
-      
-      if(!newComponent) {
+      const newComponent = this.component.buttons.find(btn => btn.label == i.customId)?.linkedComponent;
+
+      if (!newComponent) {
         this.userChannel?.send("ERROR");
         this.modmailChannel?.send("ERROR");//remove if this never occurs aise hi daaldia hai
         return;
       }
       this.component = newComponent;
       this.interactiveMessage.edit(supportMessageParser(newComponent));
-      this.modmailChannel?.send(supportMessageParser(newComponent,true))
+      this.modmailChannel?.send(supportMessageParser(newComponent, true))
     });
+  }
+
+  stop(){
+    this.userChannelInteractionCollector?.stop();
+    this.modmailChannelMessageCollector?.stop();
+    this.userChannelMessageCollector?.stop();
   }
 }

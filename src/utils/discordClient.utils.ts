@@ -2,6 +2,7 @@ import slashCommands from "@/commands/slash";
 import { clientId, guildId, token } from "@/config/config";
 import { Client, GatewayIntentBits, Partials, REST, Routes } from "discord.js";
 import handler from "../handlers";
+import { ModmailClient } from "@/modmail";
 
 const rest = new REST().setToken(token);
 
@@ -39,4 +40,5 @@ const client = new Client({
 
 handler(client);
 
+export const mmclient = new ModmailClient();
 export default client;
