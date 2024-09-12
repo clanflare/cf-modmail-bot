@@ -18,6 +18,7 @@ export interface IModmailConfig
 export type MessageComponent = {
   message: SupportMessage;
   aiPrompt: string;
+  categoryId: string;
   buttons: Button[]; // max 5
   // define max limit 5 in this type
 };

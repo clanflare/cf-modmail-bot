@@ -49,7 +49,11 @@ export class ModmailClient {
       )
       const interval = setInterval(()=>{
         if(!modmailListener.ready )return;
-        if(modmailListener.error)return clearInterval(interval);
+        if(modmailListener.error){
+          updateModmail(openModmail.id,{status:"errored"})
+          clearInterval(interval)
+          return;
+        }
         this.modmails.set(openModmail.userId, modmailListener);
         clearInterval(interval);
       },1000)
@@ -240,6 +244,9 @@ class ModmailListener implements Omit<Modmail, "status"> {
       i.deferUpdate();
       const newComponent = this.component.buttons.find(btn => btn.label == i.customId)?.linkedComponent;
 
+      if (newComponent?.categoryId){
+        this.modmailChannel?.setParent(newComponent?.categoryId).catch(()=> this.modmailChannel?.send("SYSTEM: INVALID CONFIG, please update the category id in modmail config.")) //change this later
+      }
       if (!newComponent) {
         this.userChannel?.send("ERROR");
         this.modmailChannel?.send("ERROR");//remove if this never occurs aise hi daaldia hai
