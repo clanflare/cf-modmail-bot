@@ -55,7 +55,7 @@ export const messageComponent = t.Recursive(
   (thiss) =>
     t.Object({
       message: supportMessage,
-      aiPrompt: t.Optional(t.String()),
+      aiInstructions: t.Optional(t.String()),
       buttons: t.Optional(
         t.Array(
           t.Object({
