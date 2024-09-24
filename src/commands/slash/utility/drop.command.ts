@@ -3,7 +3,7 @@ import {
   BaseGuildTextChannel,
   Message,
   SlashCommandBuilder,
-  type CommandInteraction,
+  type ChatInputCommandInteraction,
 } from "discord.js";
 import ms from "ms";
 
@@ -49,7 +49,7 @@ export const drop: SlashCommand = {
     )
     .setDefaultMemberPermissions(0)
     .setDMPermission(false),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the guild of the interaction
     const guild = interaction.guild;
 

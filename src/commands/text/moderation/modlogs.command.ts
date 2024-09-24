@@ -1,6 +1,6 @@
 import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import ms from "ms";
 
 const choices = [
@@ -30,7 +30,7 @@ export const modlogs: SlashCommand = {
         .setChoices(...choices)
         .setRequired(false)
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the user to modlogs
     const user = interaction.options.getUser("user", true);
 

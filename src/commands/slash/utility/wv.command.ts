@@ -1,6 +1,6 @@
 import { getMember } from "@/action";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 
 export const wvc: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -14,7 +14,7 @@ export const wvc: SlashCommand = {
     )
     .setDefaultMemberPermissions(0)
     .setDMPermission(false),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the guild of the interaction
     const guild = interaction.guild;
 

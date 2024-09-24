@@ -1,6 +1,6 @@
 import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 
 export const unban: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -20,7 +20,7 @@ export const unban: SlashCommand = {
         .setDescription("The reason for the unban")
         .setRequired(true)
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the user to unban
     const user = interaction.options.getUser("user", true);
 

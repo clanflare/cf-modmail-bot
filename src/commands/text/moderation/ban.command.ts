@@ -67,8 +67,7 @@ export const ban: TextCommand = {
         },
         guild: message.guild || "",
       });
-
-      message.channel.send(
+      message.reply(
         `Banned ${memberToBan.displayName} <@${memberToBan.id}>\nReason: ${reason}`
       );
     } catch (error) {

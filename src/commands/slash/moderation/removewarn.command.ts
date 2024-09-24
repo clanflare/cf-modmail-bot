@@ -8,7 +8,7 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
   StringSelectMenuOptionBuilder,
-  type CommandInteraction,
+  type ChatInputCommandInteraction,
 } from "discord.js";
 
 export const removewarn: SlashCommand = {
@@ -23,7 +23,7 @@ export const removewarn: SlashCommand = {
         .setDescription("The user to warn")
         .setRequired(true)
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the user to warn
     const user = interaction.options.getUser("user", true);
 

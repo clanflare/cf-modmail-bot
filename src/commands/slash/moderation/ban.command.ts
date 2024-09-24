@@ -1,6 +1,6 @@
 import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import ms from "ms";
 
 export const ban: SlashCommand = {
@@ -24,7 +24,7 @@ export const ban: SlashCommand = {
         .setDescription("The duration of the ban. 0 for permanent.")
         .setRequired(false)
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the user to ban
     const user = interaction.options.getUser("user", true);
 

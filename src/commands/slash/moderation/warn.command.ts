@@ -1,6 +1,6 @@
 import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 
 export const warn: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -20,7 +20,7 @@ export const warn: SlashCommand = {
         .setDescription("The reason for the warn")
         .setRequired(true)
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the user to warn
     const user = interaction.options.getUser("user", true);
 

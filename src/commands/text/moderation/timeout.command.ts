@@ -2,7 +2,7 @@ import type { SlashCommand } from "@/types/commands";
 import { moderation } from "@/action";
 import {
   SlashCommandBuilder,
-  type CommandInteraction,
+  type ChatInputCommandInteraction,
 } from "discord.js";
 import ms from "ms";
 
@@ -30,7 +30,7 @@ export const timeout: SlashCommand = {
         .setDescription("The reason for the timeout.")
         .setRequired(true)
     ),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the user to timeout
     const user = interaction.options.getUser("user", true);
 

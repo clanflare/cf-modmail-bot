@@ -1,7 +1,7 @@
 import { jwtSecret, frontendUrl } from "@/config/config";
 import type { SlashCommand } from "@/types/commands";
 import jwt from "jsonwebtoken";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import modmailConfigModel from "@/models/modmailConfig.model";
 
 export const modmailconfig: SlashCommand = {
@@ -20,7 +20,7 @@ export const modmailconfig: SlashCommand = {
     )
     .setDefaultMemberPermissions(0)
     .setDMPermission(false),
-  async execute(interaction: CommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the guild of the interaction
     const guild = interaction.guild;
 
