@@ -14,7 +14,7 @@ export const createDefaultConfigForGuild = async (guildId: string): Promise<IMod
           message: <ISupportMessage>{
             content: "Hello! How can we help you?",
           },
-          aiPrompt: "Please describe your issue in detail.",
+          aiInstructions: "Please describe your issue in detail.",
           buttons: [],
         },
       });
