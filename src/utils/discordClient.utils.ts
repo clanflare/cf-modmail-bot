@@ -4,20 +4,27 @@ import { Client, GatewayIntentBits, Partials, REST, Routes } from "discord.js";
 import handler from "../handlers";
 import { ModmailClient } from "@/modmail";
 
-const rest = new REST().setToken(token);
+export const discordRestAPI = new REST().setToken(token);
 
 (async () => {
   try {
     console.log("Started refreshing application (/) commands.");
+    let commands = [];
     if (process.env.ENV === "production") {
-      await rest.put(Routes.applicationCommands(clientId), {
+      commands = await discordRestAPI.put(Routes.applicationCommands(clientId), {
         body: slashCommands.map((command) => command.data.toJSON()),
-      });
+      }) as Array<any>;//fix types
     } else {
-      await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+      commands = await discordRestAPI.put(Routes.applicationGuildCommands(clientId, guildId), {
         body: slashCommands.map((command) => command.data.toJSON()),
-      });
+      }) as Array<any>;//fix types
     }
+    commands.forEach(cmd => {
+      const command = slashCommands.get(cmd.name);
+      if(!command) return;//never happens
+      command.id = cmd.id;
+      slashCommands.set(cmd.name,command);
+    })
     console.log("Successfully reloaded application (/) commands.");
   } catch (error) {
     console.error(error);

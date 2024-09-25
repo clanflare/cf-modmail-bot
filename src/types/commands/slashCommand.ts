@@ -8,4 +8,5 @@ export type OptionalCommandBuilder = Omit<
 export type SlashCommand = {
   data: OptionalCommandBuilder;
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+  id?: string;
 };

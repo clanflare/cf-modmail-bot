@@ -1,8 +1,10 @@
-import { Client, Collection, Message } from "discord.js";
+import { Client, Collection, Message, Routes } from "discord.js";
 import textCommands from "@/commands/text";
 import { CustomDiscordError } from "@/types/errors";
 import type { TextCommand, TextCommandMessage } from "@/types/commands";
-import { defaultPrefix } from "@/config/config";
+import {  clientId, defaultPrefix, guildId } from "@/config/config";
+import { discordRestAPI } from "@/utils/discordClient.utils";
+import slashCommands from "@/commands/slash"
 
 const textCommandNamesAndAliases = new Collection<string, TextCommand>();
 textCommands.forEach((command) => {
@@ -11,6 +13,14 @@ textCommands.forEach((command) => {
     textCommandNamesAndAliases.set(alias, command);
   });
 });
+
+async function permissionValidator(message:Message ,command:TextCommand){
+  const slashCommandId = slashCommands.get(command.name)?.id;
+  if(!slashCommandId) return;
+  const permissions = await discordRestAPI.get(Routes.applicationCommandPermissions(clientId,message.guildId || guildId,slashCommandId));
+  message.member?.permissions.has
+
+}
 
 export default async function (client: Client, message: Message) {
   try {

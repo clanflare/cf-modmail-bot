@@ -39,3 +39,4 @@ if(!defaultPrefix) {
   throw new Error("DEFAULT_PREFIX is not defined");
 }
 export { token, clientId, guildId, clientSecret, mongoUri, jwtSecret, frontendUrl, defaultPrefix };
+// all exports must be CAPS

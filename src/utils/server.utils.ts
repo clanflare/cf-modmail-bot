@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import configRouter from "@/routes/config.routes";
-import { logger } from "@grotto/logysia";
+// import { logger } from "@grotto/logysia";
 import { cors } from '@elysiajs/cors'
 
 const app = new Elysia();
@@ -30,7 +30,7 @@ app.use(
   })
 );
 
-app.use(logger());
+// app.use(logger());
 
 app.get("/v1/content", () => {
   return {
