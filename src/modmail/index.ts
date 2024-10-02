@@ -11,7 +11,11 @@ import {
   type CollectedInteraction,
   type Message,
 } from "discord.js";
-import { createModmail, getAllOpenModmails, updateModmail } from "@/services/modmail.service";
+import {
+  createModmail,
+  getAllOpenModmails,
+  updateModmail,
+} from "@/services/modmail.service";
 import type {
   IModmail,
   IModmailConfig,
@@ -29,40 +33,43 @@ export class ModmailClient {
   modmails: Collection<string, ModmailListener | null> = new Collection();
   ready = false;
   constructor() {
-    this.onLoad().then(()=>this.ready=true);
+    this.onLoad().then(() => (this.ready = true));
   }
 
   async onLoad() {
     const openModmails = await getAllOpenModmails();
-    await Promise.all(openModmails?.map(async openModmail => {
-      const modmailConfig = await getModmailConfig(openModmail.guildId);
-      if (!modmailConfig) return;
-      const firstMessageId = openModmail.interactiveMessageId;
-      const user = await client.users.fetch(openModmail.userId);
-      const userChannel = user.dmChannel || await user.createDM();
-      const interactiveMessage = await userChannel?.messages.fetch(firstMessageId);
-      if (!interactiveMessage) return;
-      const modmailListener = new ModmailListener(
-        openModmail,
-        modmailConfig,
-        interactiveMessage,
-      )
-      const interval = setInterval(()=>{
-        if(!modmailListener.ready )return;
-        if(modmailListener.error){
-          updateModmail(openModmail.id,{status:"errored"})
-          clearInterval(interval)
-          return;
-        }
-        this.modmails.set(openModmail.userId, modmailListener);
-        clearInterval(interval);
-      },1000)
-    }) || []);
-
+    await Promise.all(
+      openModmails?.map(async (openModmail) => {
+        const modmailConfig = await getModmailConfig(openModmail.guildId);
+        if (!modmailConfig) return;
+        const firstMessageId = openModmail.interactiveMessageId;
+        const user = await client.users.fetch(openModmail.userId);
+        const userChannel = user.dmChannel || (await user.createDM());
+        const interactiveMessage = await userChannel?.messages.fetch(
+          firstMessageId
+        );
+        if (!interactiveMessage) return;
+        const modmailListener = new ModmailListener(
+          openModmail,
+          modmailConfig,
+          interactiveMessage
+        );
+        const interval = setInterval(() => {
+          if (!modmailListener.ready) return;
+          if (modmailListener.error) {
+            updateModmail(openModmail.id, { status: "errored" });
+            clearInterval(interval);
+            return;
+          }
+          this.modmails.set(openModmail.userId, modmailListener);
+          clearInterval(interval);
+        }, 1000);
+      }) || []
+    );
   }
 
   async messageListner(message: Message) {
-    if(!this.ready)return;
+    if (!this.ready) return;
     const modmailConfig = await getModmailConfig(guildId);
     if (!modmailConfig) return; //err
     if (modmailConfig && !this.modmails.has(message.author.id)) {
@@ -91,11 +98,11 @@ export class ModmailClient {
     );
     if (!modmailCategory || !(modmailCategory instanceof CategoryChannel))
       return; //err
-    let userChannel = user.dmChannel || await user.createDM();
+    let userChannel = user.dmChannel || (await user.createDM());
     if (!userChannel) return; //err
 
     const modmailChannel = await modmailCategory.guild.channels.create({
-      name: `Modmail ${user.id.slice(-3)}${Math.floor(Math.random()*10)}`,
+      name: `Modmail ${user.id.slice(-3)}${Math.floor(Math.random() * 10)}`,
       topic: `Modmail channel for user ${user.tag} (${user.id})`,
       nsfw: true,
       reason: `Modmail channel for user ${user.tag} (${user.id})`,
@@ -129,12 +136,12 @@ export class ModmailClient {
     userMessage.edit(supportMessageParser(modmailConfig.initialMessage));
   }
 
-  async deleteModmail(userId: string, status:ModmailStatus = "closed"){
+  async deleteModmail(userId: string, status: ModmailStatus = "closed") {
     const modmail = this.modmails.get(userId);
-    if(!modmail)return;
+    if (!modmail) return;
     modmail?.stop();
     modmail.modmailChannel?.delete();
-    updateModmail(modmail.dbId,{status});
+    updateModmail(modmail.dbId, { status });
     //any transcript creation code will go here
     this.modmails.delete(userId);
   }
@@ -164,7 +171,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     modmailConfig: ModmailConfig,
     firstMessage: Message,
     modmailChannel?: TextChannel,
-    userChannel?: DMChannel,
+    userChannel?: DMChannel
   ) {
     this.dbId = modmailData._id;
     this.guildId = modmailData.guildId;
@@ -176,7 +183,9 @@ class ModmailListener implements Omit<Modmail, "status"> {
     this.component = modmailConfig.initialMessage;
     this.interactiveMessage = firstMessage;
     this.interactiveMessageId = firstMessage.id; //db se bhi le skte , look for inconcistencies if ever there is a problem
-    this.onStart().catch(()=>this.error=true).then(()=>this.ready=true);
+    this.onStart()
+      .catch(() => (this.error = true))
+      .then(() => (this.ready = true));
   }
 
   async onStart() {
@@ -242,23 +251,31 @@ class ModmailListener implements Omit<Modmail, "status"> {
       });
     interactionListener.on("collect", (i) => {
       i.deferUpdate();
-      const newComponent = this.component.buttons.find(btn => btn.label == i.customId)?.linkedComponent;
+      const newComponent = this.component.buttons.find(
+        (btn) => btn.label == i.customId
+      )?.linkedComponent;
 
-      if (newComponent?.categoryId){
-        this.modmailChannel?.setParent(newComponent?.categoryId).catch(()=> this.modmailChannel?.send("SYSTEM: INVALID CONFIG, please update the category id in modmail config.")) //change this later
+      if (newComponent?.categoryId) {
+        this.modmailChannel
+          ?.setParent(newComponent?.categoryId)
+          .catch(() =>
+            this.modmailChannel?.send(
+              "SYSTEM: INVALID CONFIG, please update the category id in modmail config."
+            )
+          ); //change this later
       }
       if (!newComponent) {
         this.userChannel?.send("ERROR");
-        this.modmailChannel?.send("ERROR");//remove if this never occurs aise hi daaldia hai
+        this.modmailChannel?.send("ERROR"); //remove if this never occurs aise hi daaldia hai
         return;
       }
       this.component = newComponent;
       this.interactiveMessage.edit(supportMessageParser(newComponent));
-      this.modmailChannel?.send(supportMessageParser(newComponent, true))
+      this.modmailChannel?.send(supportMessageParser(newComponent, true));
     });
   }
 
-  stop(){
+  stop() {
     this.userChannelInteractionCollector?.stop();
     this.modmailChannelMessageCollector?.stop();
     this.userChannelMessageCollector?.stop();

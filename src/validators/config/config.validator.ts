@@ -11,7 +11,7 @@ const embed = t.Object({
     t.Object({
       text: t.String({ maxLength: 2048 }),
       iconURL: t.Optional(t.String({ format: "uri" })),
-    }),
+    })
   ),
   image: t.Optional(t.Object({ url: t.String({ format: "uri" }) })),
   thumbnail: t.Optional(t.Object({ url: t.String({ format: "uri" }) })),
@@ -20,14 +20,14 @@ const embed = t.Object({
     t.Object({
       name: t.Optional(t.String({ maxLength: 256 })),
       url: t.Optional(t.String({ format: "uri" })),
-    }),
+    })
   ),
   author: t.Optional(
     t.Object({
       name: t.Optional(t.String({ maxLength: 256 })),
       url: t.Optional(t.String({ format: "uri" })),
       iconURL: t.Optional(t.String({ format: "uri" })),
-    }),
+    })
   ),
   fields: t.Optional(
     t.Optional(
@@ -37,11 +37,11 @@ const embed = t.Object({
             name: t.Optional(t.String({ maxLength: 256 })),
             value: t.Optional(t.String({ maxLength: 1024 })),
             inline: t.Optional(t.Boolean()),
-          }),
+          })
         ),
-        { maxItems: 25 },
-      ),
-    ),
+        { maxItems: 25 }
+      )
+    )
   ),
 });
 
@@ -56,6 +56,8 @@ export const messageComponent = t.Recursive(
     t.Object({
       message: supportMessage,
       aiInstructions: t.Nullable(t.String()),
+      categoryId: t.Optional(t.String()),
+      messageToSupportTeam: t.Optional(t.String()),
       buttons: t.Optional(
         t.Array(
           t.Object({
@@ -63,11 +65,11 @@ export const messageComponent = t.Recursive(
             linkedComponent: thiss,
             emoji: t.Optional(t.String()),
             style: t.Optional(t.Enum(ButtonStyle)),
-          }),
-        ),
+          })
+        )
       ),
     }),
-  { $id: "MessageComponent" },
+  { $id: "MessageComponent" }
 );
 
 export const postConfigValidator = {
