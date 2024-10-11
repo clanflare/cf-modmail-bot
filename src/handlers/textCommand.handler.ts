@@ -17,8 +17,8 @@ textCommands.forEach((command) => {
 async function permissionValidator(message:Message ,command:TextCommand){
   const slashCommandId = slashCommands.get(command.name)?.id;
   if(!slashCommandId) return;
-  const permissions = await discordRestAPI.get(Routes.applicationCommandPermissions(clientId,message.guildId || guildId,slashCommandId));
-  message.member?.permissions.has
+  message.guild?.commands.permissions.has({command:slashCommandId, permissionId:message.author.id});
+  
 
 }
 
