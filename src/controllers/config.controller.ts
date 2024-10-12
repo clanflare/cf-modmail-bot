@@ -2,7 +2,7 @@ import { jwtSecret } from "@/config/config";
 import modmailConfigModel from "@/models/modmailConfig.model";
 import { createDefaultConfigForGuild, getModmailConfig, updateModmailConfig } from "@/services/config.service";
 import type { Payload } from "@/types/jwt";
-import type { IModmailConfig, ISupportMessage } from "@/types/models";
+import type { IModmailConfig } from "@/types/models";
 import type { PostConfigContext } from "@/validators/config";
 import type { Context } from "elysia";
 import jwt from "jsonwebtoken";
@@ -45,7 +45,7 @@ export const saveConfig = async (context: PostConfigContext) => {
     };
   }
 
-  const data = await updateModmailConfig(decoded.guildId, body); //check this @tgoyal63
+  const data = await updateModmailConfig(decoded.guildId, body);
   if (!data) {
     return {
       message: "Failed to update server",

@@ -19,7 +19,7 @@ export const modmailconfig: SlashCommand = {
         .setDescription("Select the archive channel.")
     )
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false),
+    .setContexts(0),
   async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the guild of the interaction
     const guild = interaction.guild;

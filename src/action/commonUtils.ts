@@ -1,5 +1,5 @@
 import { CustomDiscordError } from "@/types/errors";
-import type { MessageComponent, SupportMessage } from "@/types/models";
+import type { MessageComponent } from "@/types/models";
 import client from "@/utils/discordClient.utils";
 import {
   Guild,
@@ -17,8 +17,7 @@ export const getUser = async (user: string | User | GuildMember) => {
   if (user instanceof User) return user;
   if (user instanceof GuildMember) return user.user;
   try {
-    const fetchedUser = await client.users.fetch(user);
-    return fetchedUser;
+    return await client.users.fetch(user);
   } catch (error) {
     console.error(`Failed to fetch user: ${error}`);
     throw new CustomDiscordError(`Failed to fetch user: ${error}`);
@@ -26,7 +25,7 @@ export const getUser = async (user: string | User | GuildMember) => {
 };
 
 export function messageParser(message: Message) {
-  //check partial message , fetch , deal with emtotes , add an option to remove mentions etc etc
+  // check partial message , fetch , deal with emotes , add an option to remove mentions etc
   if (message.stickers.first()) {
     return {
       content: `${message.content}\nsticker: ${message.stickers.first()?.url}`,
@@ -35,13 +34,13 @@ export function messageParser(message: Message) {
     return { content: message.content, files: message.attachments?.toJSON() };
 }
 
-export function supportMessageParser(messageComponent: MessageComponent,disableButton = false) {
+export function supportMessageParser(messageComponent: MessageComponent, disableButton = false) {
 
   if(!messageComponent.buttons || messageComponent.buttons.length==0)
     return{
       content: messageComponent.message.content,
       embeds: messageComponent.message.embeds,
-      files:[],//attachmentws to be implemented from messageComponent.message.attachments
+      files:[], // attachments to be implemented from messageComponent.message.attachments
       components: [],
     }; 
   
@@ -58,7 +57,7 @@ export function supportMessageParser(messageComponent: MessageComponent,disableB
   return {
     content: messageComponent.message.content,
     embeds: messageComponent.message.embeds,
-    files:[],//attachmentws to be implemented from messageComponent.message.attachments
+    files:[], // attachments to be implemented from messageComponent.message.attachments
     components: [row]
   }; 
 }
@@ -112,7 +111,7 @@ export const getMember = async (
   if (member instanceof GuildMember) return member;
   const fetchedGuild = getGuild(guild);
   try {
-    const fetchedMember = await fetchedGuild.members.fetch(member);
+    const fetchedMember: GuildMember = await fetchedGuild.members.fetch(member);
     return fetchedMember;
   } catch (error) {
     console.error(`Failed to fetch member: ${error}`);

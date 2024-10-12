@@ -1,7 +1,7 @@
-import { DMChannel, Message, Collection, ButtonBuilder, ButtonStyle, ActionRowBuilder, Base, BaseGuildTextChannel, ThreadChannel, GuildMember } from "discord.js";
+import { DMChannel, Message, Collection, ButtonBuilder, ButtonStyle, ActionRowBuilder, BaseGuildTextChannel, ThreadChannel, GuildMember } from "discord.js";
 import type { MessageComponent, Modmail, ModmailConfig } from "@/types/models";
 import { createModmail, getOpenModmailByUserId } from "@/services/modmail.service";
-import { createDefaultConfigForGuild, getModmailConfig } from "@/services/config.service";
+import { getModmailConfig } from "@/services/config.service";
 import client from "./discordClient.utils";
 import { getMember } from "@/action";
 
@@ -32,8 +32,8 @@ async function modmailHandler(modmail: ModmailDiscord) {
             ephemeral: true,
         });
 
-        if(!modmail.lastSystemMessage) return; // instead of returning send the first initial message which should be modulariezed from the code below
-        const sent = modmail?.lastSystemMessage?.buttons.find((button) => {
+        if(!modmail.lastSystemMessage) return; // instead of returning send the first initial message which should be modularized from the code below
+        const sent = modmail?.lastSystemMessage?.buttons?.find((button) => {
             if (button.label === interaction.customId.split("-")[1]) {
                 console.log(button, button.linkedComponent);
                 modmail.lastSystemMessage = button.linkedComponent;
@@ -57,7 +57,7 @@ async function modmailHandler(modmail: ModmailDiscord) {
         }
         );
         if (!sent) {
-            modmail.modmailChannel.send({
+            await modmail.modmailChannel.send({
                 content: "Invalid button pressed",
             });
         } // here also the thing is not invalid , should start from the beginning again
@@ -65,7 +65,7 @@ async function modmailHandler(modmail: ModmailDiscord) {
 
     const messageCollectorForUserChannel = modmail.userChannel.createMessageCollector();
     messageCollectorForUserChannel.on("collect", async (message) => {
-        modmail.modmailChannel.send({
+        return await modmail.modmailChannel.send({
             content: message.content,
             embeds: message.embeds,
         });
@@ -78,7 +78,7 @@ async function modmailHandler(modmail: ModmailDiscord) {
             embeds: message.embeds,
         });
     });
-    
+
 }
 
 async function getModmailArchiveThread(userId: string, guildId: string) {
@@ -90,7 +90,7 @@ async function getModmailArchiveThread(userId: string, guildId: string) {
     if (!guild) return null;
     const archiveThreadChannel = guild.channels.cache.get(archiveChannel) as BaseGuildTextChannel;
     if (!archiveThreadChannel ) return null;
-    const thread = await archiveThreadChannel.threads.cache.find(x => x.name === `Modmail Archive - ${userId}`);
+    const thread = archiveThreadChannel.threads.cache.find(x => x.name === `Modmail Archive - ${userId}`);
     if (thread) return thread;
     return await archiveThreadChannel.threads.create({
         name: `Modmail Archive - ${userId}`,
@@ -102,20 +102,20 @@ async function getModmailArchiveThread(userId: string, guildId: string) {
 export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextChannel, message: Message) {
     const modmail = ongoingModmails.get(userChannel.id);
     if (modmail) return modmail;
-    const guildId = message?.guild?.id ? message.guild.id : "1170627136059609118"; //get some thing from env if whitelable and  write this in env
+    const guildId = message?.guild?.id ? message.guild.id : "1170627136059609118"; //get something from env if white label and  write this in env
 
     const modmailConfig = await getModmailConfig(guildId);
     if (!modmailConfig) {
         return null;
     }
-    
+
     const fetchedModmail = await getOpenModmailByUserId(message.author.id, guildId);
     if (fetchedModmail) {
         const userChannel = await client.channels.fetch(fetchedModmail.userChannelId) as DMChannel | BaseGuildTextChannel;
         const modmailChannel = await client.channels.fetch(fetchedModmail.modmailChannelId) as BaseGuildTextChannel;
         const threadChannel = await client.channels.fetch(fetchedModmail.threadId) as ThreadChannel;
         const member = await getMember(message.author.id, guildId);
-        
+
         const fetchedModmailWithChannels: ModmailDiscord = {
             ...fetchedModmail,
             userChannel,
@@ -124,21 +124,21 @@ export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextCha
             member,
             modmailConfig
         };
-        ongoingModmails.set(userChannel.id, fetchedModmailWithChannels);// this wont be needed when we prefetch all the modmails when the bot starts into ongoingModmails
+        ongoingModmails.set(userChannel.id, fetchedModmailWithChannels);// this won't be needed when we prefetch all the modmails when the bot starts into ongoingModmails
         return fetchedModmailWithChannels;
     }
 
     const buttons = modmailConfig.initialMessage.buttons.map((button) => {
         return new ButtonBuilder()
             .setLabel(button.label)
-            .setStyle(button.style ? button.style : ButtonStyle.Secondary)// actually it is validated but the typesafety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
+            .setStyle(button.style ? button.style : ButtonStyle.Secondary)// actually it is validated but the type safety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
             .setCustomId(`modmail_button-${button.label}`)
             // .setEmoji(button.emoji ? button.emoji : "Hehe");
     });
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
 
-    const reply = await userChannel.send({
+    await userChannel.send({
         content: modmailConfig.initialMessage.message.content,
         embeds: modmailConfig.initialMessage.message.embeds,
         components: [actionRow]

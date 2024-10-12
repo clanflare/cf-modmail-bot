@@ -68,13 +68,13 @@ export class ModmailClient {
     );
   }
 
-  async messageListner(message: Message) {
+  async messageListener(message: Message) {
     if (!this.ready) return;
     const modmailConfig = await getModmailConfig(guildId);
     if (!modmailConfig) return; //err
     if (modmailConfig && !this.modmails.has(message.author.id)) {
       const userMessage = await message.reply("Creating a modmail...");
-      this.createNewModmail(
+      await this.createNewModmail(
         guildId,
         message.author,
         modmailConfig,
@@ -109,8 +109,8 @@ export class ModmailClient {
       parent: modmailCategory.id,
     });
 
-    modmailChannel.send(messageParser(firstMessage));
-    modmailChannel.send(
+    await modmailChannel.send(messageParser(firstMessage));
+    await modmailChannel.send(
       supportMessageParser(modmailConfig.initialMessage, true)
     );
 
@@ -133,7 +133,7 @@ export class ModmailClient {
         userChannel
       )
     );
-    userMessage.edit(supportMessageParser(modmailConfig.initialMessage));
+    await userMessage.edit(supportMessageParser(modmailConfig.initialMessage));
   }
 
   async deleteModmail(userId: string, status: ModmailStatus = "closed") {
@@ -141,7 +141,7 @@ export class ModmailClient {
     if (!modmail) return;
     modmail?.stop();
     modmail.modmailChannel?.delete();
-    updateModmail(modmail.dbId, { status });
+    await updateModmail(modmail.dbId, { status });
     //any transcript creation code will go here
     this.modmails.delete(userId);
   }
@@ -154,7 +154,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
   user?: GuildMember;
   modmailChannelId: string; // modmail channel Id for modmail (if open)
   modmailChannel?: TextChannel;
-  userChannelId: string; // user channel Id for modmail (if open)
+  userChannelId: string; // user channel id for modmail (if open)
   userChannel?: DMChannel;
   webhook?: Webhook;
   component: MessageComponent;
@@ -173,7 +173,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     modmailChannel?: TextChannel,
     userChannel?: DMChannel
   ) {
-    this.dbId = modmailData._id;
+    this.dbId = modmailData._id as string;
     this.guildId = modmailData.guildId;
     this.userId = modmailData.userId;
     this.modmailChannelId = modmailData.modmailChannelId;
@@ -182,7 +182,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     if (userChannel) this.userChannel = userChannel;
     this.component = modmailConfig.initialMessage;
     this.interactiveMessage = firstMessage;
-    this.interactiveMessageId = firstMessage.id; //db se bhi le skte , look for inconcistencies if ever there is a problem
+    this.interactiveMessageId = firstMessage.id; //can be taken from db also , look for inconsistencies if ever there is a problem
     this.onStart()
       .catch(() => (this.error = true))
       .then(() => (this.ready = true));
@@ -220,7 +220,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     const modmailMessageCollector = this.modmailChannel?.createMessageCollector(
       {
         filter: (msg) =>
-          !msg.author.bot && !msg.content.startsWith(defaultPrefix), //replace with a prefix for guild when functionalit  is implemented
+          !msg.author.bot && !msg.content.startsWith(defaultPrefix), //replace with a prefix for guild when functionality  is implemented
       }
     );
     modmailMessageCollector?.on("collect", (message) => {
@@ -251,7 +251,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
       });
     interactionListener.on("collect", (i) => {
       i.deferUpdate();
-      const newComponent = this.component.buttons.find(
+      const newComponent = this.component.buttons?.find(
         (btn) => btn.label == i.customId
       )?.linkedComponent;
 
@@ -266,7 +266,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
       }
       if (!newComponent) {
         this.userChannel?.send("ERROR");
-        this.modmailChannel?.send("ERROR"); //remove if this never occurs aise hi daaldia hai
+        this.modmailChannel?.send("ERROR"); //remove if this never occurs
         return;
       }
       this.component = newComponent;

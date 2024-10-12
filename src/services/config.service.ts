@@ -1,5 +1,5 @@
 import model from "@/models/modmailConfig.model";
-import type { Ban, IBan, IModmailConfig, ISupportMessage } from "@/types/models";
+import type { IModmailConfig, ISupportMessage } from "@/types/models";
 
 export const getModmailConfig = async (guildId: string): Promise<IModmailConfig | null> => model.findOne({
     guildId

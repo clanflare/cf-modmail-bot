@@ -18,10 +18,10 @@
     "@elysiajs/cors": "^0.8.0",
     "@elysiajs/swagger": "^0.8.5",
     "@grotto/logysia": "^0.1.4",
-    "discord.js": "^14.16.2",
+    "discord.js": "^14.16.3",
     "elysia": "^0.8.17",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.6.3",
+    "mongoose": "^8.7.1",
     "ms": "^2.1.3"
   }
 }

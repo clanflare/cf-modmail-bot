@@ -50,15 +50,15 @@ export const wvc: TextCommand = {
     if (args.length === 1) {
       const member = args[0];
       if (member.voice.channel) {
-        message.reply(
+        await message.reply(
           `${member.displayName} is in ${member.voice.channel.name} - <#${member.voice.channel.id}>`
         );
       } else {
-        message.channel.send(`${member.displayName} is not in a voice channel`);
+        await message.reply(`${member.displayName} is not in a voice channel`);
       }
     } else {
       const members = args; // need to be fixed when the argument parser type declaration is made
-      message.channel.send(
+      await message.reply(
         `The following members are in a voice channel:\n${args
           .map(
             (member: any) =>

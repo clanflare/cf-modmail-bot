@@ -17,16 +17,16 @@ export interface IModmailConfig
 
 export type MessageComponent = {
   message: SupportMessage;
-  aiInstructions: string | null;
-  messageToSupportTeam: string | null;
-  categoryId: string | null;
-  buttons: Button[]; // max 5
+  aiInstructions?: string;
+  messageToSupportTeam?: string;
+  categoryId?: string;
+  buttons?: Button[]; // max 5
   // define max limit 5 in this type
 };
 
 export type Button = {
   label: string;
   linkedComponent: MessageComponent;
-  emoji: string;
-  style: ButtonStyle;
+  emoji?: string;
+  style?: ButtonStyle;
 };

@@ -1,5 +1,5 @@
-import { client } from "@/.";
-import { defaultWarnConfig } from "@/config/warnConfig";
+import {client} from "@/.";
+import {defaultWarnConfig} from "@/config/warnConfig";
 import {
   banService,
   roleModerationService,
@@ -8,25 +8,11 @@ import {
   warnConfigService,
   warnService,
 } from "@/services";
-import { CustomDiscordError } from "@/types/errors";
-import type {
-  IBan,
-  IRoleModeration,
-  ITimeout,
-  IUnban,
-  IWarn,
-  WarnActions,
-  WarnConfig,
-} from "@/types/models";
-import {
-  Guild,
-  GuildMember,
-  Role,
-  User,
-  BaseGuildTextChannel,
-} from "discord.js";
+import {CustomDiscordError} from "@/types/errors";
+import type {IBan, IRoleModeration, ITimeout, IUnban, IWarn, WarnActions, WarnConfig,} from "@/types/models";
+import {BaseGuildTextChannel, Guild, GuildMember, Role, User,} from "discord.js";
 import ms from "ms";
-import { getBan, getGuild, getMember, getRole, getUser } from ".";
+import {getBan, getGuild, getMember, getRole, getUser} from ".";
 
 export function getModlogChannel() {
   const modlogChannel = client.channels.cache.get("1213364292426928178");
@@ -71,13 +57,12 @@ export async function executeActions(
       }
     })
   );
-  const executeActions = actions.map((action, index) => {
+  return actions.map((action, index) => {
     return {
       actionType: action.type,
       action: actionsPerformed[index],
     };
   });
-  return executeActions;
 }
 
 export async function ban({
@@ -377,9 +362,9 @@ export async function removeWarn({
     throw new CustomDiscordError("Warn not found.");
   }
   const removedWarn = await warnService.deleteWarn({
-    warnId: warn._id,
     guildId: member.guild.id,
     userId: member.id,
+    warnId: warn._id as string,
   });
   if (!removedWarn) {
     throw new CustomDiscordError("Warn not found.");
@@ -424,7 +409,7 @@ export async function roleModeration({
   const clientMember = await getMember(client.user || "", guild); //ehhh this client vaala thing needs to be fixed
   roles = await Promise.all(
     roles.map(async (role) => {
-      const resolvedRole = await getRole(role, guild);
+      const resolvedRole = getRole(role, guild);
       if (resolvedRole.position >= clientMember.roles.highest.position) {
         throw new CustomDiscordError(
           "I don't have permission to manage one or more of the specified roles."
