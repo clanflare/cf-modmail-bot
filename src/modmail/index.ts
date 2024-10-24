@@ -26,7 +26,7 @@ import type {
 } from "@/types/models";
 import { client } from "@/.";
 import { getModmailConfig } from "@/services/config.service";
-import { defaultPrefix, guildId } from "@/config/config";
+import { DEFAULT_PREFIX, GUILD_ID } from "@/config/config";
 import { messageParser, supportMessageParser } from "@/action";
 
 export class ModmailClient {
@@ -70,12 +70,12 @@ export class ModmailClient {
 
   async messageListener(message: Message) {
     if (!this.ready) return;
-    const modmailConfig = await getModmailConfig(guildId);
+    const modmailConfig = await getModmailConfig(GUILD_ID);
     if (!modmailConfig) return; //err
     if (modmailConfig && !this.modmails.has(message.author.id)) {
       const userMessage = await message.reply("Creating a modmail...");
       await this.createNewModmail(
-        guildId,
+        GUILD_ID,
         message.author,
         modmailConfig,
         userMessage,
@@ -220,7 +220,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     const modmailMessageCollector = this.modmailChannel?.createMessageCollector(
       {
         filter: (msg) =>
-          !msg.author.bot && !msg.content.startsWith(defaultPrefix), //replace with a prefix for guild when functionality  is implemented
+          !msg.author.bot && !msg.content.startsWith(DEFAULT_PREFIX), //replace with a prefix for guild when functionality  is implemented
       }
     );
     modmailMessageCollector?.on("collect", (message) => {

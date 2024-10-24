@@ -19,7 +19,7 @@ export default async function (client: Client, message: Message) {
   let dmChannel = message.channel;
   if (dmChannel.partial) dmChannel = await message.channel.fetch();
 
-  mmclient.messageListener(message);
+  await mmclient.messageListener(message);
 
   // getActiveModmail(dmChannel, message);
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mongoUri } from "../config/config";
+import { MONGO_URI } from "../config/config";
 
 /**
  * Connects to MongoDB
@@ -15,7 +15,7 @@ export default async function dbConnect(): Promise<void> {
 
     console.log("Connecting to MongoDB...");
     mongoose.set("strictQuery", false);
-    await mongoose.connect(mongoUri);
+    await mongoose.connect(MONGO_URI);
     console.log("Connected to MongoDB!");
 
     mongoose.connection.on("error", (error: Error) => {

@@ -1,4 +1,4 @@
-import { jwtSecret } from "@/config/config";
+import { JWT_SECRET } from "@/config/config";
 import modmailConfigModel from "@/models/modmailConfig.model";
 import { createDefaultConfigForGuild, getModmailConfig, updateModmailConfig } from "@/services/config.service";
 import type { Payload } from "@/types/jwt";
@@ -16,7 +16,7 @@ export const saveConfig = async (context: PostConfigContext) => {
       data: undefined,
     };
   }
-  const decoded = jwt.verify(token, jwtSecret) as Payload;
+  const decoded = jwt.verify(token, JWT_SECRET) as Payload;
 
   const serverConfig: IModmailConfig =
     (await modmailConfigModel.findOne({
@@ -70,7 +70,7 @@ export const getConfig = async (context: Context) => {
       data: undefined,
     };
   }
-  const decoded = jwt.verify(token, jwtSecret) as Payload;
+  const decoded = jwt.verify(token, JWT_SECRET) as Payload;
 
   const serverConfig = await getModmailConfig(decoded.guildId);
   if (!serverConfig || !serverConfig.guildId) {

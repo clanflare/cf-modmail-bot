@@ -1,4 +1,4 @@
-import { jwtSecret, frontendUrl } from "@/config/config";
+import { JWT_SECRET, FRONTEND_URL } from "@/config/config";
 import type { SlashCommand } from "@/types/commands";
 import jwt from "jsonwebtoken";
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
@@ -88,13 +88,13 @@ export const modmailconfig: SlashCommand = {
         userId: user.id,
         expiresAt: Date.now() + 60 * 60 * 1000,
       },
-      jwtSecret,
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
 
     // Send the token
     await interaction.editReply({
-      content: `Click [here](${frontendUrl}/auth/magic-link?token=${token}) to setup the modmail config.`,
+      content: `Click [here](${FRONTEND_URL}/auth/magic-link?token=${token}) to setup the modmail config.`,
     });
   },
 };

@@ -1,21 +1,21 @@
 import slashCommands from "@/commands/slash";
-import { clientId, guildId, token } from "@/config/config";
+import { CLIENT_ID, GUILD_ID, BOT_TOKEN } from "@/config/config";
 import { Client, GatewayIntentBits, Partials, REST, Routes } from "discord.js";
 import handler from "../handlers";
 import { ModmailClient } from "@/modmail";
 
-export const discordRestAPI = new REST().setToken(token);
+export const discordRestAPI = new REST().setToken(BOT_TOKEN);
 
 (async () => {
   try {
     console.log("Started refreshing application (/) commands.");
     let commands = [];
     if (process.env.ENV === "production") {
-      commands = await discordRestAPI.put(Routes.applicationCommands(clientId), {
+      commands = await discordRestAPI.put(Routes.applicationCommands(CLIENT_ID), {
         body: slashCommands.map((command) => command.data.toJSON()),
       }) as Array<any>;//fix types
     } else {
-      commands = await discordRestAPI.put(Routes.applicationGuildCommands(clientId, guildId), {
+      commands = await discordRestAPI.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
         body: slashCommands.map((command) => command.data.toJSON()),
       }) as Array<any>;//fix types
     }
