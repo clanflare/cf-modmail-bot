@@ -30,7 +30,7 @@ export const warn: SlashCommand = {
       return;
     }
 
-    // Fetch the reason for the warn
+    // Fetch the reason for warn
     const reason = interaction.options.get("reason", true).value as string;
 
     // Fetch the user who warned the user

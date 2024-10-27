@@ -1,14 +1,14 @@
-import { moderation } from "@/action";
-import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {moderation} from "@/action";
+import type {SlashCommand} from "@/types/commands";
+import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
 import ms from "ms";
 
 const choices = [
-  { name: "all", value: "all" },
-  { name: "warn", value: "warn" },
-  { name: "timeout", value: "timeout" },
-  { name: "ban", value: "ban" },
-  { name: "unban", value: "unban" },
+  {name: "all", value: "all"},
+  {name: "warn", value: "warn"},
+  {name: "timeout", value: "timeout"},
+  {name: "ban", value: "ban"},
+  {name: "unban", value: "unban"},
 ];
 
 export const modlogs: SlashCommand = {
@@ -16,7 +16,7 @@ export const modlogs: SlashCommand = {
     .setName("modlogs")
     .setDescription("Get the modlogs of an user.")
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
+    .setContexts(0)
     .addUserOption((option) =>
       option
         .setName("user")

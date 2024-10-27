@@ -1,5 +1,5 @@
-import type { SlashCommand } from "@/types/commands";
-import { moderation } from "@/action";
+import type {SlashCommand} from "@/types/commands";
+import {moderation} from "@/action";
 import {
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
@@ -11,7 +11,7 @@ export const timeout: SlashCommand = {
     .setName("timeout")
     .setDescription("Timeout an user.")
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
+    .setContexts(0)
     .addUserOption((option) =>
       option
         .setName("user")

@@ -1,6 +1,6 @@
-import { moderation } from "@/action";
-import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {moderation} from "@/action";
+import type {SlashCommand} from "@/types/commands";
+import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
 import ms from "ms";
 
 export const ban: SlashCommand = {
@@ -8,7 +8,7 @@ export const ban: SlashCommand = {
     .setName("ban")
     .setDescription("Ban an user.")
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
+    .setContexts(0)
     .addUserOption((option) =>
       option.setName("user").setDescription("The user to ban").setRequired(true)
     )
@@ -71,7 +71,7 @@ export const ban: SlashCommand = {
       }\nDuration: ${
         ban.duration === 0
           ? "Permanent"
-          : `for ${ms(ban.duration, { long: true })}`
+          : `for ${ms(ban.duration, {long: true})}`
       }`,
     });
   },

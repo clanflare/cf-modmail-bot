@@ -1,5 +1,5 @@
-import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import type {SlashCommand} from "@/types/commands";
+import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
 
 export const ping: SlashCommand = {
   data: new SlashCommandBuilder()

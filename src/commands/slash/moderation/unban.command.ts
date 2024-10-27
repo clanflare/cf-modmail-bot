@@ -1,13 +1,13 @@
-import { moderation } from "@/action";
-import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {moderation} from "@/action";
+import type {SlashCommand} from "@/types/commands";
+import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
 
 export const unban: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("unban")
     .setDescription("Unban an user.")
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
+    .setContexts(0)
     .addUserOption((option) =>
       option
         .setName("user")

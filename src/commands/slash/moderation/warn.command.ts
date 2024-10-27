@@ -1,13 +1,13 @@
-import { moderation } from "@/action";
-import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {moderation} from "@/action";
+import type {SlashCommand} from "@/types/commands";
+import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
 
 export const warn: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("warn")
     .setDescription("Warn an user.")
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
+    .setContexts(0)
     .addUserOption((option) =>
       option
         .setName("user")
@@ -30,7 +30,7 @@ export const warn: SlashCommand = {
       return;
     }
 
-    // Fetch the reason for the warn
+    // Fetch the reason for warn
     const reason = interaction.options.get("reason", true).value as string;
 
     // Fetch the user who warned the user

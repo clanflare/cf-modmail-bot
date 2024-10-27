@@ -1,7 +1,7 @@
-import { JWT_SECRET, FRONTEND_URL } from "@/config/config";
-import type { SlashCommand } from "@/types/commands";
+import {JWT_SECRET, FRONTEND_URL} from "@/config/config";
+import type {SlashCommand} from "@/types/commands";
 import jwt from "jsonwebtoken";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
 import modmailConfigModel from "@/models/modmailConfig.model";
 
 export const modmailconfig: SlashCommand = {
@@ -34,10 +34,10 @@ export const modmailconfig: SlashCommand = {
     const user = interaction.user;
 
     // Send message for loading , ephemeral true
-    await interaction.reply({ content: "Processing...", ephemeral: true });
+    await interaction.reply({content: "Processing...", ephemeral: true});
 
     // Get the modmail config for the guild
-    const config = await modmailConfigModel.findOne({ guildId: guild.id });
+    const config = await modmailConfigModel.findOne({guildId: guild.id});
 
     // In case of updating the modmail config
     const modmailCategory = interaction.options.get("modmailcategory")?.channel;
@@ -71,13 +71,13 @@ export const modmailconfig: SlashCommand = {
 
       // Create the modmail config
       await modmailConfigModel.findOneAndUpdate(
-        { guildId: guild.id },
+        {guildId: guild.id},
         {
           guildId: guild.id,
           modmailCategoryId,
           archiveChannelId,
         },
-        { upsert: true }
+        {upsert: true}
       );
     }
 
@@ -89,7 +89,7 @@ export const modmailconfig: SlashCommand = {
         expiresAt: Date.now() + 60 * 60 * 1000,
       },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      {expiresIn: "1h"}
     );
 
     // Send the token

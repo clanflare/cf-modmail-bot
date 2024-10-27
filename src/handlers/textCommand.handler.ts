@@ -1,8 +1,8 @@
-import {Client, Collection, type GuildCacheMessage, Message, Routes} from "discord.js";
+import {type ApplicationCommandPermissions, Client, Collection, DiscordAPIError, Message} from "discord.js";
 import textCommands from "@/commands/text";
-import { CustomDiscordError } from "@/types/errors";
-import type { TextCommand, TextCommandMessage } from "@/types/commands";
-import {  DEFAULT_PREFIX } from "@/config/config";
+import {CustomDiscordError} from "@/types/errors";
+import type {TextCommand} from "@/types/commands";
+import {DEFAULT_PREFIX} from "@/config/config";
 import slashCommands from "@/commands/slash"
 
 const textCommandNamesAndAliases = new Collection<string, TextCommand>();
@@ -21,16 +21,38 @@ async function permissionValidator(message: Message<true>, command: TextCommand)
   if (!member) throw new CustomDiscordError("Member not found.");
 
   // Bypass permission check for administrators.
-  // if (member.permissions.has("Administrator")) return;
+  if (member.permissions.has("Administrator")) return;
 
   const guildId = message.guild.id;
   const everyoneId = guildId; // @everyone role ID.
   const allChannelsId = (BigInt(guildId) - BigInt(1)).toString(); // All Channels ID.
 
   // Fetch global and command-specific permissions.
-  const globalPermissions = await message.guild.commands.permissions.fetch({
-    command: message.client.application.id,
-  });
+  let globalPermissions: ApplicationCommandPermissions[] = [];
+  try {
+    globalPermissions = await message.guild.commands.permissions.fetch({
+      command: message.client.application.id,
+    });
+  } catch (error: any) {
+    if (error instanceof DiscordAPIError) {
+      if (error.code === 10066) {
+        globalPermissions = [
+          {
+            id: allChannelsId,
+            type: 3,
+            permission: true
+          },
+          {
+            id: everyoneId,
+            type: 1,
+            permission: true
+          }
+        ]
+      }
+    } else {
+      throw new CustomDiscordError("Some error occurred. Please contact developers @ClanFlare");
+    }
+  }
   const commandPermissions = await message.guild.commands.permissions.fetch({
     command: slashCommandId,
   });
@@ -40,12 +62,12 @@ async function permissionValidator(message: Message<true>, command: TextCommand)
 
   // First, apply global permissions.
   globalPermissions.forEach((permission) => {
-    permissionMap[permission.id] = { type: permission.type, permission: permission.permission };
+    permissionMap[permission.id] = {type: permission.type, permission: permission.permission};
   });
 
   // Then, override with command-specific permissions (if present).
   commandPermissions.forEach((permission) => {
-    permissionMap[permission.id] = { type: permission.type, permission: permission.permission };
+    permissionMap[permission.id] = {type: permission.type, permission: permission.permission};
   });
 
   // Track allows and denies.
@@ -53,13 +75,13 @@ async function permissionValidator(message: Message<true>, command: TextCommand)
   const allowList: string[] = [];
 
   // 1. Check channel permissions (including "All Channels").
-  const channelIds = [message.channel.id, allChannelsId];
-  for (const channelId of channelIds) {
-    const channelPermission = permissionMap[channelId];
-    if (channelPermission?.type === 3) {
-      channelPermission.permission ? allowList.push("channel") : denyList.push("channel");
-    }
-  }
+  // Helper to check permission by ID.
+  const checkPermission = (id: string): boolean | undefined => permissionMap[id]?.permission;
+
+  // Check channel permissions (including "All Channels").
+  const channelPermission = checkPermission(message.channel.id) ?? checkPermission(allChannelsId);
+
+  channelPermission ? allowList.push("channel") : denyList.push("channel");
 
   // 2. Check user-specific permissions.
   const userPermission = permissionMap[message.author.id];
@@ -68,15 +90,13 @@ async function permissionValidator(message: Message<true>, command: TextCommand)
   }
 
   // 3. Check role permissions (including @everyone).
-  const roleIds = [...member.roles.cache.keys(), everyoneId];
+  const roleIds = [...member.roles.cache.keys()];
   for (const roleId of roleIds) {
     const rolePermission = permissionMap[roleId];
     if (rolePermission?.type === 1) {
       rolePermission.permission ? allowList.push("role") : denyList.push("role");
     }
   }
-
-  console.log({denyList, allowList});
 
   // Determine if the command is allowed or denied based on collected permissions.
   if (denyList.length > 0) {
@@ -93,7 +113,7 @@ async function permissionValidator(message: Message<true>, command: TextCommand)
   }
 }
 
-export default async function (client: Client, message: Message<true>) {
+export default async function (_client: Client, message: Message<true>) {
   try {
     if (message.author.bot) return;
     if (!message.content.startsWith(DEFAULT_PREFIX)) return;
@@ -110,7 +130,6 @@ export default async function (client: Client, message: Message<true>) {
     await permissionValidator(message, command);
     const args = await command.argumentParser(message);
     await command.validator(message, args);
-    // console.log(args[0]);
     await command.execute(message, args);
   } catch (err) {
     if (err instanceof CustomDiscordError && err.display) {

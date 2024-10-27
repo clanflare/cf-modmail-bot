@@ -1,8 +1,7 @@
-import { moderation } from "@/action";
-import type { SlashCommand } from "@/types/commands";
+import {moderation} from "@/action";
+import type {SlashCommand} from "@/types/commands";
 import {
   ActionRowBuilder,
-  BaseInteraction,
   ComponentType,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
@@ -16,7 +15,7 @@ export const removewarn: SlashCommand = {
     .setName("removewarn")
     .setDescription("Remove warn of an user.")
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
+    .setContexts(0)
     .addUserOption((option) =>
       option
         .setName("user")

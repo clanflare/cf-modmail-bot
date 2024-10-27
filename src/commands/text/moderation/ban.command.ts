@@ -1,9 +1,9 @@
-import { moderation, getMember } from "@/action";
-import type { TextCommand } from "@/types/commands";
-import { CustomDiscordError } from "@/types/errors";
-import { PermissionFlagsBits } from "discord.js";
+import {moderation, getMember} from "@/action";
+import type {TextCommand} from "@/types/commands";
+import {CustomDiscordError} from "@/types/errors";
+import {PermissionFlagsBits} from "discord.js";
 
-const regexforids = new RegExp(/^\d{16,20}$/); //put this as a util and use it for any id validation
+const regexForIds = new RegExp(/^\d{16,20}$/); //put this as a util and use it for any id validation
 
 export const ban: TextCommand = {
   name: "ban",
@@ -11,7 +11,7 @@ export const ban: TextCommand = {
   argumentParser: async (message) => {
     const args = [];
     const mentionedMember = message.mentions.members?.first();
-    
+
     if (mentionedMember) {
       args.push(mentionedMember);
     }
@@ -20,7 +20,7 @@ export const ban: TextCommand = {
     const userIdOrDuration = parsedArgs[0];
     const reason = parsedArgs.slice(1).join(" ") || "No reason provided.";
 
-    if (message.guild && regexforids.test(userIdOrDuration)) {
+    if (message.guild && regexForIds.test(userIdOrDuration)) {
       const member = await getMember(userIdOrDuration, message.guild);
       if (member) {
         args.push(member, reason);
@@ -53,7 +53,7 @@ export const ban: TextCommand = {
     const reason = args[1];
 
     if (memberToBan.id === message.author.id) {
-      message.reply("You cannot ban yourself.");
+      await message.reply("You cannot ban yourself.");
       return;
     }
 
@@ -67,7 +67,7 @@ export const ban: TextCommand = {
         },
         guild: message.guild || "",
       });
-      message.reply(
+      await message.reply(
         `Banned ${memberToBan.displayName} <@${memberToBan.id}>\nReason: ${reason}`
       );
     } catch (error) {

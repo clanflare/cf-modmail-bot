@@ -1,4 +1,4 @@
-import type { SlashCommand } from "@/types/commands";
+import type {SlashCommand} from "@/types/commands";
 import {
   BaseGuildTextChannel,
   Message,
@@ -45,7 +45,7 @@ export const drop: SlashCommand = {
       option
         .setName("case-sensitive")
         .setDescription("Want the word to be case sensitive, default no")
-        .setChoices({ name: "Yes", value: "yes" }, { name: "No", value: "no" })
+        .setChoices({name: "Yes", value: "yes"}, {name: "No", value: "no"})
     )
     .setDefaultMemberPermissions(0)
     .setDMPermission(false),
