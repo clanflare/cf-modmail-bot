@@ -44,6 +44,7 @@ export const confess: SlashCommand = {
 
     if (!isAnonymous) {
       publicEmbed.setFooter({text: `Sent by: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL()});
+      publicEmbed.addFields({name: "User", value: `<@${interaction.user.id}> (${interaction.user.id})`, inline: true});
     } else {
       publicEmbed.setFooter({text: confessionId, iconURL: "https://cdn.discordapp.com/embed/avatars/0.png"});
     }
