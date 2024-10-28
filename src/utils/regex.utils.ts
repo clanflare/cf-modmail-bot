@@ -1,0 +1,1 @@
+export const regexForIds = new RegExp(/^\d{16,20}$/);

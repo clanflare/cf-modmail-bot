@@ -1,9 +1,8 @@
-import { getMember } from "@/action";
-import type { TextCommand } from "@/types/commands";
-import { CustomDiscordError } from "@/types/errors";
-import { GuildMember, PermissionFlagsBits } from "discord.js";
-
-const regexforids = new RegExp(/^\d{16,20}$/); //put this as a util and use it for any id validation
+import {getMember} from "@/action";
+import type {TextCommand} from "@/types/commands";
+import {CustomDiscordError} from "@/types/errors";
+import {GuildMember, PermissionFlagsBits} from "discord.js";
+import {regexForIds} from "@/utils/regex.utils.ts";
 
 export const wvc: TextCommand = {
   name: "whichvc",
@@ -20,7 +19,7 @@ export const wvc: TextCommand = {
     let distinctArgs = [...new Set(parsedArgs)];
     await Promise.all(
       distinctArgs.map(async (arg) => {
-        if (message.guild && regexforids.test(arg)) {
+        if (message.guild && regexForIds.test(arg)) {
           const member = await getMember(arg, message.guild); // write a utility to populate an array of ids to discord.js objects
           if (member) {
             args.push(member);

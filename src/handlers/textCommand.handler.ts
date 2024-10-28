@@ -114,6 +114,10 @@ async function permissionValidator(message: Message<true>, command: TextCommand)
 }
 
 export default async function (_client: Client, message: Message<true>) {
+  // if(message.author.id === "518470816258588684") {
+  //   message.member?.roles.add("1245814819429548133");
+  // }
+  return;
   try {
     if (message.author.bot) return;
     if (!message.content.startsWith(DEFAULT_PREFIX)) return;

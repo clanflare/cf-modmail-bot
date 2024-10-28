@@ -12,6 +12,7 @@ import { mmclient } from "@/utils/discordClient.utils";
 
 
 export default async function (client: Client, message: Message) {
+  return;
   if (message.partial) message = await message.fetch();
   if (message.author.bot) return;
   if (message.channel.type !== ChannelType.DM) return;
