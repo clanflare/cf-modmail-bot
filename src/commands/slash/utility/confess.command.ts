@@ -52,9 +52,9 @@ export const confess: SlashCommand = {
     const logEmbed = new EmbedBuilder()
       .setTitle("Confession Log")
       .addFields(
-        {name: "Confession ID", value: confessionId, inline: true},
-        {name: "User", value: `<@${interaction.user.id}>`, inline: true},
-        {name: "Anonymous", value: isAnonymous ? "Yes" : "No", inline: true},
+        {name: "Confession ID", value: confessionId, inline: false},
+        {name: "User", value: `<@${interaction.user.id}> (${interaction.user.id})`, inline: true},
+        // {name: "Anonymous", value: isAnonymous ? "Yes" : "No", inline: true},
         {name: "Message", value: message, inline: false}
       )
       .setTimestamp();
