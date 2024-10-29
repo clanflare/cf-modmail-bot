@@ -123,7 +123,7 @@ export const drop: SlashCommand = {
       // }
 
       const logChannel = guild.channels.cache.get(DROP_LOG_CHANNEL_ID) as BaseGuildTextChannel;
-      const winnersWithPrizes = collectedWinners.length ? collectedWinners.map((w, i) => (i > 0 ? `${i + 1}.` : "").toString() + `<@${w.userId}> got ${w.prize} points`).join("\n") : endMessage;
+      const winnersWithPrizes = collectedWinners.length ? collectedWinners.map((w, i) => (collectedWinners.length > 1 ? `${i + 1}.` : "").toString() + `<@${w.userId}> got ${w.prize} points`).join("\n") : endMessage;
       if (logChannel) {
         const embed = new EmbedBuilder()
           .setTitle("Drop Ended")
