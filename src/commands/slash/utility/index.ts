@@ -3,4 +3,6 @@ export * from "./ping.command";
 export * from "./drop.command";
 export * from "./confess.command.ts";
 export * from "./leaderboard.command.ts";
+export * from "./copychan.command.ts";
+export * from "./synccat.command.ts"
 // export * from "./wv.command";
