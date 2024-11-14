@@ -28,6 +28,7 @@ import { client } from "@/.";
 import { getModmailConfig } from "@/services/config.service";
 import { DEFAULT_PREFIX, GUILD_ID } from "@/config/config";
 import { messageParser, supportMessageParser } from "@/action";
+import dbConnect from "@/utils/dbConn.utils";
 
 export class ModmailClient {
   modmails: Collection<string, ModmailListener | null> = new Collection();
@@ -37,6 +38,7 @@ export class ModmailClient {
   }
 
   async onLoad() {
+    await dbConnect();
     const openModmails = await getAllOpenModmails();
     await Promise.all(
       openModmails?.map(async (openModmail) => {
@@ -184,7 +186,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     this.interactiveMessage = firstMessage;
     this.interactiveMessageId = firstMessage.id; //can be taken from db also , look for inconsistencies if ever there is a problem
     this.onStart()
-      .catch(() => (this.error = true))
+      .catch(() => {this.error = true})
       .then(() => (this.ready = true));
   }
 
