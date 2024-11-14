@@ -1,4 +1,4 @@
-import { DMChannel, Message, Collection, ButtonBuilder, ButtonStyle, ActionRowBuilder, BaseGuildTextChannel, ThreadChannel, GuildMember } from "discord.js";
+import { DMChannel, Message, Collection, ButtonBuilder, ButtonStyle, ActionRowBuilder, BaseGuildTextChannel, GuildMember } from "discord.js";
 import type { MessageComponent, Modmail, ModmailConfig } from "@/types/models";
 import { createModmail, getOpenModmailByUserId } from "@/services/modmail.service";
 import { getModmailConfig } from "@/services/config.service";
@@ -8,7 +8,6 @@ import { getMember } from "@/action";
 interface ModmailDiscord extends Modmail {
     userChannel: DMChannel | BaseGuildTextChannel;
     modmailChannel: BaseGuildTextChannel;
-    threadChannel: ThreadChannel;
     member: GuildMember;
     modmailConfig: ModmailConfig;
     lastSystemMessage?: MessageComponent;
@@ -17,10 +16,6 @@ interface ModmailDiscord extends Modmail {
 const ongoingModmails = new Collection<string, ModmailDiscord>();
 
 async function modmailHandler(modmail: ModmailDiscord) {
-    modmail.threadChannel.send({
-        content: `New Modmail from ${modmail.member.user.tag} (${modmail.member.id})`,
-        embeds: [],
-    });
     const InteractionCollector = modmail.userChannel.createMessageComponentCollector(
     //     {
     //     filter: (interaction) => interaction.user.id === modmail.member.id,
@@ -39,7 +34,7 @@ async function modmailHandler(modmail: ModmailDiscord) {
                 modmail.lastSystemMessage = button.linkedComponent;
                 console.log(modmail.lastSystemMessage);
                 const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-                    modmail.lastSystemMessage.buttons.map((button) => {
+                    (modmail.lastSystemMessage.buttons || []).map((button) => {
                         return new ButtonBuilder()
                             .setLabel(button.label)
                             .setStyle(button.style ? button.style : ButtonStyle.Secondary)
@@ -80,25 +75,6 @@ async function modmailHandler(modmail: ModmailDiscord) {
     });
 
 }
-
-async function getModmailArchiveThread(userId: string, guildId: string) {
-    const modmailConfig = await getModmailConfig(guildId);
-    if (!modmailConfig) return null;
-    const archiveChannel = modmailConfig.archiveChannelId;
-    if (!archiveChannel) return null;
-    const guild = client.guilds.cache.get(guildId);
-    if (!guild) return null;
-    const archiveThreadChannel = guild.channels.cache.get(archiveChannel) as BaseGuildTextChannel;
-    if (!archiveThreadChannel ) return null;
-    const thread = archiveThreadChannel.threads.cache.find(x => x.name === `Modmail Archive - ${userId}`);
-    if (thread) return thread;
-    return await archiveThreadChannel.threads.create({
-        name: `Modmail Archive - ${userId}`,
-        autoArchiveDuration: 1440,
-        reason: `Modmail Archive - ${userId}`,
-    });
-}
-
 export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextChannel, message: Message) {
     const modmail = ongoingModmails.get(userChannel.id);
     if (modmail) return modmail;
@@ -113,14 +89,12 @@ export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextCha
     if (fetchedModmail) {
         const userChannel = await client.channels.fetch(fetchedModmail.userChannelId) as DMChannel | BaseGuildTextChannel;
         const modmailChannel = await client.channels.fetch(fetchedModmail.modmailChannelId) as BaseGuildTextChannel;
-        const threadChannel = await client.channels.fetch(fetchedModmail.threadId) as ThreadChannel;
         const member = await getMember(message.author.id, guildId);
 
         const fetchedModmailWithChannels: ModmailDiscord = {
             ...fetchedModmail,
             userChannel,
             modmailChannel,
-            threadChannel,
             member,
             modmailConfig
         };
@@ -128,7 +102,7 @@ export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextCha
         return fetchedModmailWithChannels;
     }
 
-    const buttons = modmailConfig.initialMessage.buttons.map((button) => {
+    const buttons = (modmailConfig.initialMessage.buttons || []).map((button) => {
         return new ButtonBuilder()
             .setLabel(button.label)
             .setStyle(button.style ? button.style : ButtonStyle.Secondary)// actually it is validated but the type safety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
@@ -158,23 +132,19 @@ export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextCha
         parent: modmailCategory.id,
     });
 
-    const thread = await getModmailArchiveThread(message.author.id, guildId);
-    if (!thread) return null;
-
     const newModmail = await createModmail({
         userId: message.author.id,
         guildId: guildId,
         modmailChannelId: modmailChannel.id,
-        threadId: thread.id,
         status: "open",
         userChannelId: userChannel.id,
+        interactiveMessageId:"",//idk just to fix the type error T-T
     });
 
     const newModmailWithChannels: ModmailDiscord = {
         ...newModmail,
         userChannel,
         modmailChannel,
-        threadChannel: thread,
         modmailConfig,
         member: await getMember(message.author.id, guildId),
         lastSystemMessage: modmailConfig.initialMessage

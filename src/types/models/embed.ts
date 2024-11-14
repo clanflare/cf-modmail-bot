@@ -4,7 +4,7 @@ export type Embed = {
   title?: string; // 256 character limit
   description?: string; // 4096 character limit
   url?: string; // url validation
-  timestamp?: string | number | Date; // ISO8601 timestamp
+  timestamp?: string; // ISO8601 timestamp
   color?: number; // 0x000000 - 0xFFFFFF
   footer?: {
     text: string; // 2048 character limit
@@ -12,19 +12,19 @@ export type Embed = {
     proxyIconUrl?: string; // url validation
   };
   image?: {
-    url?: string; // url validation
+    url: string; // url validation
     height?: number;
     proxyURL?: string; // url validation
     width?: number;
   };
   thumbnail?: {
-    url?: string; // url validation
+    url: string; // url validation
     height?: number;
     proxyURL?: string; // url validation
     width?: number;
   };
   video?: {
-    url?: string; // url validation
+    url: string; // url validation
     height?: number;
     proxyURL?: string; // url validation
     width?: number;
