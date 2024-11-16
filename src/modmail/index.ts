@@ -115,6 +115,7 @@ export class ModmailClient {
     await modmailChannel.send(
       supportMessageParser(modmailConfig.initialMessage, true)
     );
+    if(modmailConfig.initialMessage.messageToSupportTeam) modmailChannel.send(`**System:** ${modmailConfig.initialMessage.messageToSupportTeam}`);
 
     const dbObject = await createModmail({
       guildId,
@@ -276,6 +277,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
       this.component = newComponent;
       this.interactiveMessage.edit(supportMessageParser(newComponent));
       this.modmailChannel?.send(supportMessageParser(newComponent, true));
+      if(newComponent.messageToSupportTeam) this.modmailChannel?.send(`**System:** ${newComponent.messageToSupportTeam}`);
     });
   }
 
