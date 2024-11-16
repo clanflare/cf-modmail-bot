@@ -1,5 +1,5 @@
 import model from "@/models/modmailConfig.model";
-import type { IModmailConfig, IDMessage } from "@/types/models";
+import type { IModmailConfig, IDiscordMessage } from "@/types/models";
 
 export const getModmailConfig = async (guildId: string): Promise<IModmailConfig | null> => model.findOne({
     guildId
@@ -11,7 +11,7 @@ export const createDefaultConfigForGuild = async (guildId: string): Promise<IMod
         archiveChannelId: "",
         modmailCategoryId: "",
         initialMessage: {
-          message: <IDMessage>{
+          message: <IDiscordMessage>{
             content: "Hello! How can we help you?",
           },
           aiInstructions: "Please describe your issue in detail.",

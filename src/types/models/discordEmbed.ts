@@ -1,6 +1,6 @@
 import type {Document, SchemaTimestampsConfig} from "mongoose";
 
-export type DEmbed = {
+export type DiscordEmbed = {
   title?: string; // 256 character limit
   description?: string; // 4096 character limit
   url?: string; // url validation
@@ -51,5 +51,5 @@ export type DEmbed = {
  * - The combined sum of all characters in the title, description, footer.text, author.name, fields.name, and fields.value must be less than or equal to 6000 characters.
  */
 
-export interface IDEmbed extends Document, SchemaTimestampsConfig, DEmbed {
+export interface IDiscordEmbed extends Document, SchemaTimestampsConfig, DiscordEmbed {
 }

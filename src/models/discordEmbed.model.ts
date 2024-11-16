@@ -1,8 +1,8 @@
-import type { IDEmbed } from "@/types/models";
+import type { IDiscordEmbed } from "@/types/models";
 import { isISO8601Valid, isURLValid } from "@/utils/stringValidators.utils";
 import { Schema, model } from "mongoose";
 
-const DEmbedSchema = new Schema(
+const DiscordEmbedSchema = new Schema(
   {
     title: {
       type: String,
@@ -136,12 +136,12 @@ const calculateFieldLength = (field: string | undefined): number =>
   typeof field === "string" ? field.length : 0;
 
 // **Character Limit Validation (6000 total)**
-DEmbedSchema.pre<IDEmbed>("validate", function (next) {
+DiscordEmbedSchema.pre<IDiscordEmbed>("validate", function (next) {
   let totalChars = 0;
 
   // Top-level fields
   for (const field of fieldsToCheck) {
-    totalChars += calculateFieldLength(this[field as keyof IDEmbed]);
+    totalChars += calculateFieldLength(this[field as keyof IDiscordEmbed]);
   }
 
   // Fields array
@@ -169,4 +169,4 @@ DEmbedSchema.pre<IDEmbed>("validate", function (next) {
   }
 });
 
-export default model<IDEmbed>("Embed", DEmbedSchema);
+export default model<IDiscordEmbed>("DiscordEmbed", DiscordEmbedSchema);

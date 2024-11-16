@@ -1,8 +1,8 @@
-import type { IDMessage } from "@/types/models";
+import type { IDiscordMessage } from "@/types/models";
 import { isURLValid } from "@/utils/stringValidators.utils";
 import { Schema, model } from "mongoose";
 
-const dMessageSchema = new Schema<IDMessage>(
+const DiscordMessageSchema = new Schema<IDiscordMessage>(
   {
     discordMessageId: {
       type: String,
@@ -70,4 +70,4 @@ const dMessageSchema = new Schema<IDMessage>(
   { timestamps: true },
 );
 
-export default model<IDMessage>("DMessage", dMessageSchema);
+export default model<IDiscordMessage>("DiscordMessage", DiscordMessageSchema);

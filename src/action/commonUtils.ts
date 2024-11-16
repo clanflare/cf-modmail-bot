@@ -1,5 +1,5 @@
 import { CustomDiscordError } from "@/types/errors";
-import type { DMessage, MessageComponent } from "@/types/models";
+import type { DiscordMessage, MessageComponent } from "@/types/models";
 import client from "@/utils/discordClient.utils";
 import {
   Guild,
@@ -63,31 +63,31 @@ export function messageComponentParser(messageComponent: MessageComponent, disab
   }; 
 }
 
-export function dMessageToDiscordParser(dMessage:DMessage){
-  if(dMessage.sticker){
+export function discordMessageToDiscordParser(discordMessage:DiscordMessage){
+  if(discordMessage.sticker){
     return {
-      content: `${dMessage.content}\nsticker: ${dMessage.sticker}`,
+      content: `${discordMessage.content}\nsticker: ${discordMessage.sticker}`,
     };
   }
   return {
-    content: dMessage.content, 
-    files: dMessage.attachments?.map(),
+    content: discordMessage.content, 
+    files: discordMessage.attachments?.map(),
   }
 }
 
-export function discordToDEmbedParser(embed:Embed){
+export function discordToDiscordEmbedParser(embed:Embed){
   return embed.title===null?({...embed,title:undefined}):{...embed,title:embed.title}
 }
 
-export function discordToDMessageParser(message:Message){
-  const dMessage: DMessage = {
+export function discordToDiscordMessageParser(message:Message){
+  const discordMessage: DiscordMessage = {
     discordMessageId:message.id,
     content:message.content,
     authorId:message.author.id,
     channelId:message.channelId,
     attachments:message.attachments.map(att=>att.url),
     sticker:message.stickers.first()?.url,
-    embeds: message.embeds.map(e=>discordToDEmbedParser(e)),
+    embeds: message.embeds.map(e=>discordToDiscordEmbedParser(e)),
     guildId: message.guild?.id,
     // reactions: message.reactions.cache.map(e=>e)
     isEdited: message.editedAt? true:false,
@@ -95,7 +95,7 @@ export function discordToDMessageParser(message:Message){
     replyToMessageId: message.reference?.messageId //ToDo: reference message changes not made yet
   }
 
-  return dMessage;
+  return discordMessage;
 }
 export const getGuild = (guild: string | Guild) => {
   // if guild is type of Guild return guild

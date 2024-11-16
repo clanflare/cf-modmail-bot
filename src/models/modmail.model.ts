@@ -15,7 +15,7 @@ const ModmailMessageSchema = new Schema(
     },
     message: {
       type: Schema.Types.ObjectId, // Referencing the Message model
-      ref: "DMessage",
+      ref: "DiscordMessage",
       required: [true, "Message content is required"],
     },
   },

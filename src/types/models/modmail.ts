@@ -1,5 +1,5 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
-import type { IDMessage } from "./dMessage";
+import type { IDiscordMessage } from "./discordMessage";
 
 export type ModmailStatus = "open" | "resolved" | "closed" | "errored";
 
@@ -8,7 +8,7 @@ export type ModmailsMessage = {
     discordUserId: string;
     discordUsername: string;
   },
-  message: IDMessage;
+  message: IDiscordMessage;
 }
 
 export type Modmail = {
