@@ -6,11 +6,7 @@ const embed = t.Object({
   title: t.Optional(t.String({ maxLength: 256 })), // 256 character limit
   description: t.Optional(t.String({ maxLength: 4096 })), // 4096 character limit
   url: t.Optional(t.String({ format: "uri" })), // URL validation
-  timestamp: t.Optional(t.Union([
-      t.String({ format: "date-time" }), // ISO8601 timestamp
-      t.Number(),
-      t.Date(),
-  ])),
+  timestamp: t.Optional(t.String({ format: "date-time" })), // ISO8601 timestamp,
   color: t.Optional(t.Number({ minimum: 0x000000, maximum: 0xffffff })), // Hex color code
   footer: t.Optional(
     t.Object({
@@ -21,7 +17,7 @@ const embed = t.Object({
   ),
   image: t.Optional(
     t.Object({
-      url: t.Optional(t.String({ format: "uri" })), // URL validation
+      url: t.String({ format: "uri" }), // URL validation
       height: t.Optional(t.Number()),
       proxyURL: t.Optional(t.String({ format: "uri" })), // URL validation
       width: t.Optional(t.Number()),
@@ -29,7 +25,7 @@ const embed = t.Object({
   ),
   thumbnail: t.Optional(
     t.Object({
-      url: t.Optional(t.String({ format: "uri" })), // URL validation
+      url: t.String({ format: "uri" }), // URL validation
       height: t.Optional(t.Number()),
       proxyURL: t.Optional(t.String({ format: "uri" })), // URL validation
       width: t.Optional(t.Number()),
@@ -37,7 +33,7 @@ const embed = t.Object({
   ),
   video: t.Optional(
     t.Object({
-      url: t.Optional(t.String({ format: "uri" })), // URL validation
+      url: t.String({ format: "uri" }), // URL validation
       height: t.Optional(t.Number()),
       proxyURL: t.Optional(t.String({ format: "uri" })), // URL validation
       width: t.Optional(t.Number()),
