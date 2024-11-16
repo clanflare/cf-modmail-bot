@@ -21,6 +21,13 @@ const dMessageSchema = new Schema<IDMessage>(
         message: "Please provide valid URLs for attachments",
       },
     },
+    sticker: {
+      type: String,
+      validate: {
+        validator: isURLValid,
+        message: "Please provide valid URL for sticker",
+      },
+    },
     embeds: {
       type: [Schema.Types.ObjectId],
       ref: "Embed",

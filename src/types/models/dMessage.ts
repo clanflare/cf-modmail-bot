@@ -5,6 +5,7 @@ export type DMessage = {
   discordMessageId: string; // Discord Id of the message
   content: string; // 2000 character limit
   attachments?: string[]; // Array of URLs, validate URLs
+  sticker?: string;
   embeds?: DEmbed[]; // Maximum of 10 embeds
   authorId: string; // ID of the author (User ID in string format)
   channelId: string; // ID of the channel where the message is sent
