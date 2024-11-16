@@ -225,21 +225,23 @@ class ModmailListener implements Omit<Modmail, "status"> {
           !msg.author.bot && !msg.content.startsWith(DEFAULT_PREFIX), //replace with a prefix for guild when functionality  is implemented
       }
     );
-    modmailMessageCollector?.on("collect", (message) => {
-      this.userChannel?.send(messageParser(message));
+    modmailMessageCollector?.on("collect",async (message) => {
+      await this.userChannel?.send(messageParser(message));
+      message.react('✅');
     });
     const userMessageCollector = this.userChannel?.createMessageCollector({
       filter: (msg) => !msg.author.bot,
     });
-    userMessageCollector?.on("collect", (message) => {
+    userMessageCollector?.on("collect",async (message) => {
       const { content, files } = messageParser(message);
-      this.webhook?.send({
+      await this.webhook?.send({
         content,
         files,
         username: this.user?.displayName,
         avatarURL:
           this.user?.user.avatarURL() || this.user?.avatarURL() || undefined,
       });
+      message.react('✅');
     });
 
     this.userChannelMessageCollector = userMessageCollector;
