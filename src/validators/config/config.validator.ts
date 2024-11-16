@@ -65,8 +65,8 @@ const embed = t.Object({
   ),
 });
 
-// Support message schema
-const supportMessage = t.Object({
+// Message schema
+const message = t.Object({
   content: t.String(),
   embeds: t.Optional(t.Array(embed, { maxItems: 10 })), // Maximum of 10 embeds
   attachments: t.Optional(t.Array(t.String({ format: "uri" }))), // URL validation
@@ -76,7 +76,7 @@ const supportMessage = t.Object({
 export const messageComponent = t.Recursive(
   (Self) =>
     t.Object({
-      message: supportMessage,
+      message: message,
       aiInstructions: t.Optional(t.String()),
       categoryId: t.Optional(t.String()),
       messageToSupportTeam: t.Optional(t.String()),

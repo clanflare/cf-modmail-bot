@@ -1,5 +1,5 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
-import type { SupportMessage } from ".";
+import type { Message } from ".";
 import type { ButtonStyle } from "discord.js";
 
 export type ModmailConfig = {
@@ -16,7 +16,7 @@ export interface IModmailConfig
     ModmailConfig {}
 
 export type MessageComponent = {
-  message: SupportMessage;
+  message: Message;
   aiInstructions?: string;
   messageToSupportTeam?: string;
   categoryId?: string;

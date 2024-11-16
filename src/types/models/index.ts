@@ -3,7 +3,7 @@ export * from "./embed";
 export * from "./modmail";
 export * from "./roleModeration";
 export * from "./modmailConfig";
-export * from "./supportMessage";
+export * from "./message";
 export * from "./timeout";
 export * from "./unban";
 export * from "./warn";

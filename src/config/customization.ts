@@ -2,8 +2,8 @@ import type { Customization } from "@/types/models";
 
 export const defaultCustomization: Customization = {
   guildId: "",
-  supportMessage: {
-    content: "Support message",
+  message: {
+    content: "Support Message",
     embeds: [],
   },
   commandId: "",

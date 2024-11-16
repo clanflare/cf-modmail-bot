@@ -1,8 +1,8 @@
-import type { IEmbed, ISupportMessage } from "@/types/models";
+import type { IMessage } from "@/types/models";
 import { isURLValid } from "@/utils/stringValidators.utils";
 import { Schema, model } from "mongoose";
 
-const SupportMessageSchema = new Schema<ISupportMessage>(
+const messageSchema = new Schema<IMessage>(
   {
     content: {
       type: String,
@@ -30,4 +30,4 @@ const SupportMessageSchema = new Schema<ISupportMessage>(
   { timestamps: true },
 );
 
-export default model<ISupportMessage>("SupportMessage", SupportMessageSchema);
+export default model<IMessage>("SupportMessage", messageSchema);

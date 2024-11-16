@@ -8,9 +8,9 @@ const CustomizationSchema = new Schema<ICustomization>(
       required: [true, "Guild ID is required"],
       unique: true,
     },
-    supportMessage: {
+    message: {
       type: Object,
-      required: [true, "Support Message is required"],
+      required: [true, "Message is required"],
     },
     commandId: {
       type: String,
