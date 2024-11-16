@@ -1,11 +1,11 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
-import type { Embed } from ".";
+import type { DEmbed } from ".";
 
-export type Message = {
+export type DMessage = {
   discordMessageId: string; // Discord Id of the message
   content: string; // 2000 character limit
   attachments?: string[]; // Array of URLs, validate URLs
-  embeds?: Embed[]; // Maximum of 10 embeds
+  embeds?: DEmbed[]; // Maximum of 10 embeds
   authorId: string; // ID of the author (User ID in string format)
   channelId: string; // ID of the channel where the message is sent
   guildId?: string; // Optional ID of the guild (for guild messages)
@@ -15,7 +15,7 @@ export type Message = {
   replyToMessageId?: string; // ID of the message being replied to
 };
 
-export interface IMessage
+export interface IDMessage
   extends Document,
     SchemaTimestampsConfig,
-    Message {}
+    DMessage {}

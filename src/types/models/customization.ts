@@ -1,10 +1,10 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
-import type { Message } from ".";
+import type { DMessage } from ".";
 
 export type Customization = {
   guildId: string;
   commandId: string;
-  message: Message;
+  message: DMessage;
   variables: string[];
   logChannelId: string;
 };

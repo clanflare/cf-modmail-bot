@@ -1,8 +1,8 @@
-import type { IEmbed } from "@/types/models";
+import type { IDEmbed } from "@/types/models";
 import { isISO8601Valid, isURLValid } from "@/utils/stringValidators.utils";
 import { Schema, model } from "mongoose";
 
-const EmbedSchema = new Schema(
+const DEmbedSchema = new Schema(
   {
     title: {
       type: String,
@@ -136,12 +136,12 @@ const calculateFieldLength = (field: string | undefined): number =>
   typeof field === "string" ? field.length : 0;
 
 // **Character Limit Validation (6000 total)**
-EmbedSchema.pre<IEmbed>("validate", function (next) {
+DEmbedSchema.pre<IDEmbed>("validate", function (next) {
   let totalChars = 0;
 
   // Top-level fields
   for (const field of fieldsToCheck) {
-    totalChars += calculateFieldLength(this[field as keyof IEmbed]);
+    totalChars += calculateFieldLength(this[field as keyof IDEmbed]);
   }
 
   // Fields array
@@ -169,4 +169,4 @@ EmbedSchema.pre<IEmbed>("validate", function (next) {
   }
 });
 
-export default model<IEmbed>("Embed", EmbedSchema);
+export default model<IDEmbed>("Embed", DEmbedSchema);

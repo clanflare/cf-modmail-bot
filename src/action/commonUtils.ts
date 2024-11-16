@@ -34,7 +34,7 @@ export function messageStickerAndAttachmentParser(message: Message) {
     return { content: message.content, files: message.attachments?.toJSON() };
 }
 
-export function messageParser(messageComponent: MessageComponent, disableButton = false) {
+export function messageComponentParser(messageComponent: MessageComponent, disableButton = false) {
 
   if(!messageComponent.buttons || messageComponent.buttons.length==0)
     return{

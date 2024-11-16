@@ -22,12 +22,13 @@ import type {
   MessageComponent,
   Modmail,
   ModmailConfig,
+  ModmailsMessage,
   ModmailStatus,
 } from "@/types/models";
 import { client } from "@/.";
 import { getModmailConfig } from "@/services/config.service";
 import { DEFAULT_PREFIX, GUILD_ID } from "@/config/config";
-import { messageStickerAndAttachmentParser, messageParser } from "@/action";
+import { messageStickerAndAttachmentParser, messageComponentParser } from "@/action";
 import dbConnect from "@/utils/dbConn.utils";
 
 export class ModmailClient {
@@ -113,7 +114,7 @@ export class ModmailClient {
 
     await modmailChannel.send(messageStickerAndAttachmentParser(firstMessage));
     await modmailChannel.send(
-      messageParser(modmailConfig.initialMessage, true)
+      messageComponentParser(modmailConfig.initialMessage, true)
     );
     if(modmailConfig.initialMessage.messageToSupportTeam) modmailChannel.send(`**System:** ${modmailConfig.initialMessage.messageToSupportTeam}`);
 
@@ -136,7 +137,7 @@ export class ModmailClient {
         userChannel
       )
     );
-    await userMessage.edit(messageParser(modmailConfig.initialMessage));
+    await userMessage.edit(messageComponentParser(modmailConfig.initialMessage));
   }
 
   async deleteModmail(userId: string, status: ModmailStatus = "closed") {
@@ -165,6 +166,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
   interactiveMessageId: string;
   ready = false;
   error = false;
+  messages?: ModmailsMessage[] = [];
   userChannelMessageCollector?: MessageCollector;
   modmailChannelMessageCollector?: MessageCollector;
   userChannelInteractionCollector?: InteractionCollector<CollectedInteraction>;
@@ -275,8 +277,8 @@ class ModmailListener implements Omit<Modmail, "status"> {
         return;
       }
       this.component = newComponent;
-      this.interactiveMessage.edit(messageParser(newComponent));
-      this.modmailChannel?.send(messageParser(newComponent, true));
+      this.interactiveMessage.edit(messageComponentParser(newComponent));
+      this.modmailChannel?.send(messageComponentParser(newComponent, true));
       if(newComponent.messageToSupportTeam) this.modmailChannel?.send(`**System:** ${newComponent.messageToSupportTeam}`);
     });
   }

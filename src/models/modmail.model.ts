@@ -1,6 +1,27 @@
 import type { IModmail } from "@/types/models";
 import { Schema, model } from "mongoose";
 
+const ModmailMessageSchema = new Schema(
+  {
+    author: {
+      discordUserId: {
+        type: String,
+        required: [true, "Author's Discord User ID is required"],
+      },
+      discordUsername: {
+        type: String,
+        required: [true, "Author's Discord Username is required"],
+      },
+    },
+    message: {
+      type: Schema.Types.ObjectId, // Referencing the Message model
+      ref: "DMessage",
+      required: [true, "Message content is required"],
+    },
+  },
+  { _id: false } // Prevents creating a unique ID for each embedded message
+);
+
 const ModmailSchema = new Schema<IModmail>(
   {
     guildId: {
@@ -27,7 +48,11 @@ const ModmailSchema = new Schema<IModmail>(
     interactiveMessageId:{
       type: String,
       required: [true, "interactiveMessageId is required"]
-    }
+    },
+    messages: {
+      type: [ModmailMessageSchema],
+      default: [],
+    },
   },
   { timestamps: true }
 );
