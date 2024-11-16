@@ -24,7 +24,7 @@ export const getUser = async (user: string | User | GuildMember) => {
   }
 };
 
-export function messageParser(message: Message) {
+export function messageStickerAndAttachmentParser(message: Message) {
   // check partial message , fetch , deal with emotes , add an option to remove mentions etc
   if (message.stickers.first()) {
     return {
@@ -34,7 +34,7 @@ export function messageParser(message: Message) {
     return { content: message.content, files: message.attachments?.toJSON() };
 }
 
-export function supportMessageParser(messageComponent: MessageComponent, disableButton = false) {
+export function messageParser(messageComponent: MessageComponent, disableButton = false) {
 
   if(!messageComponent.buttons || messageComponent.buttons.length==0)
     return{

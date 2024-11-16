@@ -27,7 +27,7 @@ import type {
 import { client } from "@/.";
 import { getModmailConfig } from "@/services/config.service";
 import { DEFAULT_PREFIX, GUILD_ID } from "@/config/config";
-import { messageParser, supportMessageParser } from "@/action";
+import { messageStickerAndAttachmentParser, messageParser } from "@/action";
 import dbConnect from "@/utils/dbConn.utils";
 
 export class ModmailClient {
@@ -111,9 +111,9 @@ export class ModmailClient {
       parent: modmailCategory.id,
     });
 
-    await modmailChannel.send(messageParser(firstMessage));
+    await modmailChannel.send(messageStickerAndAttachmentParser(firstMessage));
     await modmailChannel.send(
-      supportMessageParser(modmailConfig.initialMessage, true)
+      messageParser(modmailConfig.initialMessage, true)
     );
     if(modmailConfig.initialMessage.messageToSupportTeam) modmailChannel.send(`**System:** ${modmailConfig.initialMessage.messageToSupportTeam}`);
 
@@ -136,7 +136,7 @@ export class ModmailClient {
         userChannel
       )
     );
-    await userMessage.edit(supportMessageParser(modmailConfig.initialMessage));
+    await userMessage.edit(messageParser(modmailConfig.initialMessage));
   }
 
   async deleteModmail(userId: string, status: ModmailStatus = "closed") {
@@ -227,14 +227,14 @@ class ModmailListener implements Omit<Modmail, "status"> {
       }
     );
     modmailMessageCollector?.on("collect",async (message) => {
-      await this.userChannel?.send(messageParser(message));
+      await this.userChannel?.send(messageStickerAndAttachmentParser(message));
       message.react('✅');
     });
     const userMessageCollector = this.userChannel?.createMessageCollector({
       filter: (msg) => !msg.author.bot,
     });
     userMessageCollector?.on("collect",async (message) => {
-      const { content, files } = messageParser(message);
+      const { content, files } = messageStickerAndAttachmentParser(message);
       await this.webhook?.send({
         content,
         files,
@@ -275,8 +275,8 @@ class ModmailListener implements Omit<Modmail, "status"> {
         return;
       }
       this.component = newComponent;
-      this.interactiveMessage.edit(supportMessageParser(newComponent));
-      this.modmailChannel?.send(supportMessageParser(newComponent, true));
+      this.interactiveMessage.edit(messageParser(newComponent));
+      this.modmailChannel?.send(messageParser(newComponent, true));
       if(newComponent.messageToSupportTeam) this.modmailChannel?.send(`**System:** ${newComponent.messageToSupportTeam}`);
     });
   }

@@ -30,4 +30,4 @@ const messageSchema = new Schema<IMessage>(
   { timestamps: true },
 );
 
-export default model<IMessage>("SupportMessage", messageSchema);
+export default model<IMessage>("Message", messageSchema);
