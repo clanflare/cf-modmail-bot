@@ -8,7 +8,7 @@ export const defaultWarnConfig: WarnConfig[] = [
       {
         duration: 24*60*60*1000,
         reason: "Max Warn Timeout",
-        type: "timeout",
+        type: "Timeout",
       },
     ],
   },
@@ -24,7 +24,7 @@ export const defaultWarnConfig: WarnConfig[] = [
       {
         duration: 2*60*60*1000,
         reason: "Warn 2 Timeout",
-        type: "timeout",
+        type: "Timeout",
       },
     ],
   },
@@ -35,7 +35,7 @@ export const defaultWarnConfig: WarnConfig[] = [
       {
         duration: 4*60*60*1000,
         reason: "Warn 3 Timeout",
-        type: "timeout",
+        type: "Timeout",
       },
     ],
   },
@@ -46,7 +46,7 @@ export const defaultWarnConfig: WarnConfig[] = [
       {
         duration: 8*60*60*1000,
         reason: "Warn 4 Timeout",
-        type: "timeout",
+        type: "Timeout",
       },
     ],
   },
@@ -57,7 +57,7 @@ export const defaultWarnConfig: WarnConfig[] = [
       {
         duration: 12*60*60*1000,
         reason: "Warn 5 Timeout",
-        type: "timeout",
+        type: "Timeout",
       },
     ],
   }

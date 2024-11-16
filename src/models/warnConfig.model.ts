@@ -7,7 +7,7 @@ const actionsValidator = (actions: WarnActions) => {
   if (!Array.isArray(actions)) return false;
   if (actions.length === 0) return false;
   for (const action of actions) {
-    if (action.type === "ban") {
+    if (action.type === "Ban") {
       if (actions.length > 1) return false;
     }
   }
@@ -19,7 +19,7 @@ const actionSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: ["ban", "timeout", "roleModeration"],
+      enum: ["Ban", "Timeout", "RoleModeration"],
     },
     duration: { type: Number, required: true },
     reason: { type: String, required: true },

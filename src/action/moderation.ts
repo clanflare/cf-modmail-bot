@@ -15,7 +15,7 @@ import ms from "ms";
 import {getBan, getGuild, getMember, getRole, getUser} from ".";
 
 export function getModlogChannel() {
-  const modlogChannel = client.channels.cache.get("1213364292426928178");
+  const modlogChannel = client.channels.cache.get("1221913092674556048"); // ToDo: from config or env or jo man karre
   return modlogChannel as BaseGuildTextChannel;
 }
 
@@ -28,7 +28,7 @@ export async function executeActions(
   const actionsPerformed = await Promise.all(
     actions.map(async (action) => {
       switch (action.type) {
-        case "ban":
+        case "Ban":
           return ban({
             user: member,
             reason: action.reason,
@@ -36,7 +36,7 @@ export async function executeActions(
             actionBy,
             guild,
           });
-        case "timeout":
+        case "Timeout":
           return timeout({
             user: member,
             reason: action.reason,
@@ -44,7 +44,7 @@ export async function executeActions(
             actionBy,
             guild,
           });
-        case "roleModeration":
+        case "RoleModeration":
           return roleModeration({
             user: member,
             reason: action.reason,

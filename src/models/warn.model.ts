@@ -39,7 +39,7 @@ const WarnSchema = new Schema<IWarn>(
           actionType: {
             type: String,
             required: true,
-            enum: ["timeout", "ban", "roleModeration"],
+            enum: ["Timeout", "Ban", "RoleModeration"],
           },
         },
       ],

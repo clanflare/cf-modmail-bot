@@ -1,5 +1,5 @@
 import type { Document, SchemaTimestampsConfig } from "mongoose";
-import type { Ban, RoleModeration, Timeout } from ".";
+import type { IBan, IRoleModeration, ITimeout } from ".";
 
 export type Warn = {
   guildId: string;
@@ -11,8 +11,8 @@ export type Warn = {
     userId: string;
   };
   actions: {
-    action: Timeout | Ban | RoleModeration;
-    actionType?: "timeout" | "ban" | "roleModeration";
+    action: ITimeout | IBan | IRoleModeration; //need to be tested could be source of possible bugs in typesaftey when accessing unpopulated items.
+    actionType?: "Timeout" | "Ban" | "RoleModeration";
   }[];
 };
 

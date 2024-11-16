@@ -3,13 +3,13 @@ import type { Document, SchemaTimestampsConfig } from "mongoose";
 type Timeout = {
   duration: number;
   reason: string;
-  type: "timeout";
+  type: "Timeout";
 };
 
 type Ban = {
   duration: number;
   reason: string;
-  type: "ban";
+  type: "Ban";
 };
 
 type RoleModeration = {
@@ -17,7 +17,7 @@ type RoleModeration = {
   action: "grant" | "revoke";
   duration: number;
   reason: string;
-  type: "roleModeration";
+  type: "RoleModeration";
 };
 
 export type WarnActions = (Timeout | RoleModeration)[] | [Ban] | [];
