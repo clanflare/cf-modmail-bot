@@ -2,6 +2,7 @@ import type { Document, SchemaTimestampsConfig } from "mongoose";
 import type { Embed } from ".";
 
 export type Message = {
+  discordMessageId: string; // Discord Id of the message
   content: string; // 2000 character limit
   attachments?: string[]; // Array of URLs, validate URLs
   embeds?: Embed[]; // Maximum of 10 embeds
