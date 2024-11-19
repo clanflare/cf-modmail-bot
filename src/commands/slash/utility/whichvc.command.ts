@@ -2,9 +2,9 @@ import {getMember} from "@/action";
 import type {SlashCommand} from "@/types/commands";
 import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
 
-export const wvc: SlashCommand = {
+export const whichvc: SlashCommand = {
   data: new SlashCommandBuilder()
-    .setName("wvc")
+    .setName("whichvc")
     .setDescription("Replies with the voice channel of the user.")
     .addUserOption((option) =>
       option

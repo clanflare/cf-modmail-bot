@@ -1,1 +1,1 @@
-export * from "./wv.command";
+export * from "./whichvc.command";
