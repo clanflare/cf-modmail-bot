@@ -90,6 +90,7 @@ export const drop: SlashCommand = {
     const collector = channel.createMessageCollector({
       filter: collectorFilter,
       time: durationInMs,
+      max: winnerCount,
     });
 
     collector.on("collect", async (m: Message) => {
@@ -119,10 +120,6 @@ export const drop: SlashCommand = {
         m.member?.roles.add(winnerRole.id)
       }
 
-      // Stop the collector if the winner limit is reached
-      if (collectedWinners.length >= winnerCount) {
-        collector.stop("maxWinners");
-      }
     });
 
     collector.on("end", async (collected, _reason) => {
