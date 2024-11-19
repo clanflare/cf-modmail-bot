@@ -92,11 +92,13 @@ async function permissionValidator(message: Message<true>, command: TextCommand)
   // 3. Check role permissions (including @everyone).
   const roleIds = [...member.roles.cache.keys()];
   for (const roleId of roleIds) {
+    if(roleId === everyoneId) continue;
     const rolePermission = permissionMap[roleId];
     if (rolePermission?.type === 1) {
       rolePermission.permission ? allowList.push("role") : denyList.push("role");
     }
   }
+  if(!allowList.includes("role") && !permissionMap[everyoneId].permission) denyList.push("role");
 
   // Determine if the command is allowed or denied based on collected permissions.
   if (denyList.length > 0) {
