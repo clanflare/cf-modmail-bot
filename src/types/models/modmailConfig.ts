@@ -15,8 +15,11 @@ export interface IModmailConfig
     SchemaTimestampsConfig,
     ModmailConfig {}
 
+// Define supportmessage as type = Pick DiscordMessage properties: content, embeds
+export type SupportMessage = Pick<DiscordMessage, "content" | "embeds" | "attachments">;
+
 export type MessageComponent = {
-  message: DiscordMessage;
+  message: SupportMessage;
   aiInstructions?: string;
   messageToSupportTeam?: string;
   categoryId?: string;
