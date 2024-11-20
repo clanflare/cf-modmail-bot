@@ -71,7 +71,7 @@ export function discordMessageToDiscordParser(discordMessage:DiscordMessage){
   }
   return {
     content: discordMessage.content, 
-    files: discordMessage.attachments?.map(),
+    // files: discordMessage.attachments?.map(),
   }
 }
 
