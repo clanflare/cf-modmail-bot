@@ -37,6 +37,10 @@ const ModmailSchema = new Schema<IModmail>(
       enum: ["open", "resolved", "closed", "errored"],
       default: "open",
     },
+    staff: {
+      type: [String],
+      default: [],
+    },
     userChannelId: {
       type: String,
       required: [true, "User Channel ID is required"],
@@ -45,7 +49,7 @@ const ModmailSchema = new Schema<IModmail>(
       type: String,
       required: [true, "Modmail Channel ID is required"],
     },
-    interactiveMessageId:{
+    interactiveMessageId: {
       type: String,
       required: [true, "interactiveMessageId is required"]
     },

@@ -27,7 +27,7 @@ import type {
 } from "@/types/models";
 import { client } from "@/.";
 import { getModmailConfig } from "@/services/config.service";
-import { DEFAULT_PREFIX, GUILD_ID } from "@/config/config";
+import { DEFAULT_PREFIX, GUILD_ID, MODMAIL_REMINDER_WAIT_TIME_SECONDS } from "@/config/config";
 import { messageStickerAndAttachmentParser, messageComponentParser } from "@/action";
 import dbConnect from "@/utils/dbConn.utils";
 
@@ -116,7 +116,7 @@ export class ModmailClient {
     await modmailChannel.send(
       messageComponentParser(modmailConfig.initialMessage, true)
     );
-    if(modmailConfig.initialMessage.messageToSupportTeam) modmailChannel.send(`**System:** ${modmailConfig.initialMessage.messageToSupportTeam}`);
+    if (modmailConfig.initialMessage.messageToSupportTeam) modmailChannel.send(`**SYSTEM:** ${modmailConfig.initialMessage.messageToSupportTeam}`);
 
     const dbObject = await createModmail({
       guildId,
@@ -151,7 +151,7 @@ export class ModmailClient {
   }
 }
 
-class ModmailListener implements Omit<Modmail, "status"> {
+class ModmailListener implements Modmail {
   dbId: string;
   guildId: string; // guild where the modmail was opened
   userId: string; // user who opened the modmail
@@ -164,6 +164,9 @@ class ModmailListener implements Omit<Modmail, "status"> {
   component: MessageComponent;
   interactiveMessage: Message;
   interactiveMessageId: string;
+  status: ModmailStatus = "open";
+  staffInTicket: Set<string> = new Set([]);
+  staffResponded = false;
   ready = false;
   error = false;
   messages?: ModmailsMessage[] = [];
@@ -189,7 +192,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
     this.interactiveMessage = firstMessage;
     this.interactiveMessageId = firstMessage.id; //can be taken from db also , look for inconsistencies if ever there is a problem
     this.onStart()
-      .catch(() => {this.error = true})
+      .catch(() => { this.error = true })
       .then(() => (this.ready = true));
   }
 
@@ -221,21 +224,34 @@ class ModmailListener implements Omit<Modmail, "status"> {
     this.webhook = webhooks.first();
   }
 
+
+  remindStaff() {
+    setTimeout(() => {
+      if (this.staffResponded) return;
+      const mentions = [...this.staffInTicket].map(staffId => `<@${staffId}>`).join(' ');
+      this.modmailChannel?.send(`SYSTEM: Reminder Ping ${mentions || '@here'}`);
+    }, MODMAIL_REMINDER_WAIT_TIME_SECONDS * 1000); //ToDo: Implement via server config
+  }
+
   messageListeners() {
     const modmailMessageCollector = this.modmailChannel?.createMessageCollector(
       {
         filter: (msg) =>
-          !msg.author.bot && !msg.content.startsWith(DEFAULT_PREFIX), //replace with a prefix for guild when functionality  is implemented
+          !msg.author.bot && !msg.content.startsWith(DEFAULT_PREFIX), //ToDo: replace with a prefix for guild when functionality  is implemented
       }
     );
-    modmailMessageCollector?.on("collect",async (message) => {
+    modmailMessageCollector?.on("collect", async (message) => {
       await this.userChannel?.send(messageStickerAndAttachmentParser(message));
       message.react('✅');
+      this.staffInTicket.add(message.author.id);
+      this.staffResponded = true;
+      updateModmail(this.dbId, { staff: [...this.staffInTicket] });
     });
     const userMessageCollector = this.userChannel?.createMessageCollector({
       filter: (msg) => !msg.author.bot,
     });
-    userMessageCollector?.on("collect",async (message) => {
+
+    userMessageCollector?.on("collect", async (message) => {
       const { content, files } = messageStickerAndAttachmentParser(message);
       await this.webhook?.send({
         content,
@@ -245,6 +261,8 @@ class ModmailListener implements Omit<Modmail, "status"> {
           this.user?.user.avatarURL() || this.user?.avatarURL() || undefined,
       });
       message.react('✅');
+      this.staffResponded = false;
+      this.remindStaff();
     });
 
     this.userChannelMessageCollector = userMessageCollector;
@@ -279,7 +297,7 @@ class ModmailListener implements Omit<Modmail, "status"> {
       this.component = newComponent;
       this.interactiveMessage.edit(messageComponentParser(newComponent));
       this.modmailChannel?.send(messageComponentParser(newComponent, true));
-      if(newComponent.messageToSupportTeam) this.modmailChannel?.send(`**System:** ${newComponent.messageToSupportTeam}`);
+      if (newComponent.messageToSupportTeam) this.modmailChannel?.send(`**SYSTEM:** ${newComponent.messageToSupportTeam}`);
     });
   }
 

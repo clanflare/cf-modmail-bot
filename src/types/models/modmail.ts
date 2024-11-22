@@ -17,8 +17,9 @@ export type Modmail = {
   status: ModmailStatus // status of the modmail
   modmailChannelId: string; // modmail channel Id for modmail (if open)
   userChannelId: string; // user channel Id for modmail (if open)
+  staff?: string[];
   interactiveMessageId: string;
   messages?: ModmailsMessage[],
 };
 
-export interface IModmail extends Document, SchemaTimestampsConfig, Modmail {}
+export interface IModmail extends Document, SchemaTimestampsConfig, Modmail { }
