@@ -1,12 +1,10 @@
 import dbConnect from "./utils/dbConn.utils";
 import app from "./utils/server.utils";
-import fs from "fs";
-import { BOT_TOKEN } from "./config/config";
 import { CFClient } from "./utils/discordClient.utils";
 import { Collection } from "discord.js";
 
 export const cfClients = new Collection<string, CFClient>();
-const data = [
+const clientsData = [
   {
     clientId: "13042342343249769595770423634281", // Replace with your client ID
     guildId: "117032423423627136059609118", // Replace with your guild ID
@@ -28,19 +26,26 @@ const data = [
     clientSecret: "--TddTyijkKDLsagarsgafdgsfdgsdfgtksDXq-d67EhEQ5GXEV",
     prefix: "!",
   }
-]
+];
 
-dbConnect().then(() => {
-  console.log("DB Connected");
-  data.forEach(async(d) => {
-    const bot = new CFClient(d.token, d.clientId, d.guildId, d.clientSecret, d.prefix);
-    console.log(`Starting bot ${d.clientId}`);
-    await bot.login();
-    await bot.loadSlashCommands();
-    
-    cfClients.set(d.clientId, bot);
-  })
-  app.listen(3000, () => {
-    console.log("Server started on http://localhost:3000");
-  });
-});
+(async () => {
+  try {
+    await dbConnect();
+    console.log("Database connected");
+
+
+    clientsData.forEach(async (clientConfig) => {
+      const bot = new CFClient(clientConfig);
+      console.log(`Starting bot ${clientConfig.clientId}`);
+      await bot.login();
+      cfClients.set(clientConfig.clientId, bot);
+    });
+
+    app.listen(process.env.PORT || 3000, () => {
+      console.log(`Server started on http://localhost:${process.env.PORT || 3000}`);
+    });
+  } catch (error) {
+    console.error("Error starting application:", error);
+    process.exit(1);
+  }
+})();

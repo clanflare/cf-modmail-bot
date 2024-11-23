@@ -1,24 +1,40 @@
+// src/utils/discordClient.utils.ts
+
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 import handler from "../handlers";
 import { ModmailClient } from "@/modmail";
 import slashCommands from "@/commands/slash";
 
 export class CFClient {
-  token: string;
-  clientId: string;
-  guildId: string;
-  clientSecret: string;
-  prefix: string;
-  modmailClient: ModmailClient;
-  client: Client;
+  public client: Client;
+  public modmailClient: ModmailClient;
 
-  constructor(token: string, clientId: string, guildId: string, clientSecret: string, prefix: string) {
+  private token: string;
+  private clientId: string;
+  private guildId: string;
+  private clientSecret: string;
+  private prefix: string;
+
+  /**
+   * Initializes a new instance of CFClient.
+   * @param options - Configuration options for the client.
+   */
+  constructor(options: {
+    token: string;
+    clientId: string;
+    guildId: string;
+    clientSecret: string;
+    prefix: string;
+  }) {
+    const { token, clientId, guildId, clientSecret, prefix } = options;
 
     this.token = token;
     this.clientId = clientId;
     this.guildId = guildId;
     this.clientSecret = clientSecret;
     this.prefix = prefix;
+
+    // Initialize the Discord client with appropriate intents and partials
     this.client = new Client({
       intents: [
         GatewayIntentBits.Guilds,
@@ -26,31 +42,74 @@ export class CFClient {
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageTyping,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMessageTyping, //all intents
       ],
-      partials: [Partials.Channel, Partials.Message], //all partial
-    }
-    );
+      partials: [
+        Partials.Channel,
+        Partials.Message,
+        Partials.Reaction,
+        Partials.User,
+        Partials.GuildMember,
+      ],
+    });
+
+    // Initialize ModmailClient with the Discord client
     this.modmailClient = new ModmailClient(this.client);
   }
 
-  async loadSlashCommands() {
-    console.log("Started refreshing application (/) commands.");
-    const commands = await this.client.application?.commands.set(slashCommands.map((command) => command.data.toJSON()));
-    if (!commands) throw new Error("Failed to load commands");
-    commands.forEach(cmd => {
-      const command = slashCommands.get(cmd.name);
-      if (!command) return;//never happens
-      command.id = cmd.id;
-      slashCommands.set(cmd.name, command);
-    });
-    console.log("Successfully reloaded application (/) commands.");
+  /**
+   * Logs the client into Discord and starts the event handler.
+   */
+  public async login(): Promise<void> {
+    try {
+      await this.client.login(this.token);
+      console.log(`Logged in as ${this.client.user?.tag}`);
+
+      // Load slash commands after the client is ready
+      await this.loadSlashCommands();
+
+      // Start handling events
+      await handler(this);
+    } catch (error) {
+      console.error("Failed to login:", error);
+    }
   }
-  
-  async login() {
-    await this.client.login(this.token);
-    await handler(this);
+
+  /**
+   * Loads slash commands and registers them with Discord.
+   */
+  private async loadSlashCommands(): Promise<void> {
+    // console.log("Started refreshing application (/) commands.");
+
+    try {
+      const commandsData = slashCommands.map((command) => command.data.toJSON());
+
+      const applicationCommands = await this.client.application?.commands.set(commandsData);
+
+      if (!applicationCommands) {
+        throw new Error("Failed to load commands");
+      }
+
+      // Map application commands by name for easier access
+      const applicationCommandsMap = new Map(
+        applicationCommands.map((cmd) => [cmd.name, cmd])
+      );
+
+      // Update the command IDs in slashCommands if needed
+      slashCommands.forEach((command) => {
+        const applicationCommand = applicationCommandsMap.get(command.data.name);
+        if (applicationCommand) {
+          command.id = applicationCommand.id;
+        }
+      });
+
+      console.log("Successfully reloaded application (/) commands.");
+    } catch (error) {
+      console.error("Error loading slash commands:", error);
+    }
   }
 }
