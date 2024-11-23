@@ -25,7 +25,7 @@ export const wvc: TextCommand = {
     const modmail = mmclient.modmails.find(
       (modmail: any) => message.channelId === modmail?.modmailChannelId
     );
-    if(!message.guild)return;
+    if (!message.guild) return;
     if (!modmail) return;
     if (!mmclient.ready) return;
 
@@ -58,12 +58,12 @@ Messages Count: ${modmail.messages?.length || 0}
     // Send the files to a specific log channel
     const config = await getModmailConfig(message.guild.id);
     const logChannelId = config?.archiveChannelId;
-    if(!logChannelId)return;
+    if (!logChannelId) return;
     const logChannel = message.client.channels.cache.get(logChannelId) as TextChannel;
     if (logChannel) {
       await logChannel.send({
         content: `Modmail closed for user <@${modmail.userId}>`,
-        embeds: [{description:modmailDataLog}],
+        embeds: [{ description: modmailDataLog }],
         files: [messageLogAttachment],
       });
     }

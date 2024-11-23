@@ -12,4 +12,4 @@ export type Timeout = {
   };
 };
 
-export interface ITimeout extends Document, SchemaTimestampsConfig, Timeout {}
+export interface ITimeout extends Document, SchemaTimestampsConfig, Timeout { }

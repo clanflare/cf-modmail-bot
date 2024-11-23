@@ -58,10 +58,9 @@ export const whichvc: TextCommand = {
         `The following members are in a voice channel:\n${args
           .map(
             (member: any) =>
-              `${member.displayName} - ${
-                member.voice.channel?.id
-                  ? `<#${member.voice.channel?.id}>`
-                  : "Not in VC"
+              `${member.displayName} - ${member.voice.channel?.id
+                ? `<#${member.voice.channel?.id}>`
+                : "Not in VC"
               }`
           )
           .join(",\n")}`

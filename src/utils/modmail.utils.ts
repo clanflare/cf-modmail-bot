@@ -17,17 +17,17 @@ const ongoingModmails = new Collection<string, ModmailDiscord>();
 
 async function modmailHandler(modmail: ModmailDiscord) {
     const InteractionCollector = modmail.userChannel.createMessageComponentCollector(
-    //     {
-    //     filter: (interaction) => interaction.user.id === modmail.member.id,
-    // }
-);
+        //     {
+        //     filter: (interaction) => interaction.user.id === modmail.member.id,
+        // }
+    );
     InteractionCollector.on("collect", async (interaction) => {
         await interaction.reply({
             content: `${interaction.customId.split("-")[1]} option selected.`,
             ephemeral: true,
         });
 
-        if(!modmail.lastSystemMessage) return; // instead of returning send the first initial message which should be modularized from the code below
+        if (!modmail.lastSystemMessage) return; // instead of returning send the first initial message which should be modularized from the code below
         const sent = modmail?.lastSystemMessage?.buttons?.find((button) => {
             if (button.label === interaction.customId.split("-")[1]) {
                 console.log(button, button.linkedComponent);
@@ -39,7 +39,7 @@ async function modmailHandler(modmail: ModmailDiscord) {
                             .setLabel(button.label)
                             .setStyle(button.style ? button.style : ButtonStyle.Secondary)
                             .setCustomId(`modmail_button-${button.label}`)
-                            // .setEmoji(button.emoji);
+                        // .setEmoji(button.emoji);
                     })
                 );
                 modmail.userChannel?.send({
@@ -107,7 +107,7 @@ export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextCha
             .setLabel(button.label)
             .setStyle(button.style ? button.style : ButtonStyle.Secondary)// actually it is validated but the type safety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
             .setCustomId(`modmail_button-${button.label}`)
-            // .setEmoji(button.emoji ? button.emoji : "Hehe");
+        // .setEmoji(button.emoji ? button.emoji : "Hehe");
     });
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
@@ -125,7 +125,7 @@ export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextCha
     if (!modmailCategory) return null;
 
     const modmailChannel = await guild.channels.create({
-        name:'New Modmail',
+        name: 'New Modmail',
         topic: `Modmail channel for user ${message.author.tag} (${message.author.id})`,
         nsfw: true,
         reason: `Modmail channel for user ${message.author.tag} (${message.author.id})`,
@@ -138,7 +138,7 @@ export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextCha
         modmailChannelId: modmailChannel.id,
         status: "open",
         userChannelId: userChannel.id,
-        interactiveMessageId:"",//idk just to fix the type error T-T
+        interactiveMessageId: "",//idk just to fix the type error T-T
     });
 
     const newModmailWithChannels: ModmailDiscord = {

@@ -8,8 +8,7 @@ const app = new Elysia();
 
 app.onResponse((handler) => {
   console.log(
-    `${handler.request.method} | URL: ${
-      handler.request.url
+    `${handler.request.method} | URL: ${handler.request.url
     } | Status Code: ${(handler.set.status ||= 500)}`
   );
 });

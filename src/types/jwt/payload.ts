@@ -1,5 +1,5 @@
 export type Payload = {
-    userId: string;
-    guildId: string;
-    expiresAt: number;
-  };
+  userId: string;
+  guildId: string;
+  expiresAt: number;
+};

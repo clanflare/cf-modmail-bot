@@ -19,7 +19,7 @@ export default async function (client: Client, interaction: Interaction) {
       return;
     }
     console.error(err); //setup pino later
-    if(interaction.replied) return await interaction.followUp(`Failed to execute ${interaction.commandName} command.`); //change this to look better
+    if (interaction.replied) return await interaction.followUp(`Failed to execute ${interaction.commandName} command.`); //change this to look better
     await interaction.reply(`Failed to execute ${interaction.commandName} command.`);
   }
 }

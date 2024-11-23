@@ -1,14 +1,13 @@
-import {moderation} from "@/action";
-import type {SlashCommand} from "@/types/commands";
-import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
-import ms from "ms";
+import { moderation } from "@/action";
+import type { SlashCommand } from "@/types/commands";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 
 const choices = [
-  {name: "all", value: "all"},
-  {name: "warn", value: "warn"},
-  {name: "timeout", value: "timeout"},
-  {name: "ban", value: "ban"},
-  {name: "unban", value: "unban"},
+  { name: "all", value: "all" },
+  { name: "warn", value: "warn" },
+  { name: "timeout", value: "timeout" },
+  { name: "ban", value: "ban" },
+  { name: "unban", value: "unban" },
 ];
 
 export const modlogs: SlashCommand = {
@@ -63,11 +62,10 @@ export const modlogs: SlashCommand = {
       title: `Modlogs for ${user.tag} - ${user.id}`,
       description: modlogs
         .map((log) => {
-          return `\n\n\n**Type:** ${log.type}\n**Reason:** ${
-            log.reason
-          }\n**Date:** ${new Date(
-            String(log.createdAt)
-          ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
+          return `\n\n\n**Type:** ${log.type}\n**Reason:** ${log.reason
+            }\n**Date:** ${new Date(
+              String(log.createdAt)
+            ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
         })
         .toString(),
     };

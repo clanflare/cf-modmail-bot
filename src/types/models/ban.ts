@@ -12,4 +12,4 @@ export type Ban = {
   };
 };
 
-export interface IBan extends Document, SchemaTimestampsConfig, Ban {}
+export interface IBan extends Document, SchemaTimestampsConfig, Ban { }

@@ -6,7 +6,7 @@ export const defaultWarnConfig: WarnConfig[] = [
     warnNumber: 0,
     actions: [
       {
-        duration: 24*60*60*1000,
+        duration: 24 * 60 * 60 * 1000,
         reason: "Max Warn Timeout",
         type: "Timeout",
       },
@@ -15,14 +15,14 @@ export const defaultWarnConfig: WarnConfig[] = [
   {
     guildId: "default",
     warnNumber: 1,
-    actions: [ ],
+    actions: [],
   },
   {
     guildId: "default",
     warnNumber: 2,
     actions: [
       {
-        duration: 2*60*60*1000,
+        duration: 2 * 60 * 60 * 1000,
         reason: "Warn 2 Timeout",
         type: "Timeout",
       },
@@ -33,7 +33,7 @@ export const defaultWarnConfig: WarnConfig[] = [
     warnNumber: 3,
     actions: [
       {
-        duration: 4*60*60*1000,
+        duration: 4 * 60 * 60 * 1000,
         reason: "Warn 3 Timeout",
         type: "Timeout",
       },
@@ -44,7 +44,7 @@ export const defaultWarnConfig: WarnConfig[] = [
     warnNumber: 4,
     actions: [
       {
-        duration: 8*60*60*1000,
+        duration: 8 * 60 * 60 * 1000,
         reason: "Warn 4 Timeout",
         type: "Timeout",
       },
@@ -55,7 +55,7 @@ export const defaultWarnConfig: WarnConfig[] = [
     warnNumber: 5,
     actions: [
       {
-        duration: 12*60*60*1000,
+        duration: 12 * 60 * 60 * 1000,
         reason: "Warn 5 Timeout",
         type: "Timeout",
       },

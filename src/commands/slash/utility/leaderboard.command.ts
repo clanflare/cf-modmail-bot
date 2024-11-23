@@ -1,4 +1,4 @@
-import type {SlashCommand} from "@/types/commands";
+import type { SlashCommand } from "@/types/commands";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -29,8 +29,8 @@ export const leaderboard: SlashCommand = {
     await interaction.deferReply(); // Defer the reply to avoid timeout
 
     // Fetch leaderboard data from the database
-    const users = await DropLeaderboard.find({guildId:interaction.guild.id})
-      .sort({points: -1}) // Sort by points descending
+    const users = await DropLeaderboard.find({ guildId: interaction.guild.id })
+      .sort({ points: -1 }) // Sort by points descending
       .lean(); // Fetch plain objects
 
     if (users.length === 0) {
@@ -56,7 +56,7 @@ export const leaderboard: SlashCommand = {
             )
             .join("\n")
         )
-        .setFooter({text: `Page ${page + 1} of ${totalPages}`})
+        .setFooter({ text: `Page ${page + 1} of ${totalPages}` })
         .setTimestamp();
     };
 

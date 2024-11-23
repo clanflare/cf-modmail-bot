@@ -1,4 +1,4 @@
-import type {Document, SchemaTimestampsConfig} from "mongoose";
+import type { Document, SchemaTimestampsConfig } from "mongoose";
 
 export type DiscordEmbed = {
   title?: string; // 256 character limit

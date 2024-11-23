@@ -1,4 +1,4 @@
-import {Client, Events} from "discord.js";
+import { Client, Events } from "discord.js";
 import dmMessage from "./dmMessage.handler";
 import slashCommand from "./slashCommand.handler";
 import textCommand from "./textCommand.handler";
@@ -11,7 +11,7 @@ export default async function (client: Client) {
     slashCommand(client, interaction);
   });
   client.on(Events.MessageCreate, (message) => {
-    if(message.inGuild()) textCommand(client, message);
+    if (message.inGuild()) textCommand(client, message);
     else dmMessage(client, message);
   });
 }

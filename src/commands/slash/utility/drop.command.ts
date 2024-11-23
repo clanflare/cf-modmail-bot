@@ -1,4 +1,4 @@
-import type {SlashCommand} from "@/types/commands";
+import type { SlashCommand } from "@/types/commands";
 import {
   BaseGuildTextChannel,
   type ChatInputCommandInteraction,
@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import ms from "ms";
 import DropLeaderboard from "@/models/dropLeaderboard.model.ts";
-import {DROP_LOG_CHANNEL_ID} from "@/config/config.ts";
+import { DROP_LOG_CHANNEL_ID } from "@/config/config.ts";
 
 export const drop: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -25,7 +25,7 @@ export const drop: SlashCommand = {
     .addChannelOption((option) =>
       option.setName("channel").setDescription("The channel for the drop")
     )
-    .addRoleOption((option) => 
+    .addRoleOption((option) =>
       option.setName("winner-role").setDescription("Role that should be given to the winners.")
     )
     .addIntegerOption((option) =>
@@ -100,14 +100,14 @@ export const drop: SlashCommand = {
       const winnerIndex = collectedWinners.length;
       const prize = prizeArray[winnerIndex] || 0;
 
-      collectedWinners.push({userId: m.author.id, prize});
+      collectedWinners.push({ userId: m.author.id, prize });
       winnerSet.add(m.author.id); // Track winners to prevent duplicates
 
       // Update user points in the database
       await DropLeaderboard.findOneAndUpdate(
-        {userId: m.author.id, guildId:m.guild?.id},
-        {$inc: {points: prize}},
-        {upsert: true}
+        { userId: m.author.id, guildId: m.guild?.id },
+        { $inc: { points: prize } },
+        { upsert: true }
       );
 
       const victoryMsg = victoryMessage
@@ -116,7 +116,7 @@ export const drop: SlashCommand = {
 
       await m.reply(victoryMsg);
 
-      if(winnerRole?.id){
+      if (winnerRole?.id) {
         m.member?.roles.add(winnerRole.id)
       }
 
@@ -133,15 +133,15 @@ export const drop: SlashCommand = {
         const embed = new EmbedBuilder()
           .setTitle("Drop Ended")
           .addFields(
-            {name: "Created By", value: `<@${interaction.user.id}>`, inline: true},
-            {name: "Claim Word", value: claimWord, inline: true},
-            {name: "Winner Count", value: winnerCount.toString(), inline: true},
-            {name: "Channel", value: `<#${channel.id}>`, inline: true},
-            {name: "Victory Message", value: victoryMessage, inline: false},
-            {name: "Duration", value: time, inline: true},
-            {name: "Points", value: prizeArray.toString(), inline: true},
-            {name: "Message", value: message, inline: false},
-            {name: "Winner Role",value: `<@&${winnerRole?.id}>`,inline: true},
+            { name: "Created By", value: `<@${interaction.user.id}>`, inline: true },
+            { name: "Claim Word", value: claimWord, inline: true },
+            { name: "Winner Count", value: winnerCount.toString(), inline: true },
+            { name: "Channel", value: `<#${channel.id}>`, inline: true },
+            { name: "Victory Message", value: victoryMessage, inline: false },
+            { name: "Duration", value: time, inline: true },
+            { name: "Points", value: prizeArray.toString(), inline: true },
+            { name: "Message", value: message, inline: false },
+            { name: "Winner Role", value: `<@&${winnerRole?.id}>`, inline: true },
             {
               name: "Winners with Prizes",
               value: winnersWithPrizes,
@@ -150,7 +150,7 @@ export const drop: SlashCommand = {
           )
           .setTimestamp();
 
-        await logChannel.send({embeds: [embed]});
+        await logChannel.send({ embeds: [embed] });
 
         await channel.send(`Drop ended!!!\n${winnersWithPrizes}`);
       }

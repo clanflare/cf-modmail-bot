@@ -18,5 +18,5 @@ export type RoleModeration = {
 
 export interface IRoleModeration
   extends Document,
-    SchemaTimestampsConfig,
-    RoleModeration {}
+  SchemaTimestampsConfig,
+  RoleModeration { }

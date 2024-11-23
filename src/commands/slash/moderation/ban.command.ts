@@ -1,6 +1,6 @@
-import {moderation} from "@/action";
-import type {SlashCommand} from "@/types/commands";
-import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
+import { moderation } from "@/action";
+import type { SlashCommand } from "@/types/commands";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import ms from "ms";
 
 export const ban: SlashCommand = {
@@ -66,13 +66,11 @@ export const ban: SlashCommand = {
 
     // Notify the moderator about the ban
     await interaction.editReply({
-      content: `Banned ${user.username} <@${user.id}>\nReason: ${
-        ban.reason
-      }\nDuration: ${
-        ban.duration === 0
+      content: `Banned ${user.username} <@${user.id}>\nReason: ${ban.reason
+        }\nDuration: ${ban.duration === 0
           ? "Permanent"
-          : `for ${ms(ban.duration, {long: true})}`
-      }`,
+          : `for ${ms(ban.duration, { long: true })}`
+        }`,
     });
   },
 };

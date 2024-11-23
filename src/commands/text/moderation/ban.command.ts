@@ -1,7 +1,7 @@
-import {moderation, getMember} from "@/action";
-import type {TextCommand} from "@/types/commands";
-import {CustomDiscordError} from "@/types/errors";
-import {PermissionFlagsBits} from "discord.js";
+import { moderation, getMember } from "@/action";
+import type { TextCommand } from "@/types/commands";
+import { CustomDiscordError } from "@/types/errors";
+import { PermissionFlagsBits } from "discord.js";
 
 const regexForIds = new RegExp(/^\d{16,20}$/); //put this as a util and use it for any id validation
 

@@ -13,4 +13,4 @@ export type Unban = {
   ban?: Ban;
 };
 
-export interface IUnban extends Document, SchemaTimestampsConfig, Unban {}
+export interface IUnban extends Document, SchemaTimestampsConfig, Unban { }

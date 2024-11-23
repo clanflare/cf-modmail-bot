@@ -30,5 +30,5 @@ export type WarnConfig = {
 
 export interface IWarnConfig
   extends Document,
-    SchemaTimestampsConfig,
-    WarnConfig {}
+  SchemaTimestampsConfig,
+  WarnConfig { }

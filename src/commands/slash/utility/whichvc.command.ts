@@ -1,6 +1,6 @@
-import {getMember} from "@/action";
-import type {SlashCommand} from "@/types/commands";
-import {SlashCommandBuilder, type ChatInputCommandInteraction} from "discord.js";
+import { getMember } from "@/action";
+import type { SlashCommand } from "@/types/commands";
+import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 
 export const whichvc: SlashCommand = {
   data: new SlashCommandBuilder()

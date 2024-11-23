@@ -63,11 +63,10 @@ export const modlogs: SlashCommand = {
       title: `Modlogs for ${user.tag} - ${user.id}`,
       description: modlogs
         .map((log) => {
-          return `\n\n\n**Type:** ${log.type}\n**Reason:** ${
-            log.reason
-          }\n**Date:** ${new Date(
-            log.createdAt as unknown as string
-          ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
+          return `\n\n\n**Type:** ${log.type}\n**Reason:** ${log.reason
+            }\n**Date:** ${new Date(
+              log.createdAt as unknown as string
+            ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
         })
         .toString(),
     };

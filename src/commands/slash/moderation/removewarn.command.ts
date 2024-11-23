@@ -1,5 +1,5 @@
-import {moderation} from "@/action";
-import type {SlashCommand} from "@/types/commands";
+import { moderation } from "@/action";
+import type { SlashCommand } from "@/types/commands";
 import {
   ActionRowBuilder,
   ComponentType,

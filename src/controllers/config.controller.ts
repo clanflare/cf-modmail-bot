@@ -24,7 +24,7 @@ export const saveConfig = async (context: PostConfigContext) => {
     })) || ({} as IModmailConfig);
 
 
-    console.log(serverConfig);
+  console.log(serverConfig);
   if (!serverConfig || !serverConfig.guildId) {
     context.set.status = 404;
     return {
@@ -58,7 +58,7 @@ export const saveConfig = async (context: PostConfigContext) => {
     data,
     code: 200,
   };
- 
+
 };
 
 export const getConfig = async (context: Context) => {

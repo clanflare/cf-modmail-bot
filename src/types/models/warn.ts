@@ -16,4 +16,4 @@ export type Warn = {
   }[];
 };
 
-export interface IWarn extends Document, SchemaTimestampsConfig, Warn {}
+export interface IWarn extends Document, SchemaTimestampsConfig, Warn { }

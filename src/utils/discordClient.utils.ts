@@ -21,9 +21,9 @@ export const discordRestAPI = new REST().setToken(BOT_TOKEN);
     }
     commands.forEach(cmd => {
       const command = slashCommands.get(cmd.name);
-      if(!command) return;//never happens
+      if (!command) return;//never happens
       command.id = cmd.id;
-      slashCommands.set(cmd.name,command);
+      slashCommands.set(cmd.name, command);
     })
     console.log("Successfully reloaded application (/) commands.");
   } catch (error) {

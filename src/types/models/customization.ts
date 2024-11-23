@@ -11,5 +11,5 @@ export type Customization = {
 
 export interface ICustomization
   extends Document,
-    SchemaTimestampsConfig,
-    Customization {}
+  SchemaTimestampsConfig,
+  Customization { }

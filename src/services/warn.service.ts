@@ -13,4 +13,4 @@ export const deleteWarn = async (
     guildId: string;
     userId: string;
   }>
-): Promise<IWarn | null> => model.findOneAndDelete({_id: query.warnId, guildId: query.guildId, userId: query.userId}).exec();
+): Promise<IWarn | null> => model.findOneAndDelete({ _id: query.warnId, guildId: query.guildId, userId: query.userId }).exec();

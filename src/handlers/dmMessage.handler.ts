@@ -23,7 +23,7 @@ export default async function (client: Client, message: Message) {
 
   // getActiveModmail(dmChannel, message);
 
-  
+
 
   // try {
   //   const messages: ChatCompletionMessageParam[] = [

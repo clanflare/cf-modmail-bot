@@ -5,7 +5,7 @@ export const create = async (data: Timeout): Promise<ITimeout> => model.create(d
 
 export const getTimeouts = async (
     query: Partial<Pick<Timeout, "guildId" | "userId" | "actionBy" | "reason">>,
-    ): Promise<ITimeout[]> => model.find(query).sort({ createdAt: -1 }).exec();
+): Promise<ITimeout[]> => model.find(query).sort({ createdAt: -1 }).exec();
 
 // export const getLatestTimeout = async (
 //   query: Partial<Pick<Timeout, "guildId" | "userId" | "actionBy" | "reason">>,
