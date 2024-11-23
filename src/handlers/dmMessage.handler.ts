@@ -1,5 +1,6 @@
 import { ChannelType, Client, Message, MessageType } from "discord.js";
-import { mmclient } from "@/utils/discordClient.utils";
+import { cfClients } from "..";
+import type { ModmailClient } from "@/modmail";
 // import { modlogs } from "@/action/moderation";
 // import OpenAI from "openai";
 // import type {
@@ -10,14 +11,13 @@ import { mmclient } from "@/utils/discordClient.utils";
 // const openai = new OpenAI();
 
 
-export default async function (client: Client, message: Message) {
+export default async function (client: Client, message: Message, mmclient: ModmailClient) {
   if (message.partial) message = await message.fetch();
   if (message.author.bot) return;
   if (message.channel.type !== ChannelType.DM) return;
   if (message.type !== MessageType.Default) return;
   let dmChannel = message.channel;
   if (dmChannel.partial) dmChannel = await message.channel.fetch();
-
   await mmclient.messageListener(message);
 
   // getActiveModmail(dmChannel, message);

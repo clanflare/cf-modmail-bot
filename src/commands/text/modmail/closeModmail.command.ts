@@ -1,6 +1,6 @@
 
 //ToDo: This whole thing needs a revamp
-import { mmclient } from "@/utils/discordClient.utils";
+import { cfClients } from "@/index";
 import type { TextCommand } from "@/types/commands";
 import { CustomDiscordError } from "@/types/errors";
 
@@ -22,6 +22,8 @@ export const wvc: TextCommand = {
       );
   },
   execute: async (message, args) => {
+    const mmclient = cfClients.get(message.client?.application?.id)?.modmailClient;
+    if (!mmclient) return;
     const modmail = mmclient.modmails.find(
       (modmail: any) => message.channelId === modmail?.modmailChannelId
     );
