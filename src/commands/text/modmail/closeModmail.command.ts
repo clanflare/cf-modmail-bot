@@ -1,10 +1,11 @@
-import { getMember } from "@/action";
+
+//ToDo: This whole thing needs a revamp
 import { mmclient } from "@/utils/discordClient.utils";
 import type { TextCommand } from "@/types/commands";
 import { CustomDiscordError } from "@/types/errors";
-import { GuildMember, PermissionFlagsBits } from "discord.js";
 
-const regexforids = new RegExp(/^\d{16,20}$/); //put this as a util and use it for any id validation
+import { AttachmentBuilder, TextChannel } from "discord.js";
+import { getModmailConfig } from "@/services/config.service";
 
 export const wvc: TextCommand = {
   name: "close",
@@ -18,12 +19,55 @@ export const wvc: TextCommand = {
     if (args.length > 1)
       throw new CustomDiscordError(
         "You can only close 1 channel at a time"
-      ); // in the custom error implementation, the error message will be sent to the user and then deleted after a certain time and all this config will be optional and present in the generic custom error implementation
+      );
   },
   execute: async (message, args) => {
-    const modmail = mmclient.modmails.find((modmail)=>message.channelId===modmail?.modmailChannelId);
+    const modmail = mmclient.modmails.find(
+      (modmail: any) => message.channelId === modmail?.modmailChannelId
+    );
+    if(!message.guild)return;
     if (!modmail) return;
-    if(!mmclient.ready)return;
-    mmclient.deleteModmail(modmail.userId)
+    if (!mmclient.ready) return;
+
+    // Fetch all messages from the modmail channel
+    let messageLog = "";
+    if (modmail.modmailChannel) {
+      const messages = await modmail.modmailChannel.messages.fetch({ limit: 100 });
+      messageLog = messages.map(
+        (msg: any) => `[${msg.createdAt.toISOString()}] ${msg.author.tag}: ${msg.content}`
+      ).reverse().join("\n");
+    }
+
+    // Prepare modmail metadata
+    const modmailDataLog = `
+Modmail ID: ${modmail.dbId}
+Guild ID: ${modmail.guildId}
+User ID: ${modmail.userId}
+Channel ID: ${modmail.modmailChannelId}
+Status: ${modmail.status}
+Staff Involved: ${[...modmail.staffInTicket].join(", ")}
+Messages Count: ${modmail.messages?.length || 0}
+    `;
+
+    // Create in-memory files for logs
+    const messageLogAttachment = new AttachmentBuilder(
+      Buffer.from(messageLog, "utf-8"),
+      { name: `${modmail.userId}-channel-log.txt` }
+    );
+
+    // Send the files to a specific log channel
+    const config = await getModmailConfig(message.guild.id);
+    const logChannelId = config?.archiveChannelId;
+    if(!logChannelId)return;
+    const logChannel = message.client.channels.cache.get(logChannelId) as TextChannel;
+    if (logChannel) {
+      await logChannel.send({
+        content: `Modmail closed for user <@${modmail.userId}>`,
+        embeds: [{description:modmailDataLog}],
+        files: [messageLogAttachment],
+      });
+    }
+
+    mmclient.deleteModmail(modmail.userId);
   },
 };
