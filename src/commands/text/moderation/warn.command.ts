@@ -1,4 +1,3 @@
-import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 

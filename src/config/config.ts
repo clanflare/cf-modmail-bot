@@ -42,9 +42,9 @@ if (!DEFAULT_PREFIX) {
   throw new Error("DEFAULT_PREFIX is not defined");
 }
 
-if (!DROP_LOG_CHANNEL_ID) {
-  throw new Error("DROP_LOG_CHANNEL_ID is not defined");
-}
+// if (!DROP_LOG_CHANNEL_ID) {
+//   throw new Error("DROP_LOG_CHANNEL_ID is not defined");
+// }
 
 if (!MODMAIL_REMINDER_WAIT_TIME_SECONDS) {
   throw new Error("MODMAIL_REMINDER_WAIT_TIME_SECONDS is not defined");

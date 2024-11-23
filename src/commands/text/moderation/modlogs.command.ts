@@ -1,7 +1,5 @@
-import { moderation } from "@/action";
 import type { SlashCommand } from "@/types/commands";
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
-import ms from "ms";
 
 const choices = [
   { name: "all", value: "all" },

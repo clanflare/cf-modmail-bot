@@ -1,4 +1,3 @@
-import { moderation, getMember } from "@/action";
 import type { TextCommand } from "@/types/commands";
 import { CustomDiscordError } from "@/types/errors";
 import { PermissionFlagsBits } from "discord.js";

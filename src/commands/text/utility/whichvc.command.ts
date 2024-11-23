@@ -1,4 +1,4 @@
-import { getMember } from "@/action";
+import DiscordUtils from "@/action/discordUtils";
 import type { TextCommand } from "@/types/commands";
 import { CustomDiscordError } from "@/types/errors";
 import { GuildMember, PermissionFlagsBits } from "discord.js";
@@ -9,6 +9,7 @@ export const whichvc: TextCommand = {
   name: "whichvc",
   aliases: ["wv"],
   argumentParser: async (message) => {
+    const discordUtils = new DiscordUtils(message.client);
     const args: GuildMember[] = [];
     if (message.mentions.members) {
       message.mentions.members.forEach((member) => {
@@ -21,7 +22,7 @@ export const whichvc: TextCommand = {
     await Promise.all(
       distinctArgs.map(async (arg) => {
         if (message.guild && regexforids.test(arg)) {
-          const member = await getMember(arg, message.guild); // write a utility to populate an array of ids to discord.js objects
+          const member = await discordUtils.getMember(arg, message.guild); // write a utility to populate an array of ids to discord.js objects
           if (member) {
             args.push(member);
           }
@@ -30,7 +31,7 @@ export const whichvc: TextCommand = {
     );
     if (!args.length || !args[0]) {
       if (message.guild)
-        args.push(await getMember(message.author, message.guild));
+        args.push(await discordUtils.getMember(message.author, message.guild));
     }
     return args;
   },

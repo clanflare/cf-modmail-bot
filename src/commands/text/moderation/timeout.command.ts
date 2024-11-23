@@ -1,5 +1,4 @@
 import type { SlashCommand } from "@/types/commands";
-import { moderation } from "@/action";
 import {
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
