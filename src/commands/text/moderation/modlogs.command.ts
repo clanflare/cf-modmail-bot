@@ -9,17 +9,23 @@ export const modlogs: TextCommand = {
   argumentParser: async (message) => {
     const args = message.content.split(" ").slice(1);
     if (args.length < 1) {
-      throw new CustomDiscordError("Please provide a user ID or mention a user.");
+      throw new CustomDiscordError(
+        "Please provide a user ID or mention a user."
+      );
     }
     return args;
   },
   validator: async (message, args) => {
     if (!message.guild) {
-      throw new CustomDiscordError("You need to be in a server to use this command.");
+      throw new CustomDiscordError(
+        "You need to be in a server to use this command."
+      );
     }
     const member = await message.guild.members.fetch(message.author.id);
     if (!member.permissions.has(PermissionFlagsBits.ViewAuditLog)) {
-      throw new CustomDiscordError("You don't have permission to view modlogs.");
+      throw new CustomDiscordError(
+        "You don't have permission to view modlogs."
+      );
     }
   },
   execute: async (message, args) => {
@@ -45,7 +51,9 @@ export const modlogs: TextCommand = {
       .setDescription(
         modlogs
           .map((log) => {
-            return `**Type:** ${log.type}\n**Reason:** ${log.reason}\n**Date:** ${new Date(
+            return `**Type:** ${log.type}\n**Reason:** ${
+              log.reason
+            }\n**Date:** ${new Date(
               String(log.createdAt)
             ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
           })

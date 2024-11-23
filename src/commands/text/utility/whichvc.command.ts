@@ -1,7 +1,7 @@
 import DiscordUtils from "@/action/discordUtils";
 import type { TextCommand } from "@/types/commands";
 import { CustomDiscordError } from "@/types/errors";
-import { GuildMember, PermissionFlagsBits } from "discord.js";
+import { GuildMember } from "discord.js";
 
 const regexforids = new RegExp(/^\d{16,20}$/); //put this as a util and use it for any id validation
 
@@ -59,9 +59,10 @@ export const whichvc: TextCommand = {
         `The following members are in a voice channel:\n${args
           .map(
             (member: any) =>
-              `${member.displayName} - ${member.voice.channel?.id
-                ? `<#${member.voice.channel?.id}>`
-                : "Not in VC"
+              `${member.displayName} - ${
+                member.voice.channel?.id
+                  ? `<#${member.voice.channel?.id}>`
+                  : "Not in VC"
               }`
           )
           .join(",\n")}`

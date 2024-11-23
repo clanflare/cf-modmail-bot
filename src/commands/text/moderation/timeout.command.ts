@@ -25,7 +25,10 @@ export const timeout: TextCommand = {
 
     if (message.guild && regexForIds.test(userIdOrDuration)) {
       const discordUtils = new DiscordUtils(message.client);
-      const member = await discordUtils.getMember(userIdOrDuration, message.guild);
+      const member = await discordUtils.getMember(
+        userIdOrDuration,
+        message.guild
+      );
       if (member) {
         args.push(member, duration, reason);
       }
@@ -34,7 +37,9 @@ export const timeout: TextCommand = {
     }
 
     if (!args.length || !args[0]) {
-      throw new CustomDiscordError("Please mention a user or provide a valid user ID.");
+      throw new CustomDiscordError(
+        "Please mention a user or provide a valid user ID."
+      );
     }
 
     return args;
@@ -45,11 +50,15 @@ export const timeout: TextCommand = {
     const discordUtils = new DiscordUtils(message.client);
     const member = await discordUtils.getMember(message.author, message.guild);
     if (!member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-      throw new CustomDiscordError("You don't have permission to timeout members.");
+      throw new CustomDiscordError(
+        "You don't have permission to timeout members."
+      );
     }
 
     if (!args.length || args.length < 3) {
-      throw new CustomDiscordError("Please provide a duration and reason for the timeout.");
+      throw new CustomDiscordError(
+        "Please provide a duration and reason for the timeout."
+      );
     }
   },
   execute: async (message, args) => {
@@ -60,7 +69,7 @@ export const timeout: TextCommand = {
       userId: message.author.id,
     };
 
-    await moderation.timeout({
+    const timeout = await moderation.timeout({
       user: member,
       reason,
       duration,
@@ -68,6 +77,10 @@ export const timeout: TextCommand = {
       guild: message.guild,
     });
 
-    await message.reply(`User ${member.user.username} has been timed out for ${ms(duration, { long: true })} with reason: ${reason}`);
+    await message.reply(
+      `User ${member.user.username} has been timed out for ${ms(timeout.duration, {
+        long: true,
+      })} with reason: ${reason}`
+    );
   },
 };
