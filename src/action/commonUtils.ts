@@ -1,5 +1,5 @@
 import { CustomDiscordError } from "@/types/errors";
-import type { DiscordMessage, MessageComponent } from "@/types/models";
+import type { MessageComponent } from "@/types/models";
 import client from "@/utils/discordClient.utils";
 import {
   Guild,
@@ -10,7 +10,6 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Embed,
 } from "discord.js";
 
 export const getUser = async (user: string | User | GuildMember) => {
@@ -63,40 +62,6 @@ export function messageComponentParser(messageComponent: MessageComponent, disab
   }; 
 }
 
-export function discordMessageToDiscordParser(discordMessage:DiscordMessage){
-  if(discordMessage.sticker){
-    return {
-      content: `${discordMessage.content}\nsticker: ${discordMessage.sticker}`,
-    };
-  }
-  return {
-    content: discordMessage.content, 
-    // files: discordMessage.attachments?.map(),
-  }
-}
-
-export function discordToDiscordEmbedParser(embed:Embed){
-  return embed.title===null?({...embed,title:undefined}):{...embed,title:embed.title}
-}
-
-export function discordToDiscordMessageParser(message:Message){
-  const discordMessage: DiscordMessage = {
-    discordMessageId:message.id,
-    content:message.content,
-    authorId:message.author.id,
-    channelId:message.channelId,
-    attachments:message.attachments.map(att=>att.url),
-    sticker:message.stickers.first()?.url,
-    embeds: message.embeds.map(e=>discordToDiscordEmbedParser(e)),
-    guildId: message.guild?.id,
-    // reactions: message.reactions.cache.map(e=>e)
-    isEdited: message.editedAt? true:false,
-    isPinned: message.pinned,
-    replyToMessageId: message.reference?.messageId //ToDo: reference message changes not made yet
-  }
-
-  return discordMessage;
-}
 export const getGuild = (guild: string | Guild) => {
   // if guild is type of Guild return guild
   if (guild instanceof Guild) return guild;
