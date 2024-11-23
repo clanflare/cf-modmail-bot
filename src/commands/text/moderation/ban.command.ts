@@ -1,3 +1,5 @@
+import DiscordUtils from "@/action/discordUtils";
+import Moderation from "@/action/moderation";
 import type { TextCommand } from "@/types/commands";
 import { CustomDiscordError } from "@/types/errors";
 import { PermissionFlagsBits } from "discord.js";
@@ -20,7 +22,8 @@ export const ban: TextCommand = {
     const reason = parsedArgs.slice(1).join(" ") || "No reason provided.";
 
     if (message.guild && regexForIds.test(userIdOrDuration)) {
-      const member = await getMember(userIdOrDuration, message.guild);
+      const discordUtils = new DiscordUtils(message.client);
+      const member = await discordUtils.getMember(userIdOrDuration, message.guild);
       if (member) {
         args.push(member, reason);
       }
@@ -37,8 +40,8 @@ export const ban: TextCommand = {
   validator: async (message, args) => {
     if (!message.guild)
       throw new Error("You need to be in a server to use this command");
-
-    const member = await getMember(message.author, message.guild);
+    const discordUtils = new DiscordUtils(message.client);
+    const member = await discordUtils.getMember(message.author, message.guild);
     if (!member.permissions.has(PermissionFlagsBits.BanMembers)) {
       throw new CustomDiscordError("You don't have permission to ban members.");
     }
@@ -57,6 +60,7 @@ export const ban: TextCommand = {
     }
 
     try {
+      const moderation = new Moderation(message.client);
       await moderation.ban({
         user: memberToBan.id,
         reason,

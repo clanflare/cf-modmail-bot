@@ -1,81 +1,73 @@
-import type { SlashCommand } from "@/types/commands";
-import {
-  SlashCommandBuilder,
-  type ChatInputCommandInteraction,
-} from "discord.js";
+import type { TextCommand } from "@/types/commands";
+import { CustomDiscordError } from "@/types/errors";
+import { Message, PermissionFlagsBits } from "discord.js";
 import ms from "ms";
+import Moderation from "@/action/moderation";
+import DiscordUtils from "@/action/discordUtils";
 
-export const timeout: SlashCommand = {
-  data: new SlashCommandBuilder()
-    .setName("timeout")
-    .setDescription("Timeout an user.")
-    .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
-    .addUserOption((option) =>
-      option
-        .setName("user")
-        .setDescription("The user to timeout.")
-        .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("duration")
-        .setDescription("Duration of the timeout. 1m - 14d")
-        .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("reason")
-        .setDescription("The reason for the timeout.")
-        .setRequired(true)
-    ),
-  async execute(interaction: ChatInputCommandInteraction) {
-    // Fetch the user to timeout
-    const user = interaction.options.getUser("user", true);
+const regexForIds = new RegExp(/^\d{16,20}$/); // Utility for ID validation
 
-    // Check if the user and actionBy are the same
-    if (user.id === interaction.user.id) {
-      await interaction.reply("You cannot timeout yourself.");
-      return;
+export const timeout: TextCommand = {
+  name: "timeout",
+  aliases: ["to"],
+  argumentParser: async (message) => {
+    const args = [];
+    const mentionedMember = message.mentions.members?.first();
+
+    if (mentionedMember) {
+      args.push(mentionedMember);
     }
 
-    // Fetch the guild
-    const guild = interaction.guild;
+    const parsedArgs = message.content.split(" ").slice(1);
+    const userIdOrDuration = parsedArgs[0];
+    const duration = parsedArgs[1];
+    const reason = parsedArgs.slice(2).join(" ") || "No reason provided.";
 
-    // Check if the command is being used in a guild
-    if (!guild) {
-      await interaction.reply("This command can only be used in a guild.");
-      return;
+    if (message.guild && regexForIds.test(userIdOrDuration)) {
+      const discordUtils = new DiscordUtils(message.client);
+      const member = await discordUtils.getMember(userIdOrDuration, message.guild);
+      if (member) {
+        args.push(member, duration, reason);
+      }
+    } else if (mentionedMember) {
+      args.push(duration, reason);
     }
 
-    // Fetch the reason for the timeout
-    const reason = interaction.options.get("reason", true).value as string;
+    if (!args.length || !args[0]) {
+      throw new CustomDiscordError("Please mention a user or provide a valid user ID.");
+    }
 
-    // Fetch the duration of the timeout
-    const duration = interaction.options.get("duration", true).value as string;
+    return args;
+  },
+  validator: async (message: Message, args) => {
+    if (!message.guild)
+      throw new Error("You need to be in a server to use this command");
+    const discordUtils = new DiscordUtils(message.client);
+    const member = await discordUtils.getMember(message.author, message.guild);
+    if (!member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
+      throw new CustomDiscordError("You don't have permission to timeout members.");
+    }
 
-    // Fetch the user who timed out the user
+    if (!args.length || args.length < 3) {
+      throw new CustomDiscordError("Please provide a duration and reason for the timeout.");
+    }
+  },
+  execute: async (message, args) => {
+    const [member, duration, reason] = args;
+    const moderation = new Moderation(message.client);
     const actionBy = {
-      username: interaction.user.username,
-      userId: interaction.user.id,
+      username: message.author.username,
+      userId: message.author.id,
     };
 
-    // Send message for loading
-    await interaction.reply("Processing...");
-
-    // Timeout the user
-    const timeout = await moderation.timeout({
-      user,
+    await moderation.timeout({
+      user: member,
       reason,
       duration,
       actionBy,
-      guild,
+      guild: message.guild,
     });
 
-    await interaction.editReply(
-      `User ${user.username} has been timed out for ${ms(timeout.duration, {
-        long: true,
-      })} with reason: ${reason}`
-    );
+    await message.reply(`User ${member.user.username} has been timed out for ${ms(duration, { long: true })} with reason: ${reason}`);
   },
 };

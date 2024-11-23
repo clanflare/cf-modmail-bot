@@ -1,63 +1,70 @@
-import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import type { TextCommand } from "@/types/commands";
+import { CustomDiscordError } from "@/types/errors";
+import Moderation from "@/action/moderation";
+import DiscordUtils from "@/action/discordUtils";
+import { PermissionFlagsBits } from "discord.js";
 
-export const warn: SlashCommand = {
-  data: new SlashCommandBuilder()
-    .setName("warn")
-    .setDescription("Warn an user.")
-    .setDefaultMemberPermissions(0)
-    .setDMPermission(false)
-    .addUserOption((option) =>
-      option
-        .setName("user")
-        .setDescription("The user to warn")
-        .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("reason")
-        .setDescription("The reason for the warn")
-        .setRequired(true)
-    ),
-  async execute(interaction: ChatInputCommandInteraction) {
-    // Fetch the user to warn
-    const user = interaction.options.getUser("user", true);
+const regexForIds = new RegExp(/^\d{16,20}$/); // Utility for ID validation
 
-    // Check if the user and actionBy are the same
-    if (user.id === interaction.user.id) {
-      await interaction.reply("You cannot warn yourself.");
-      return;
+export const warn: TextCommand = {
+  name: "warn",
+  aliases: ["w"],
+  argumentParser: async (message) => {
+    const args = [];
+    const mentionedMember = message.mentions.members?.first();
+
+    if (mentionedMember) {
+      args.push(mentionedMember);
     }
 
-    // Fetch the reason for warn
-    const reason = interaction.options.get("reason", true).value as string;
+    const parsedArgs = message.content.split(" ").slice(1);
+    const userId = parsedArgs[0];
+    const reason = parsedArgs.slice(1).join(" ") || "No reason provided.";
 
-    // Fetch the user who warned the user
+    if (message.guild && regexForIds.test(userId)) {
+      const discordUtils = new DiscordUtils(message.client);
+      const member = await discordUtils.getMember(userId, message.guild);
+      if (member) {
+        args.push(member, reason);
+      }
+    } else if (mentionedMember) {
+      args.push(reason);
+    }
+
+    if (!args.length || !args[0]) {
+      throw new CustomDiscordError("Please mention a user or provide a valid user ID.");
+    }
+
+    return args;
+  },
+  validator: async (message, args) => {
+    if (!message.guild) {
+      throw new CustomDiscordError("You need to be in a server to use this command.");
+    }
+    const member = await message.guild.members.fetch(message.author.id);
+    if (!member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
+      throw new CustomDiscordError("You don't have permission to warn members.");
+    }
+
+    if (!args.length || args.length < 2) {
+      throw new CustomDiscordError("Please provide a reason for the warn.");
+    }
+  },
+  execute: async (message, args) => {
+    const [member, reason] = args;
+    const moderation = new Moderation(message.client);
     const actionBy = {
-      username: interaction.user.username,
-      userId: interaction.user.id,
+      username: message.author.username,
+      userId: message.author.id,
     };
 
-    const guild = interaction.guild;
-
-    // Fetch the guild id
-    if (!guild) {
-      await interaction.reply("This command can only be used in a guild.");
-      return;
-    }
-
-    // Send message for loading
-    await interaction.reply("Processing...");
-
-    // Warn the user
-    const warn = await moderation.warn({
-      user,
+    await moderation.warn({
+      user: member,
       reason,
       actionBy,
-      guild,
+      guild: message.guild,
     });
 
-    // Reply to the interaction
-    await interaction.editReply(`Warned ${user.tag} for ${warn.reason}`);
+    await message.reply(`Warned ${member.user.username} for: ${reason}`);
   },
 };

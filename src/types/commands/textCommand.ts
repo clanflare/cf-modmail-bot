@@ -8,6 +8,6 @@ export type TextCommand = {
   name: string;
   aliases: string[];
   argumentParser: (message: Message) => Promise<Array<any>>;
-  validator: (message: Message, args: any) => Promise<void>; //fix with different validators for all commabds
-  execute: (message: Message, args: any) => Promise<void>; //fix with different executors for all commands
+  validator: (message: Message, args: any) => Promise<void>; //fix with different validators for all commands
+  execute: (message: Message<true>, args: any) => Promise<void>; //fix with different executors for all commands
 };
