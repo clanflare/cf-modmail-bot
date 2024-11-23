@@ -1,2 +1,2 @@
-export * from "./commonUtils";
-export * as moderation from "./moderation";
+export * from "./discordUtils";
+export * from "./moderation";

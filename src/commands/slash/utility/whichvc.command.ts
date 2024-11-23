@@ -1,4 +1,4 @@
-import { getMember } from "@/action";
+import DiscordUtils from "@/action/discordUtils";
 import type { SlashCommand } from "@/types/commands";
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 
@@ -27,8 +27,10 @@ export const whichvc: SlashCommand = {
     // Fetch the user to get the voice channel
     const user = interaction.options.getUser("user", true);
 
+    const discordUtils = new DiscordUtils(interaction.client);
+
     // Fetch the member
-    const member = await getMember(user, guild);
+    const member = await discordUtils.getMember(user, guild);
 
     // Fetch the voice channel
     const voiceChannel = member.voice.channelId;

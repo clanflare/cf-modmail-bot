@@ -1,10 +1,10 @@
 import type { SlashCommand } from "@/types/commands";
-import { moderation } from "@/action";
 import {
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
 } from "discord.js";
 import ms from "ms";
+import Moderation from "@/action/moderation";
 
 export const timeout: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -65,6 +65,7 @@ export const timeout: SlashCommand = {
     await interaction.reply("Processing...");
 
     // Timeout the user
+    const moderation = new Moderation(interaction.client);
     const timeout = await moderation.timeout({
       user,
       reason,

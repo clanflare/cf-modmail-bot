@@ -1,4 +1,4 @@
-import { moderation } from "@/action";
+import Moderation from "@/action/moderation";
 import type { SlashCommand } from "@/types/commands";
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import ms from "ms";
@@ -54,6 +54,8 @@ export const ban: SlashCommand = {
 
     // Send message for loading
     await interaction.reply("Processing...");
+
+    const moderation = new Moderation(interaction.client)
 
     // Ban the user
     const ban = await moderation.ban({

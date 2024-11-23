@@ -1,4 +1,4 @@
-import { moderation } from "@/action";
+import Moderation from "@/action/moderation";
 import type { SlashCommand } from "@/types/commands";
 import {
   ActionRowBuilder,
@@ -25,6 +25,8 @@ export const removewarn: SlashCommand = {
   async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the user to warn
     const user = interaction.options.getUser("user", true);
+
+    const moderation = new Moderation(interaction.client);
 
     // Check if the user and actionBy are the same
     if (user.id === interaction.user.id) {

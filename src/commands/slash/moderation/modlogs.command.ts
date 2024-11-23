@@ -1,4 +1,4 @@
-import { moderation } from "@/action";
+import Moderation from "@/action/moderation";
 import type { SlashCommand } from "@/types/commands";
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 
@@ -47,6 +47,7 @@ export const modlogs: SlashCommand = {
 
     // Send message for loading
     await interaction.reply("Processing...");
+    const moderation = new Moderation(interaction.client)
 
     // Fetch the modlogs
     const modlogs = await moderation.modlogs({

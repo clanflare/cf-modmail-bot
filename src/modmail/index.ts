@@ -28,12 +28,12 @@ import type {
 } from "@/types/models";
 import { getModmailConfig } from "@/services/config.service";
 import { DEFAULT_PREFIX, GUILD_ID, MODMAIL_REMINDER_WAIT_TIME_SECONDS } from "@/config/config";
-import { messageStickerAndAttachmentParser, messageComponentParser } from "@/action";
+import { messageStickerAndAttachmentParser, messageComponentParser } from "@/utils/parsing.utils";
 import dbConnect from "@/utils/dbConn.utils";
 import { t } from "elysia";
 
 export class ModmailClient {
-  client:Client;
+  client: Client;
   modmails: Collection<string, ModmailListener | null> = new Collection();
   ready = false;
   constructor(client: Client) {
