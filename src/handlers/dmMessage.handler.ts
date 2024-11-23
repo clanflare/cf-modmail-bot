@@ -1,4 +1,3 @@
-import { getActiveModmail } from "@/utils/modmail.utils";
 import { ChannelType, Client, Message, MessageType } from "discord.js";
 import { mmclient } from "@/utils/discordClient.utils";
 // import { modlogs } from "@/action/moderation";

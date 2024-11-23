@@ -1,8 +1,7 @@
-import { DMChannel, Message, Collection, ButtonBuilder, ButtonStyle, ActionRowBuilder, BaseGuildTextChannel, GuildMember } from "discord.js";
+import { DMChannel, Message, Collection, ButtonBuilder, ButtonStyle, ActionRowBuilder, BaseGuildTextChannel, GuildMember, Client } from "discord.js";
 import type { MessageComponent, Modmail, ModmailConfig } from "@/types/models";
 import { createModmail, getOpenModmailByUserId } from "@/services/modmail.service";
 import { getModmailConfig } from "@/services/config.service";
-import client from "./discordClient.utils";
 import { getMember } from "@/action";
 
 interface ModmailDiscord extends Modmail {
@@ -75,83 +74,83 @@ async function modmailHandler(modmail: ModmailDiscord) {
     });
 
 }
-export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextChannel, message: Message) {
-    const modmail = ongoingModmails.get(userChannel.id);
-    if (modmail) return modmail;
-    const guildId = message?.guild?.id ? message.guild.id : "1170627136059609118"; //get something from env if white label and  write this in env
+// export async function getActiveModmail(userChannel: DMChannel | BaseGuildTextChannel, message: Message, client: Client) {
+//     const modmail = ongoingModmails.get(userChannel.id);
+//     if (modmail) return modmail;
+//     const guildId = message?.guild?.id ? message.guild.id : "1170627136059609118"; //get something from env if white label and  write this in env
 
-    const modmailConfig = await getModmailConfig(guildId);
-    if (!modmailConfig) {
-        return null;
-    }
+//     const modmailConfig = await getModmailConfig(guildId);
+//     if (!modmailConfig) {
+//         return null;
+//     }
 
-    const fetchedModmail = await getOpenModmailByUserId(message.author.id, guildId);
-    if (fetchedModmail) {
-        const userChannel = await client.channels.fetch(fetchedModmail.userChannelId) as DMChannel | BaseGuildTextChannel;
-        const modmailChannel = await client.channels.fetch(fetchedModmail.modmailChannelId) as BaseGuildTextChannel;
-        const member = await getMember(message.author.id, guildId);
+//     const fetchedModmail = await getOpenModmailByUserId(message.author.id, guildId);
+//     if (fetchedModmail) {
+//         const userChannel = await client.channels.fetch(fetchedModmail.userChannelId) as DMChannel | BaseGuildTextChannel;
+//         const modmailChannel = await client.channels.fetch(fetchedModmail.modmailChannelId) as BaseGuildTextChannel;
+//         const member = await getMember(message.author.id, guildId);
 
-        const fetchedModmailWithChannels: ModmailDiscord = {
-            ...fetchedModmail,
-            userChannel,
-            modmailChannel,
-            member,
-            modmailConfig
-        };
-        ongoingModmails.set(userChannel.id, fetchedModmailWithChannels);// this won't be needed when we prefetch all the modmails when the bot starts into ongoingModmails
-        return fetchedModmailWithChannels;
-    }
+//         const fetchedModmailWithChannels: ModmailDiscord = {
+//             ...fetchedModmail,
+//             userChannel,
+//             modmailChannel,
+//             member,
+//             modmailConfig
+//         };
+//         ongoingModmails.set(userChannel.id, fetchedModmailWithChannels);// this won't be needed when we prefetch all the modmails when the bot starts into ongoingModmails
+//         return fetchedModmailWithChannels;
+//     }
 
-    const buttons = (modmailConfig.initialMessage.buttons || []).map((button) => {
-        return new ButtonBuilder()
-            .setLabel(button.label)
-            .setStyle(button.style ? button.style : ButtonStyle.Secondary)// actually it is validated but the type safety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
-            .setCustomId(`modmail_button-${button.label}`)
-        // .setEmoji(button.emoji ? button.emoji : "Hehe");
-    });
+//     const buttons = (modmailConfig.initialMessage.buttons || []).map((button) => {
+//         return new ButtonBuilder()
+//             .setLabel(button.label)
+//             .setStyle(button.style ? button.style : ButtonStyle.Secondary)// actually it is validated but the type safety part needs to be implemented as the data is coming from the frontend and then stored as string in the db
+//             .setCustomId(`modmail_button-${button.label}`)
+//         // .setEmoji(button.emoji ? button.emoji : "Hehe");
+//     });
 
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
+//     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons);
 
-    await userChannel.send({
-        content: modmailConfig.initialMessage.message.content,
-        embeds: modmailConfig.initialMessage.message.embeds,
-        components: [actionRow]
-    });
+//     await userChannel.send({
+//         content: modmailConfig.initialMessage.message.content,
+//         embeds: modmailConfig.initialMessage.message.embeds,
+//         components: [actionRow]
+//     });
 
-    const guild = message.client.guilds.cache.get(guildId);
-    if (!guild) return null;
+//     const guild = message.client.guilds.cache.get(guildId);
+//     if (!guild) return null;
 
-    const modmailCategory = guild.channels.cache.get(modmailConfig.modmailCategoryId);
-    if (!modmailCategory) return null;
+//     const modmailCategory = guild.channels.cache.get(modmailConfig.modmailCategoryId);
+//     if (!modmailCategory) return null;
 
-    const modmailChannel = await guild.channels.create({
-        name: 'New Modmail',
-        topic: `Modmail channel for user ${message.author.tag} (${message.author.id})`,
-        nsfw: true,
-        reason: `Modmail channel for user ${message.author.tag} (${message.author.id})`,
-        parent: modmailCategory.id,
-    });
+//     const modmailChannel = await guild.channels.create({
+//         name: 'New Modmail',
+//         topic: `Modmail channel for user ${message.author.tag} (${message.author.id})`,
+//         nsfw: true,
+//         reason: `Modmail channel for user ${message.author.tag} (${message.author.id})`,
+//         parent: modmailCategory.id,
+//     });
 
-    const newModmail = await createModmail({
-        userId: message.author.id,
-        guildId: guildId,
-        modmailChannelId: modmailChannel.id,
-        status: "open",
-        userChannelId: userChannel.id,
-        interactiveMessageId: "",//idk just to fix the type error T-T
-    });
+//     const newModmail = await createModmail({
+//         userId: message.author.id,
+//         guildId: guildId,
+//         modmailChannelId: modmailChannel.id,
+//         status: "open",
+//         userChannelId: userChannel.id,
+//         interactiveMessageId: "",//idk just to fix the type error T-T
+//     });
 
-    const newModmailWithChannels: ModmailDiscord = {
-        ...newModmail,
-        userChannel,
-        modmailChannel,
-        modmailConfig,
-        member: await getMember(message.author.id, guildId),
-        lastSystemMessage: modmailConfig.initialMessage
-    };
-    ongoingModmails.set(userChannel.id, newModmailWithChannels);
+//     const newModmailWithChannels: ModmailDiscord = {
+//         ...newModmail,
+//         userChannel,
+//         modmailChannel,
+//         modmailConfig,
+//         member: await getMember(message.author.id, guildId),
+//         lastSystemMessage: modmailConfig.initialMessage
+//     };
+//     ongoingModmails.set(userChannel.id, newModmailWithChannels);
 
-    modmailHandler(newModmailWithChannels);
+//     modmailHandler(newModmailWithChannels);
 
-    return newModmailWithChannels;
-}
+//     return newModmailWithChannels;
+// }
