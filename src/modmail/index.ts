@@ -1,5 +1,6 @@
 import {
   CategoryChannel,
+  Client,
   Collection,
   DMChannel,
   GuildMember,
@@ -25,16 +26,18 @@ import type {
   ModmailsMessage,
   ModmailStatus,
 } from "@/types/models";
-import { client } from "@/.";
 import { getModmailConfig } from "@/services/config.service";
 import { DEFAULT_PREFIX, GUILD_ID, MODMAIL_REMINDER_WAIT_TIME_SECONDS } from "@/config/config";
 import { messageStickerAndAttachmentParser, messageComponentParser } from "@/action";
 import dbConnect from "@/utils/dbConn.utils";
+import { t } from "elysia";
 
 export class ModmailClient {
+  client:Client;
   modmails: Collection<string, ModmailListener | null> = new Collection();
   ready = false;
-  constructor() {
+  constructor(client: Client) {
+    this.client = client;
     this.onLoad().then(() => (this.ready = true));
   }
 
@@ -46,7 +49,7 @@ export class ModmailClient {
         const modmailConfig = await getModmailConfig(openModmail.guildId);
         if (!modmailConfig) return;
         const firstMessageId = openModmail.interactiveMessageId;
-        const user = await client.users.fetch(openModmail.userId);
+        const user = await this.client.users.fetch(openModmail.userId);
         const userChannel = user.dmChannel || (await user.createDM());
         const interactiveMessage = await userChannel?.messages.fetch(
           firstMessageId
@@ -55,7 +58,8 @@ export class ModmailClient {
         const modmailListener = new ModmailListener(
           openModmail,
           modmailConfig,
-          interactiveMessage
+          interactiveMessage,
+          this.client
         );
         const interval = setInterval(() => {
           if (!modmailListener.ready) return;
@@ -96,7 +100,7 @@ export class ModmailClient {
   ) {
     this.modmails.set(user.id, null);
 
-    const modmailCategory = client.channels.cache.get(
+    const modmailCategory = this.client.channels.cache.get(
       modmailConfig.modmailCategoryId
     );
     if (!modmailCategory || !(modmailCategory instanceof CategoryChannel))
@@ -133,8 +137,9 @@ export class ModmailClient {
         dbObject,
         modmailConfig,
         userMessage,
+        this.client,
         modmailChannel,
-        userChannel
+        userChannel,
       )
     );
     await userMessage.edit(messageComponentParser(modmailConfig.initialMessage));
@@ -152,6 +157,7 @@ export class ModmailClient {
 }
 
 class ModmailListener implements Modmail {
+  client: Client;
   dbId: string;
   guildId: string; // guild where the modmail was opened
   userId: string; // user who opened the modmail
@@ -178,14 +184,16 @@ class ModmailListener implements Modmail {
     modmailData: IModmail,
     modmailConfig: ModmailConfig,
     firstMessage: Message,
+    client: Client,
     modmailChannel?: TextChannel,
-    userChannel?: DMChannel
+    userChannel?: DMChannel,
   ) {
     this.dbId = modmailData._id as string;
     this.guildId = modmailData.guildId;
     this.userId = modmailData.userId;
     this.modmailChannelId = modmailData.modmailChannelId;
     this.userChannelId = modmailData.userChannelId;
+    this.client = client;
     if (modmailChannel) this.modmailChannel = modmailChannel;
     if (userChannel) this.userChannel = userChannel;
     this.component = modmailConfig.initialMessage;
@@ -204,11 +212,11 @@ class ModmailListener implements Modmail {
 
   async loadDiscordObjects() {
     if (!this.modmailChannel)
-      this.modmailChannel = (await client.channels.fetch(
+      this.modmailChannel = (await this.client.channels.fetch(
         this.modmailChannelId
       )) as TextChannel;
     if (!this.userChannel)
-      this.userChannel = (await client.channels.fetch(
+      this.userChannel = (await this.client.channels.fetch(
         this.userChannelId
       )) as DMChannel;
     this.user = await this.modmailChannel.guild.members.fetch(this.userId);

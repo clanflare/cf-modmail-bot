@@ -47,5 +47,5 @@ const client = new Client({
 
 handler(client);
 
-export const mmclient = new ModmailClient();
+export const mmclient = new ModmailClient(client);
 export default client;
