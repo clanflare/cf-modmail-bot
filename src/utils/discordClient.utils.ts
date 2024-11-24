@@ -1,13 +1,13 @@
-// src/utils/discordClient.utils.ts
-
-import { Client, GatewayIntentBits, Partials } from "discord.js";
+import { Client, Collection, GatewayIntentBits, Partials } from "discord.js";
 import handler from "../handlers";
 import { ModmailClient } from "@/modmail";
-import slashCommands from "@/commands/slash";
+import createSlashCommands from "@/commands/slash";
+import type { SlashCommand } from "@/types/commands";
 
 export class CFClient {
   public client: Client;
   public modmailClient: ModmailClient;
+  public slashCommands: Collection<string, SlashCommand>;
 
   private token: string;
   private clientId: string;
@@ -59,6 +59,9 @@ export class CFClient {
 
     // Initialize ModmailClient with the Discord client
     this.modmailClient = new ModmailClient(this.client);
+
+    // Initialize slash commands
+    this.slashCommands = createSlashCommands();
   }
 
   /**
@@ -68,7 +71,6 @@ export class CFClient {
     try {
       await this.client.login(this.token);
       console.log(`Logged in as ${this.client.user?.tag}`);
-
       // Load slash commands after the client is ready
       await this.loadSlashCommands();
 
@@ -83,12 +85,14 @@ export class CFClient {
    * Loads slash commands and registers them with Discord.
    */
   private async loadSlashCommands(): Promise<void> {
-    // console.log("Started refreshing application (/) commands.");
-
     try {
-      const commandsData = slashCommands.map((command) => command.data.toJSON());
+      const commandsData = this.slashCommands.map((command) =>
+        command.data.toJSON()
+      );
 
-      const applicationCommands = await this.client.application?.commands.set(commandsData);
+      const applicationCommands = await this.client.application?.commands.set(
+        commandsData
+      );
 
       if (!applicationCommands) {
         throw new Error("Failed to load commands");
@@ -99,8 +103,8 @@ export class CFClient {
         applicationCommands.map((cmd) => [cmd.name, cmd])
       );
 
-      // Update the command IDs in slashCommands if needed
-      slashCommands.forEach((command) => {
+      // Update the command IDs in this instance's slashCommands
+      this.slashCommands.forEach((command) => {
         const applicationCommand = applicationCommandsMap.get(command.data.name);
         if (applicationCommand) {
           command.id = applicationCommand.id;
