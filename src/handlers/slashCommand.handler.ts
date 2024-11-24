@@ -1,10 +1,13 @@
 import { Client, type Interaction } from "discord.js";
 import slashCommands from "@/commands/slash";
 import { CustomDiscordError } from "@/types/errors";
+import { cfClients } from "..";
 
-export default async function (client: Client, interaction: Interaction) {
+export default async function (client: Client<true>, interaction: Interaction) {
   if (!interaction.isChatInputCommand()) return;
-  const command = slashCommands.get(interaction.commandName);
+  const cfClient = cfClients.get(client.application?.id);
+  if (!cfClient) throw new CustomDiscordError("CFClient not found for the given client ID.");
+  const command = cfClient.slashCommands.get(interaction.commandName);
   try {
     if (!command) throw new Error("Command not found");
     await command.execute(interaction);

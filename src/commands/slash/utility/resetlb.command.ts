@@ -14,8 +14,8 @@ export const resetlb: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("resetlb")
     .setDescription("Resets the drop leaderboard")
-    .setDefaultMemberPermissions(0),
-
+    .setDefaultMemberPermissions(0)
+    .setContexts(0),
   async execute(interaction: ChatInputCommandInteraction) {
     const guildId = interaction.guild?.id;
     if (!guildId) {

@@ -1,6 +1,9 @@
 import DiscordUtils from "@/action/discordUtils";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {
+  SlashCommandBuilder,
+  type ChatInputCommandInteraction,
+} from "discord.js";
 
 export const whichvc: SlashCommand = {
   data: new SlashCommandBuilder()
@@ -13,7 +16,7 @@ export const whichvc: SlashCommand = {
         .setRequired(true)
     )
     .setDefaultMemberPermissions(0)
-    .setDMPermission(false),
+    .setContexts(0),
   async execute(interaction: ChatInputCommandInteraction) {
     // Fetch the guild of the interaction
     const guild = interaction.guild;

@@ -41,10 +41,6 @@ export const warn: TextCommand = {
     if (!message.guild) {
       throw new CustomDiscordError("You need to be in a server to use this command.");
     }
-    const member = await message.guild.members.fetch(message.author.id);
-    if (!member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-      throw new CustomDiscordError("You don't have permission to warn members.");
-    }
 
     if (!args.length || args.length < 2) {
       throw new CustomDiscordError("Please provide a reason for the warn.");
