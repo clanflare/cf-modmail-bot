@@ -9,11 +9,13 @@ export default async function (discordClient: CFClient) {
   client.once(Events.ClientReady, (readyClient: Client<true>) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
   });
-  client.on(Events.InteractionCreate, (interaction) => {
-    slashCommand(client, interaction);
-  });
-  client.on(Events.MessageCreate, (message) => {
-    if (message.inGuild()) textCommand(client, message);
-    else dmMessage(client, message, discordClient.modmailClient);
-  });
+  if (client.isReady()) {
+    client.on(Events.InteractionCreate, (interaction) => {
+      slashCommand(client, interaction);
+    });
+    client.on(Events.MessageCreate, (message) => {
+      if (message.inGuild()) textCommand(client, message);
+      else dmMessage(client, message, discordClient.modmailClient);
+    });
+  }
 }
