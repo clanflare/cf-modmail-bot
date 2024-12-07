@@ -67,7 +67,7 @@ const DiscordMessageSchema = new Schema<IDiscordMessage>(
       default: null,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<IDiscordMessage>("DiscordMessage", DiscordMessageSchema);

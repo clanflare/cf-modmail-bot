@@ -52,7 +52,9 @@ export const leaderboard: SlashCommand = {
           leaderboardSlice
             .map(
               (user, index) =>
-                `${start + index + 1}. <@${user.userId}> (${user.userId}) - **${user.points}** points`
+                `${start + index + 1}. <@${user.userId}> (${user.userId}) - **${
+                  user.points
+                }** points`
             )
             .join("\n")
         )
@@ -94,7 +96,10 @@ export const leaderboard: SlashCommand = {
 
       if (buttonInteraction.customId === "prev" && currentPage > 0) {
         currentPage--;
-      } else if (buttonInteraction.customId === "next" && currentPage < totalPages - 1) {
+      } else if (
+        buttonInteraction.customId === "next" &&
+        currentPage < totalPages - 1
+      ) {
         currentPage++;
       }
 

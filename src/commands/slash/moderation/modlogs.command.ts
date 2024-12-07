@@ -1,6 +1,9 @@
 import Moderation from "@/action/moderation";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {
+  SlashCommandBuilder,
+  type ChatInputCommandInteraction,
+} from "discord.js";
 
 const choices = [
   { name: "all", value: "all" },
@@ -47,7 +50,7 @@ export const modlogs: SlashCommand = {
 
     // Send message for loading
     await interaction.reply("Processing...");
-    const moderation = new Moderation(interaction.client)
+    const moderation = new Moderation(interaction.client);
 
     // Fetch the modlogs
     const modlogs = await moderation.modlogs({
@@ -63,10 +66,11 @@ export const modlogs: SlashCommand = {
       title: `Modlogs for ${user.tag} - ${user.id}`,
       description: modlogs
         .map((log) => {
-          return `\n\n\n**Type:** ${log.type}\n**Reason:** ${log.reason
-            }\n**Date:** ${new Date(
-              String(log.createdAt)
-            ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
+          return `\n\n\n**Type:** ${log.type}\n**Reason:** ${
+            log.reason
+          }\n**Date:** ${new Date(
+            String(log.createdAt)
+          ).toLocaleString()}\n**Action by:** <@${log.actionBy.userId}>`;
         })
         .toString(),
     };

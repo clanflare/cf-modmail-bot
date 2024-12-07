@@ -127,7 +127,7 @@ const DiscordEmbedSchema = new Schema(
       },
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const fieldsToCheck = ["title", "description"];
@@ -162,7 +162,7 @@ DiscordEmbedSchema.pre<IDiscordEmbed>("validate", function (next) {
   if (totalChars > 6000) {
     this.invalidate(
       "Embed",
-      "The combined character count of specified fields exceeds the limit of 6000",
+      "The combined character count of specified fields exceeds the limit of 6000"
     );
   } else {
     next();

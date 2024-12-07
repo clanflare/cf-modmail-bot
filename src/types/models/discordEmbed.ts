@@ -51,5 +51,7 @@ export type DiscordEmbed = {
  * - The combined sum of all characters in the title, description, footer.text, author.name, fields.name, and fields.value must be less than or equal to 6000 characters.
  */
 
-export interface IDiscordEmbed extends Document, SchemaTimestampsConfig, DiscordEmbed {
-}
+export interface IDiscordEmbed
+  extends Document,
+    SchemaTimestampsConfig,
+    DiscordEmbed {}

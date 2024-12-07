@@ -23,7 +23,10 @@ export const ban: TextCommand = {
 
     if (message.guild && regexForIds.test(userIdOrDuration)) {
       const discordUtils = new DiscordUtils(message.client);
-      const member = await discordUtils.getMember(userIdOrDuration, message.guild);
+      const member = await discordUtils.getMember(
+        userIdOrDuration,
+        message.guild
+      );
       if (member) {
         args.push(member, reason);
       }
@@ -32,7 +35,9 @@ export const ban: TextCommand = {
     }
 
     if (!args.length || !args[0]) {
-      throw new CustomDiscordError("Please mention a user or provide a valid user ID.");
+      throw new CustomDiscordError(
+        "Please mention a user or provide a valid user ID."
+      );
     }
 
     return args;

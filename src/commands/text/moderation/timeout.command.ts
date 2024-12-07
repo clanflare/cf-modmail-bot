@@ -78,9 +78,12 @@ export const timeout: TextCommand = {
     });
 
     await message.reply(
-      `User ${member.user.username} has been timed out for ${ms(timeout.duration, {
-        long: true,
-      })} with reason: ${reason}`
+      `User ${member.user.username} has been timed out for ${ms(
+        timeout.duration,
+        {
+          long: true,
+        }
+      )} with reason: ${reason}`
     );
   },
 };

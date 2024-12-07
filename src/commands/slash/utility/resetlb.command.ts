@@ -5,7 +5,6 @@ import {
   ButtonStyle,
   ChatInputCommandInteraction,
   ComponentType,
-  EmbedBuilder,
   SlashCommandBuilder,
 } from "discord.js";
 import DropLeaderboard from "@/models/dropLeaderboard.model.ts"; // Mongoose model

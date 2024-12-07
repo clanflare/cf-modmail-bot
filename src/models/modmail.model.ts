@@ -51,7 +51,7 @@ const ModmailSchema = new Schema<IModmail>(
     },
     interactiveMessageId: {
       type: String,
-      required: [true, "interactiveMessageId is required"]
+      required: [true, "interactiveMessageId is required"],
     },
     messages: {
       type: [ModmailMessageSchema],

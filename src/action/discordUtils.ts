@@ -36,7 +36,9 @@ class DiscordUtils {
    * Parse a message for stickers and attachments (supporting multiple stickers and attachments).
    */
   messageStickerAndAttachmentParser(message: Message) {
-    const stickers = message.stickers.map((sticker) => `sticker: ${sticker.url}`).join("\n");
+    const stickers = message.stickers
+      .map((sticker) => `sticker: ${sticker.url}`)
+      .join("\n");
     const attachments = message.attachments.map((attachment) => attachment.url);
     return {
       content: `${message.content}\n${stickers}`,
@@ -68,7 +70,9 @@ class DiscordUtils {
         .setStyle(btn.style || ButtonStyle.Primary)
     );
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(parsedButtons);
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      parsedButtons
+    );
 
     return {
       content: messageComponent.message.content,
@@ -114,10 +118,10 @@ class DiscordUtils {
     return null;
   }
 
-   /**
+  /**
    * Fetch a role by ID or directly return if it's already a Role instance.
    */
-   getRole(role: string | Role, guild: string | Guild): Role {
+  getRole(role: string | Role, guild: string | Guild): Role {
     const fetchedGuild = this.getGuild(guild);
     if (!role) {
       throw new CustomDiscordError("Role parameter is invalid.");
@@ -130,7 +134,9 @@ class DiscordUtils {
       }
       return fetchedRole;
     } catch (error) {
-      console.error(`Failed to fetch role (ID: ${role}) in guild (ID: ${guild}): ${error}`);
+      console.error(
+        `Failed to fetch role (ID: ${role}) in guild (ID: ${guild}): ${error}`
+      );
       throw new CustomDiscordError(`Failed to fetch role: ${error}`);
     }
   }
@@ -145,7 +151,9 @@ class DiscordUtils {
     if (member instanceof GuildMember) return member;
     const fetchedGuild = this.getGuild(guild);
     try {
-      const fetchedMember: GuildMember = await fetchedGuild.members.fetch(member);
+      const fetchedMember: GuildMember = await fetchedGuild.members.fetch(
+        member
+      );
       return fetchedMember;
     } catch (error) {
       console.error(`Failed to fetch member: ${error}`);
@@ -153,10 +161,7 @@ class DiscordUtils {
     }
   }
 
-  async notifyUser(
-    member: GuildMember | User,
-    message: string
-  ): Promise<void> {
+  async notifyUser(member: GuildMember | User, message: string): Promise<void> {
     try {
       // ToDo: Has to be implemented with IMessage with customization options
       await member.send(message);

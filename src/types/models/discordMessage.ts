@@ -18,5 +18,5 @@ export type DiscordMessage = {
 
 export interface IDiscordMessage
   extends Document,
-  SchemaTimestampsConfig,
-  DiscordMessage { }
+    SchemaTimestampsConfig,
+    DiscordMessage {}

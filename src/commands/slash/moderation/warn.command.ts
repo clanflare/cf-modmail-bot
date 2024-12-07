@@ -1,6 +1,9 @@
 import Moderation from "@/action/moderation";
 import type { SlashCommand } from "@/types/commands";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {
+  SlashCommandBuilder,
+  type ChatInputCommandInteraction,
+} from "discord.js";
 
 export const warn: SlashCommand = {
   data: new SlashCommandBuilder()

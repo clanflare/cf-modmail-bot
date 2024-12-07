@@ -6,7 +6,8 @@ import { cfClients } from "..";
 export default async function (client: Client<true>, interaction: Interaction) {
   if (!interaction.isChatInputCommand()) return;
   const cfClient = cfClients.get(client.application?.id);
-  if (!cfClient) throw new CustomDiscordError("CFClient not found for the given client ID.");
+  if (!cfClient)
+    throw new CustomDiscordError("CFClient not found for the given client ID.");
   const command = cfClient.slashCommands.get(interaction.commandName);
   try {
     if (!command) throw new Error("Command not found");
@@ -22,7 +23,12 @@ export default async function (client: Client<true>, interaction: Interaction) {
       return;
     }
     console.error(err); //setup pino later
-    if (interaction.replied) return await interaction.followUp(`Failed to execute ${interaction.commandName} command.`); //change this to look better
-    await interaction.reply(`Failed to execute ${interaction.commandName} command.`);
+    if (interaction.replied)
+      return await interaction.followUp(
+        `Failed to execute ${interaction.commandName} command.`
+      ); //change this to look better
+    await interaction.reply(
+      `Failed to execute ${interaction.commandName} command.`
+    );
   }
 }

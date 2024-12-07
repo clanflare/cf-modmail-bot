@@ -33,7 +33,7 @@ const UnbanSchema = new Schema<IUnban>(
       ref: "Ban",
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<IUnban>("Unban", UnbanSchema);

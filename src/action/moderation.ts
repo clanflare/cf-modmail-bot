@@ -17,12 +17,18 @@ import type {
   WarnActions,
   WarnConfig,
 } from "@/types/models";
-import { BaseGuildTextChannel, Client, Guild, GuildMember, Role, User } from "discord.js";
+import {
+  BaseGuildTextChannel,
+  Client,
+  Guild,
+  GuildMember,
+  Role,
+  User,
+} from "discord.js";
 import DiscordUtils from "@/action/discordUtils";
 import ms from "ms";
 
 class Moderation {
-
   client: Client;
   constructor(client: Client) {
     this.client = client;
@@ -111,13 +117,18 @@ class Moderation {
     try {
       const member = await discordUtils.getMember(userToBan, guildToBanFrom);
       if (!member.bannable) {
-        throw new CustomDiscordError("I don't have permission to ban this user.");
+        throw new CustomDiscordError(
+          "I don't have permission to ban this user."
+        );
       }
     } catch (error) {
       console.error("Error checking bannability:", error);
     }
 
-    discordUtils.notifyUser(userToBan, `You have been banned from ${guildToBanFrom.name}.\nReason: ${reason}`);
+    discordUtils.notifyUser(
+      userToBan,
+      `You have been banned from ${guildToBanFrom.name}.\nReason: ${reason}`
+    );
 
     try {
       await guildToBanFrom.members.ban(userToBan, {
@@ -125,14 +136,19 @@ class Moderation {
       });
     } catch (banError: any) {
       if (banError.code === 50013) {
-        throw new CustomDiscordError("I don't have permission to ban this user.");
+        throw new CustomDiscordError(
+          "I don't have permission to ban this user."
+        );
       }
       throw banError;
     }
 
     await this.getModlogChannel().send({
-      content: `Banned ${userToBan.username} <@${userToBan.id}>\nReason: ${reason}\nDuration: ${durationInMs ? `for ${ms(durationInMs, { long: true })}` : "Permanent"
-        }`,
+      content: `Banned ${userToBan.username} <@${
+        userToBan.id
+      }>\nReason: ${reason}\nDuration: ${
+        durationInMs ? `for ${ms(durationInMs, { long: true })}` : "Permanent"
+      }`,
     });
 
     return await banService.create({
@@ -210,18 +226,27 @@ class Moderation {
     const durationInMs = ms(duration);
 
     if (!member.manageable) {
-      throw new CustomDiscordError("I don't have permission to timeout this user.");
+      throw new CustomDiscordError(
+        "I don't have permission to timeout this user."
+      );
     }
 
-    await member.timeout(durationInMs, `Reason: ${reason}\nResponsible Moderator: ${actionBy.username}`);
+    await member.timeout(
+      durationInMs,
+      `Reason: ${reason}\nResponsible Moderator: ${actionBy.username}`
+    );
 
-    discordUtils.notifyUser(member, `You have been timed out from ${member.guild.name}.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`);
+    discordUtils.notifyUser(
+      member,
+      `You have been timed out from ${
+        member.guild.name
+      }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
+    );
 
     await this.getModlogChannel().send({
-      content: `TimedOut ${member.user.username} <@${member.id}>\nReason: ${reason}\nDuration: ${ms(
-        durationInMs,
-        { long: true }
-      )}`,
+      content: `TimedOut ${member.user.username} <@${
+        member.id
+      }>\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`,
     });
 
     return await timeoutService.create({
@@ -248,7 +273,9 @@ class Moderation {
     const member = await discordUtils.getMember(user, guild);
 
     if (!member.manageable) {
-      throw new CustomDiscordError("I don't have permission to warn this user.");
+      throw new CustomDiscordError(
+        "I don't have permission to warn this user."
+      );
     }
 
     // Fetch the previous warns of the user
@@ -279,7 +306,10 @@ class Moderation {
       actionBy
     );
 
-    discordUtils.notifyUser(member, `You have been warned in ${member.guild.name}.\nReason: ${reason}`);
+    discordUtils.notifyUser(
+      member,
+      `You have been warned in ${member.guild.name}.\nReason: ${reason}`
+    );
 
     await this.getModlogChannel().send({
       content: `Warned ${member.user.username} <@${member.id}>
@@ -300,7 +330,7 @@ class Moderation {
     user,
     warn,
     guild,
-    actionBy
+    actionBy,
   }: {
     user: string | User;
     warn: Partial<
@@ -329,7 +359,10 @@ class Moderation {
       throw new CustomDiscordError("Warn not found.");
     }
 
-    discordUtils.notifyUser(member, `Your warn has been removed in ${member.guild.name}.\nWarn details:\nReason: ${warn.reason}`);
+    discordUtils.notifyUser(
+      member,
+      `Your warn has been removed in ${member.guild.name}.\nWarn details:\nReason: ${warn.reason}`
+    );
 
     await this.getModlogChannel().send({
       content: `Warn Removed: ${member.id} - ${member.user.username} - <@${member.id}>\nWarn details:\nReason: ${warn.reason}\nAction By: ${warn.actionBy?.username} <@${warn.actionBy?.userId}>\nRemoved by: ${actionBy.username} <@${actionBy.userId}>`,
@@ -357,7 +390,10 @@ class Moderation {
     const member = await discordUtils.getMember(user, guild);
     const durationInMs = ms(duration);
     const endsAt = new Date(Date.now() + durationInMs);
-    const clientMember = await discordUtils.getMember(this.client.user || "", guild); //ehhh this client vaala thing needs to be fixed
+    const clientMember = await discordUtils.getMember(
+      this.client.user || "",
+      guild
+    ); //ehhh this client vaala thing needs to be fixed
     roles = await Promise.all(
       roles.map(async (role) => {
         const resolvedRole = discordUtils.getRole(role, guild);
@@ -388,7 +424,8 @@ class Moderation {
     await member.send(
       `You have been ${action}ed ${roles
         .map((role) => `${role}`)
-        .join(", ")} roles in ${member.guild.name
+        .join(", ")} roles in ${
+        member.guild.name
       }.\nReason: ${reason}\nDuration: ${ms(durationInMs, { long: true })}`
     );
 
@@ -462,8 +499,6 @@ class Moderation {
     }
     return await serviceFunction({ guildId, userId });
   }
-
-
 }
 
 export default Moderation;
@@ -475,7 +510,6 @@ type LogServiceFunction = (opts: {
   guildId: string;
   userId: string;
 }) => Promise<LogType[]>;
-
 
 // Map log types to their respective service functions
 const logServices: Record<string, LogServiceFunction> = {

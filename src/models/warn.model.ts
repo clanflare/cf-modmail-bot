@@ -47,7 +47,7 @@ const WarnSchema = new Schema<IWarn>(
       default: [],
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<IWarn>("Warn", WarnSchema);

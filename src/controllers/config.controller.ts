@@ -1,6 +1,10 @@
 import { JWT_SECRET } from "@/config/config";
 import modmailConfigModel from "@/models/modmailConfig.model";
-import { createDefaultConfigForGuild, getModmailConfig, updateModmailConfig } from "@/services/config.service";
+import {
+  createDefaultConfigForGuild,
+  getModmailConfig,
+  updateModmailConfig,
+} from "@/services/config.service";
 import type { Payload } from "@/types/jwt";
 import type { IModmailConfig } from "@/types/models";
 import type { PostConfigContext } from "@/validators/config";
@@ -22,7 +26,6 @@ export const saveConfig = async (context: PostConfigContext) => {
     (await modmailConfigModel.findOne({
       guildId: decoded.guildId,
     })) || ({} as IModmailConfig);
-
 
   console.log(serverConfig);
   if (!serverConfig || !serverConfig.guildId) {
@@ -58,7 +61,6 @@ export const saveConfig = async (context: PostConfigContext) => {
     data,
     code: 200,
   };
-
 };
 
 export const getConfig = async (context: Context) => {

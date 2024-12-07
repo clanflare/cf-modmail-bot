@@ -2,13 +2,14 @@ import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import configRouter from "@/routes/config.routes";
 // import { logger } from "@grotto/logysia";
-import { cors } from '@elysiajs/cors'
+import { cors } from "@elysiajs/cors";
 
 const app = new Elysia();
 
 app.onResponse((handler) => {
   console.log(
-    `${handler.request.method} | URL: ${handler.request.url
+    `${handler.request.method} | URL: ${
+      handler.request.url
     } | Status Code: ${(handler.set.status ||= 500)}`
   );
 });

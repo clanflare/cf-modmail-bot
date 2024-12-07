@@ -11,7 +11,7 @@ export default function createSlashCommands(): Collection<
 
   const commands = { ...moderation, ...utility };
   for (const [key, command] of Object.entries(commands)) {
-    const commandCopy = {...command};
+    const commandCopy = { ...command };
     collection.set(commandCopy.data.name, commandCopy);
   }
 

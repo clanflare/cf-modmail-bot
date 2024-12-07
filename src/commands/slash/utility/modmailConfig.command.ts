@@ -1,7 +1,10 @@
 import { JWT_SECRET, FRONTEND_URL } from "@/config/config";
 import type { SlashCommand } from "@/types/commands";
 import jwt from "jsonwebtoken";
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {
+  SlashCommandBuilder,
+  type ChatInputCommandInteraction,
+} from "discord.js";
 import modmailConfigModel from "@/models/modmailConfig.model";
 
 export const modmailconfig: SlashCommand = {

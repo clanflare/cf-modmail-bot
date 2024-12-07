@@ -60,5 +60,5 @@ export const defaultWarnConfig: WarnConfig[] = [
         type: "Timeout",
       },
     ],
-  }
+  },
 ];

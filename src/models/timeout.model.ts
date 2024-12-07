@@ -33,7 +33,7 @@ const TimeoutSchema = new Schema<ITimeout>(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<ITimeout>("Timeout", TimeoutSchema);

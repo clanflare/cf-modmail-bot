@@ -1,4 +1,3 @@
-
 //ToDo: This whole thing needs a revamp
 import { cfClients } from "@/index";
 import type { TextCommand } from "@/types/commands";
@@ -17,12 +16,12 @@ export const wvc: TextCommand = {
     if (!message.guild)
       throw new Error("You need to be in a server to use this command");
     if (args.length > 1)
-      throw new CustomDiscordError(
-        "You can only close 1 channel at a time"
-      );
+      throw new CustomDiscordError("You can only close 1 channel at a time");
   },
   execute: async (message, args) => {
-    const mmclient = cfClients.get(message.client?.application?.id)?.modmailClient;
+    const mmclient = cfClients.get(
+      message.client?.application?.id
+    )?.modmailClient;
     if (!mmclient) return;
     const modmail = mmclient.modmails.find(
       (modmail: any) => message.channelId === modmail?.modmailChannelId
@@ -34,10 +33,16 @@ export const wvc: TextCommand = {
     // Fetch all messages from the modmail channel
     let messageLog = "";
     if (modmail.modmailChannel) {
-      const messages = await modmail.modmailChannel.messages.fetch({ limit: 100 });
-      messageLog = messages.map(
-        (msg: any) => `[${msg.createdAt.toISOString()}] ${msg.author.tag}: ${msg.content}`
-      ).reverse().join("\n");
+      const messages = await modmail.modmailChannel.messages.fetch({
+        limit: 100,
+      });
+      messageLog = messages
+        .map(
+          (msg: any) =>
+            `[${msg.createdAt.toISOString()}] ${msg.author.tag}: ${msg.content}`
+        )
+        .reverse()
+        .join("\n");
     }
 
     // Prepare modmail metadata
@@ -61,7 +66,9 @@ Messages Count: ${modmail.messages?.length || 0}
     const config = await getModmailConfig(message.guild.id);
     const logChannelId = config?.archiveChannelId;
     if (!logChannelId) return;
-    const logChannel = message.client.channels.cache.get(logChannelId) as TextChannel;
+    const logChannel = message.client.channels.cache.get(
+      logChannelId
+    ) as TextChannel;
     if (logChannel) {
       await logChannel.send({
         content: `Modmail closed for user <@${modmail.userId}>`,

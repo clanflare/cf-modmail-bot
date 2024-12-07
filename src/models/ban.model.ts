@@ -33,7 +33,7 @@ const BanSchema = new Schema<IBan>(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<IBan>("Ban", BanSchema);

@@ -105,7 +105,9 @@ export class CFClient {
 
       // Update the command IDs in this instance's slashCommands
       this.slashCommands.forEach((command) => {
-        const applicationCommand = applicationCommandsMap.get(command.data.name);
+        const applicationCommand = applicationCommandsMap.get(
+          command.data.name
+        );
         if (applicationCommand) {
           command.id = applicationCommand.id;
         }

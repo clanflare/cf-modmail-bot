@@ -24,7 +24,7 @@ const characterCounter = (botComponent: MessageComponent) => {
       fieldsLength;
     if (totalLength > 6000) {
       throw new Error(
-        "The combined sum of all characters in the title, description, footer.text, author.name, fields.name, and fields.value must be less than or equal to 6000 characters.",
+        "The combined sum of all characters in the title, description, footer.text, author.name, fields.name, and fields.value must be less than or equal to 6000 characters."
       );
     }
   });

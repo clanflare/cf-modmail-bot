@@ -16,11 +16,15 @@ export const unban: TextCommand = {
   },
   validator: async (message, args) => {
     if (!message.guild) {
-      throw new CustomDiscordError("You need to be in a server to use this command.");
+      throw new CustomDiscordError(
+        "You need to be in a server to use this command."
+      );
     }
     const member = await message.guild.members.fetch(message.author.id);
     if (!member.permissions.has(PermissionFlagsBits.BanMembers)) {
-      throw new CustomDiscordError("You don't have permission to unban members.");
+      throw new CustomDiscordError(
+        "You don't have permission to unban members."
+      );
     }
   },
   execute: async (message, args) => {

@@ -49,7 +49,7 @@ const RoleModerationSchema = new Schema<IRoleModeration>(
       enum: ["revoke", "grant"],
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<IRoleModeration>("RoleModeration", RoleModerationSchema);

@@ -32,14 +32,18 @@ export const warn: TextCommand = {
     }
 
     if (!args.length || !args[0]) {
-      throw new CustomDiscordError("Please mention a user or provide a valid user ID.");
+      throw new CustomDiscordError(
+        "Please mention a user or provide a valid user ID."
+      );
     }
 
     return args;
   },
   validator: async (message, args) => {
     if (!message.guild) {
-      throw new CustomDiscordError("You need to be in a server to use this command.");
+      throw new CustomDiscordError(
+        "You need to be in a server to use this command."
+      );
     }
 
     if (!args.length || args.length < 2) {

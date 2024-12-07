@@ -10,8 +10,11 @@ import type { ModmailClient } from "@/modmail";
 
 // const openai = new OpenAI();
 
-
-export default async function (client: Client, message: Message, mmclient: ModmailClient) {
+export default async function (
+  client: Client,
+  message: Message,
+  mmclient: ModmailClient
+) {
   if (message.partial) message = await message.fetch();
   if (message.author.bot) return;
   if (message.channel.type !== ChannelType.DM) return;
@@ -21,8 +24,6 @@ export default async function (client: Client, message: Message, mmclient: Modma
   await mmclient.messageListener(message);
 
   // getActiveModmail(dmChannel, message);
-
-
 
   // try {
   //   const messages: ChatCompletionMessageParam[] = [
