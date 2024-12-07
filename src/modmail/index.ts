@@ -27,10 +27,16 @@ import type {
   ModmailStatus,
 } from "@/types/models";
 import { getModmailConfig } from "@/services/config.service";
-import { DEFAULT_PREFIX, GUILD_ID, MODMAIL_REMINDER_WAIT_TIME_SECONDS } from "@/config/config";
-import { messageStickerAndAttachmentParser, messageComponentParser } from "@/utils/parsing.utils";
+import {
+  DEFAULT_PREFIX,
+  GUILD_ID,
+  MODMAIL_REMINDER_WAIT_TIME_SECONDS,
+} from "@/config/config";
+import {
+  messageStickerAndAttachmentParser,
+  messageComponentParser,
+} from "@/utils/parsing.utils";
 import dbConnect from "@/utils/dbConn.utils";
-import { t } from "elysia";
 
 export class ModmailClient {
   client: Client;
@@ -77,9 +83,11 @@ export class ModmailClient {
 
   async messageListener(message: Message) {
     if (!this.ready) return;
+
     const modmailConfig = await getModmailConfig(GUILD_ID);
     if (!modmailConfig) return; //err
-    if (modmailConfig && !this.modmails.has(message.author.id)) {
+
+    if (!this.modmails.has(message.author.id)) {
       const userMessage = await message.reply("Creating a modmail...");
       await this.createNewModmail(
         GUILD_ID,
@@ -120,7 +128,10 @@ export class ModmailClient {
     await modmailChannel.send(
       messageComponentParser(modmailConfig.initialMessage, true)
     );
-    if (modmailConfig.initialMessage.messageToSupportTeam) modmailChannel.send(`**SYSTEM:** ${modmailConfig.initialMessage.messageToSupportTeam}`);
+    if (modmailConfig.initialMessage.messageToSupportTeam)
+      modmailChannel.send(
+        `**SYSTEM:** ${modmailConfig.initialMessage.messageToSupportTeam}`
+      );
 
     const dbObject = await createModmail({
       guildId,
@@ -139,10 +150,12 @@ export class ModmailClient {
         userMessage,
         this.client,
         modmailChannel,
-        userChannel,
+        userChannel
       )
     );
-    await userMessage.edit(messageComponentParser(modmailConfig.initialMessage));
+    await userMessage.edit(
+      messageComponentParser(modmailConfig.initialMessage)
+    );
   }
 
   async deleteModmail(userId: string, status: ModmailStatus = "closed") {
@@ -186,7 +199,7 @@ class ModmailListener implements Modmail {
     firstMessage: Message,
     client: Client,
     modmailChannel?: TextChannel,
-    userChannel?: DMChannel,
+    userChannel?: DMChannel
   ) {
     this.dbId = modmailData._id as string;
     this.guildId = modmailData.guildId;
@@ -200,14 +213,21 @@ class ModmailListener implements Modmail {
     this.interactiveMessage = firstMessage;
     this.interactiveMessageId = firstMessage.id; //can be taken from db also , look for inconsistencies if ever there is a problem
     this.onStart()
-      .catch(() => { this.error = true })
+      .catch(() => {
+        this.error = true;
+      })
       .then(() => (this.ready = true));
   }
 
   async onStart() {
-    await this.loadDiscordObjects();
-    this.messageListeners();
-    this.interactionListeners();
+    try {
+      await this.loadDiscordObjects();
+      this.messageListeners();
+      this.interactionListeners();
+    } catch (error) {
+      this.error = true;
+      console.error("Error initializing ModmailListener:", error);
+    }
   }
 
   async loadDiscordObjects() {
@@ -232,12 +252,13 @@ class ModmailListener implements Modmail {
     this.webhook = webhooks.first();
   }
 
-
   remindStaff() {
     setTimeout(() => {
       if (this.staffResponded) return;
-      const mentions = [...this.staffInTicket].map(staffId => `<@${staffId}>`).join(' ');
-      this.modmailChannel?.send(`SYSTEM: Reminder Ping ${mentions || '@here'}`);
+      const mentions = [...this.staffInTicket]
+        .map((staffId) => `<@${staffId}>`)
+        .join(" ");
+      this.modmailChannel?.send(`SYSTEM: Reminder Ping ${mentions || "@here"}`);
     }, MODMAIL_REMINDER_WAIT_TIME_SECONDS * 1000); //ToDo: Implement via server config
   }
 
@@ -250,7 +271,7 @@ class ModmailListener implements Modmail {
     );
     modmailMessageCollector?.on("collect", async (message) => {
       await this.userChannel?.send(messageStickerAndAttachmentParser(message));
-      message.react('✅');
+      message.react("✅");
       this.staffInTicket.add(message.author.id);
       this.staffResponded = true;
       updateModmail(this.dbId, { staff: [...this.staffInTicket] });
@@ -268,7 +289,7 @@ class ModmailListener implements Modmail {
         avatarURL:
           this.user?.user.avatarURL() || this.user?.avatarURL() || undefined,
       });
-      message.react('✅');
+      message.react("✅");
       this.staffResponded = false;
       this.remindStaff();
     });
@@ -305,7 +326,10 @@ class ModmailListener implements Modmail {
       this.component = newComponent;
       this.interactiveMessage.edit(messageComponentParser(newComponent));
       this.modmailChannel?.send(messageComponentParser(newComponent, true));
-      if (newComponent.messageToSupportTeam) this.modmailChannel?.send(`**SYSTEM:** ${newComponent.messageToSupportTeam}`);
+      if (newComponent.messageToSupportTeam)
+        this.modmailChannel?.send(
+          `**SYSTEM:** ${newComponent.messageToSupportTeam}`
+        );
     });
   }
 
