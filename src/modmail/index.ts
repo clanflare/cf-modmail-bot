@@ -29,7 +29,6 @@ import type {
 import { getModmailConfig } from "@/services/config.service";
 import {
   DEFAULT_PREFIX,
-  GUILD_ID,
   MODMAIL_REMINDER_WAIT_TIME_SECONDS,
 } from "@/config/config";
 import {
@@ -42,8 +41,10 @@ export class ModmailClient {
   client: Client;
   modmails: Collection<string, ModmailListener | null> = new Collection();
   ready = false;
-  constructor(client: Client) {
+  guildId: string;
+  constructor(client: Client, guildId: string) {
     this.client = client;
+    this.guildId = guildId;
     this.onLoad().then(() => (this.ready = true));
   }
 
@@ -84,13 +85,13 @@ export class ModmailClient {
   async messageListener(message: Message) {
     if (!this.ready) return;
 
-    const modmailConfig = await getModmailConfig(GUILD_ID);
+    const modmailConfig = await getModmailConfig(this.guildId);
     if (!modmailConfig) return; //err
 
     if (!this.modmails.has(message.author.id)) {
       const userMessage = await message.reply("Creating a modmail...");
       await this.createNewModmail(
-        GUILD_ID,
+        this.guildId,
         message.author,
         modmailConfig,
         userMessage,

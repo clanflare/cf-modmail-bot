@@ -58,7 +58,7 @@ export class CFClient {
     });
 
     // Initialize ModmailClient with the Discord client
-    this.modmailClient = new ModmailClient(this.client);
+    this.modmailClient = new ModmailClient(this.client, this.guildId);
 
     // Initialize slash commands
     this.slashCommands = createSlashCommands();
