@@ -45,12 +45,11 @@ export class ModmailClient {
   constructor(client: Client, guildId: string) {
     this.client = client;
     this.guildId = guildId;
-    this.onLoad().then(() => (this.ready = true));
   }
 
   async onLoad() {
     await dbConnect();
-    const openModmails = await getAllOpenModmails();
+    const openModmails = await getAllOpenModmails(this.guildId);
     await Promise.all(
       openModmails?.map(async (openModmail) => {
         const modmailConfig = await getModmailConfig(openModmail.guildId);
@@ -80,6 +79,7 @@ export class ModmailClient {
         }, 1000);
       }) || []
     );
+    this.ready = true;
   }
 
   async messageListener(message: Message) {
@@ -125,7 +125,9 @@ export class ModmailClient {
       parent: modmailCategory.id,
     });
 
+    await modmailChannel.sendTyping();
     await modmailChannel.send(messageStickerAndAttachmentParser(firstMessage));
+    await modmailChannel.send(`**SYSTEM:** Modmail created for ${user.tag} (${user.id})`);
     await modmailChannel.send(
       messageComponentParser(modmailConfig.initialMessage, true)
     );

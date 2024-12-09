@@ -73,6 +73,7 @@ export class CFClient {
       console.log(`Logged in as ${this.client.user?.tag}`);
       // Load slash commands after the client is ready
       await this.loadSlashCommands();
+      await this.modmailClient.onLoad();
 
       // Start handling events
       await handler(this);

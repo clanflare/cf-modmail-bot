@@ -34,10 +34,10 @@ async function permissionValidator(
 
   const slashCommand = cfClient.slashCommands.get(command.name);
   if (!slashCommand?.id)
-    throw new CustomDiscordError(
-      `Command "${command.name}" is invalid or does not have a valid ID.`
-    );
-
+    // throw new CustomDiscordError(
+    //   `Command "${command.name}" is invalid or does not have a valid ID.`
+    // );
+    return;
   const member = await message.guild.members.fetch(message.author.id);
   if (!member) throw new CustomDiscordError("Member not found.");
 
